@@ -3,6 +3,7 @@ node_modules/
 .next/
 out/
 .netlify/
+.worktrees/
 
 # Local environment and provider state
 .env
