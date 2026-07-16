@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="paper">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkillBridge AI Interviewer — Case Study — Yehia Alsaeed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=7">
+</head>
+<body>
+<div class="demo-ribbon">Demo — case study template · all <b>5 flagships</b> get one of these on the real site · content drafted by Claude, reviewed by you</div>
+<div class="frame">
+
+  <header class="site-head">
+    <a class="logo" href="index.html">YA<b>.</b></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="projects.html" aria-current="page">Projects</a>
+      <a href="services.html">Services</a>
+      <a href="index.html#contact">Contact</a>
+      <button class="kbd-hint" type="button">⌘K</button>
+    </nav>
+  </header>
+
+  <div class="page-title">
+    <h1>SkillBridge <span class="blue">AI</span> Interviewer.</h1>
+    <div class="sub">Case study 01 / 05 — graduation project, British University in Egypt</div>
+  </div>
+
+  <div class="cs-meta">
+    <div><span class="lab">Role</span>ML engineer + full-stack</div>
+    <div><span class="lab">Year</span>2025 — 2026</div>
+    <div><span class="lab">Stack</span>React · FastAPI · PyTorch</div>
+    <div><span class="lab">Type</span>Graduation project</div>
+  </div>
+
+  <article class="prose">
+    <h2><span class="num">01</span>The problem</h2>
+    <p>Interview practice is expensive and awkward. Career coaches charge by the hour, friends give polite feedback, and practicing alone into a mirror tells you nothing measurable. Students — especially in markets like Egypt where mock-interview services barely exist — walk into their first real interviews blind.</p>
+    <p>The question SkillBridge answers: <strong>can a machine watch your practice interview and give you honest, structured, repeatable feedback?</strong></p>
+
+    <div class="shot"><img src="assets/skillbridge-interview.jpeg" alt="SkillBridge interview session interface with webcam and transcript"></div>
+
+    <h2><span class="num">02</span>The approach</h2>
+    <p>SkillBridge records a webcam interview session and scores it across five personality/presentation traits by fusing three signal streams:</p>
+    <ul>
+      <li><strong>Speech</strong> — audio is transcribed, then answer content is scored by an LLM against the question rubric.</li>
+      <li><strong>Vision</strong> — MediaPipe-based eye-contact estimation tracks where the candidate actually looks during answers.</li>
+      <li><strong>Delivery</strong> — prosody and pacing features feed the trait model alongside the content scores.</li>
+    </ul>
+    <p>Before committing to an architecture, I ran a proper multimodal study on the <strong>First Impressions V2</strong> dataset — comparing XGBoost baselines on hand-crafted features against deep embeddings from <strong>wav2vec2</strong> (audio), <strong>CLIP</strong> (vision), and <strong>MPNet</strong> (text). The study drove the final design instead of guesswork.</p>
+
+    <div class="metrics">
+      <div><div class="n">5</div><div class="l">traits scored per session</div></div>
+      <div><div class="n">3</div><div class="l">modalities fused (audio·vision·text)</div></div>
+      <div><div class="n">4</div><div class="l">embedding families benchmarked</div></div>
+    </div>
+
+    <h2><span class="num">03</span>The build</h2>
+    <p>React front-end for session capture and feedback display; FastAPI backend orchestrating the ML pipeline; PyTorch models plus OpenAI APIs for content scoring. Everything modular — each modality is a swappable pipeline stage.</p>
+    <div class="shot"><img src="assets/skillbridge-results.jpeg" alt="SkillBridge five-trait interview feedback report"></div>
+
+    <h2><span class="num">04</span>Architecture X-Ray</h2>
+    <p>Select a system component to inspect its responsibility and interface, or replay one representative interview request through the pipeline.</p>
+  
+  </article>
+
+  <section class="proof-module architecture-xray" aria-label="SkillBridge architecture diagram">
+    <div class="proof-head"><span>Architecture X-Ray / SkillBridge</span><button class="flow-play" type="button">Play request</button></div>
+    <div class="proof-body">
+      <div class="proof-canvas">
+        <span class="flow-line" style="left:176px;top:92px;width:100px"></span>
+        <span class="flow-line" style="left:426px;top:92px;width:92px"></span>
+        <span class="flow-line" style="left:346px;top:126px;width:2px;height:92px"></span>
+        <button class="flow-node" style="left:26px;top:58px" type="button" aria-pressed="true" data-name="Interview UI" data-copy="Captures webcam, microphone, question state, and the live transcript without coupling the browser to model internals." data-input="Camera + microphone" data-output="Session media + answers">Interview UI<small>React client</small></button>
+        <button class="flow-node" style="left:276px;top:58px" type="button" aria-pressed="false" data-name="Session API" data-copy="Validates the session contract and orchestrates independent audio, vision, and content-scoring work." data-input="Multipart session" data-output="Pipeline job">Session API<small>FastAPI</small></button>
+        <button class="flow-node" style="left:518px;top:58px" type="button" aria-pressed="false" data-name="Feedback Composer" data-copy="Normalizes modality outputs into five explainable trait scores and actionable feedback." data-input="Model outputs" data-output="Feedback report">Feedback<small>Scoring layer</small></button>
+        <button class="flow-node" style="left:270px;top:218px" type="button" aria-pressed="false" data-name="Multimodal Workers" data-copy="Runs transcription, eye-contact estimation, prosody features, and rubric-based answer scoring as replaceable stages." data-input="Audio + video + text" data-output="Typed features">ML workers<small>PyTorch · MediaPipe</small></button>
+      </div>
+      <aside class="proof-inspector">
+        <span class="lab">Selected component</span><h3>Interview UI</h3><p>Captures webcam, microphone, question state, and the live transcript without coupling the browser to model internals.</p>
+        <dl><dt>Input</dt><dd>Camera + microphone</dd><dt>Output</dt><dd>Session media + answers</dd><dt>Evidence</dt><dd>frontend/session capture</dd></dl>
+      </aside>
+    </div>
+  </section>
+
+  <article class="prose prose-cont">
+    <h2><span class="num">05</span>What I'd tell an interviewer about it</h2>
+    <p>This project is the intersection of everything I do: a research-grade model comparison, a multimodal ML system that actually runs end-to-end, and a shippable product with a real UI — not a notebook that dies after the last cell.</p>
+  </article>
+
+  <div class="btn-row">
+    <a class="btn solid" href="https://github.com/Yehia-Alsaeed/skillbridge-ai-interviewer">View on GitHub ↗</a>
+    <a class="btn" href="case-study-prestige.html">Next: Prestige Motors →</a>
+    <a class="btn" href="projects.html">All projects</a>
+  </div>
+
+  <footer class="site">
+    <span>© 2026 — Yehia Alsaeed</span>
+    <span class="links"><a href="https://github.com/Yehia-Alsaeed">GitHub</a><a href="https://linkedin.com/in/yehia-alsaeed">LinkedIn</a><a href="index.html">Home</a></span>
+  </footer>
+</div>
+<script src="app.js?v=7"></script>
+</body>
+</html>

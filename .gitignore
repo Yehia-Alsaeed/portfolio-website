@@ -1,0 +1,31 @@
+# Dependencies and Next.js output
+node_modules/
+.next/
+out/
+.netlify/
+
+# Local environment and provider state
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+.vercel/
+
+# Test and analysis output
+coverage/
+playwright-report/
+test-results/
+mockups/demo/qa/
+
+# Local optimized-image source copies; WebP/JPEG demo assets are tracked
+mockups/demo/assets/pets-*.png
+mockups/demo/assets/prestige-*.png
+mockups/demo/assets/study-planner-architecture.png
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

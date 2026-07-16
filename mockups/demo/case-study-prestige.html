@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="paper">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prestige Motors Showroom — Case Study — Yehia Alsaeed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=7">
+</head>
+<body>
+<div class="demo-ribbon">Demo — case study with <b>live embedded site</b> · every project with a deployment gets this window</div>
+<div class="frame">
+
+  <header class="site-head">
+    <a class="logo" href="index.html">YA<b>.</b></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="projects.html" aria-current="page">Projects</a>
+      <a href="services.html">Services</a>
+      <a href="index.html#contact">Contact</a>
+      <button class="kbd-hint" type="button">⌘K</button>
+    </nav>
+  </header>
+
+  <div class="page-title">
+    <h1>Prestige <span class="blue">Motors</span>.</h1>
+    <div class="sub">Case study 03 / 05 — full-stack MERN showroom platform, live on Vercel</div>
+  </div>
+
+  <div class="cs-meta">
+    <div><span class="lab">Role</span>Solo full-stack dev</div>
+    <div><span class="lab">Year</span>2026</div>
+    <div><span class="lab">Stack</span>TypeScript · MERN · Vercel</div>
+    <div><span class="lab">Status</span>Deployed &amp; live</div>
+  </div>
+
+  <article class="prose">
+    <h2><span class="num">01</span>The brief</h2>
+    <p>A premium car showroom needs more than a brochure site: customers want to browse the fleet, reserve vehicles, and submit offers on used cars — and staff need a way to manage all of it without touching code. Prestige Motors is that platform, built end-to-end.</p>
+
+    <h2><span class="num">02</span>See it live</h2>
+    <p>This isn't a screenshot — it's the actual deployed site running inside this page. Scroll it, click it, and flip it between <strong>desktop</strong> and <strong>phone</strong> view to watch the responsive layout adapt in real time.</p>
+  </article>
+
+  <div class="browser" data-adaptive data-scrubber data-viewport="1280">
+    <div class="browser-bar">
+      <span class="dots"><span></span><span></span><span></span></span>
+      <span class="url">https://prestige-motor.vercel.app</span>
+      <a class="pop" href="https://prestige-motor.vercel.app/" target="_blank" rel="noopener">open ↗</a>
+    </div>
+    <div class="viewport-control">
+      <span class="viewport-value">1280px</span>
+      <input type="range" min="320" max="1440" step="10" value="1280" aria-label="Preview viewport width">
+      <span class="viewport-presets"><button type="button" data-width="390">Phone</button><button type="button" data-width="768">Tablet</button><button type="button" data-width="1280" aria-pressed="true">Desktop</button></span>
+    </div>
+    <div class="browser-viewport-shell">
+      <div class="browser-view" data-src="https://prestige-motor.vercel.app/" data-title="Prestige Motors — live site">
+        <button class="browser-load" type="button"><b>▶ Load live preview</b></button>
+      </div>
+    </div>
+  </div>
+  <div class="browser-note">drag from 320px to 1440px or use the presets — the live site reflows at its actual iframe width</div>
+
+  <article class="prose" style="padding-top:0">
+    <h2><span class="num">03</span>Under the hood</h2>
+    <ul>
+      <li><strong>Role-based access</strong> — JWT auth with role guards separating customers from showroom admins; admins approve offers and manage listings from their own dashboard.</li>
+      <li><strong>Two customer flows</strong> — vehicle reservations and a used-car offer pipeline, both feeding the admin approval queue.</li>
+      <li><strong>Production hardening</strong> — API rate limiting, input validation, and a Cloudinary pipeline handling vehicle image uploads.</li>
+      <li><strong>TypeScript end-to-end</strong> — React + Vite + Tailwind front, Express + Mongoose back.</li>
+    </ul>
+
+    <h2><span class="num">04</span>Why it matters</h2>
+    <p>Notebooks prove you can model; this proves you can ship. A real multi-role product with auth, payments-adjacent flows, and an admin backend — deployed, hardened, and running in the window above.</p>
+  </article>
+
+  <div class="btn-row">
+    <a class="btn solid" href="https://github.com/Yehia-Alsaeed/prestige-motors-showroom">View on GitHub ↗</a>
+    <a class="btn" href="case-study.html">← Prev: SkillBridge</a>
+    <a class="btn" href="projects.html">All projects</a>
+  </div>
+
+  <footer class="site">
+    <span>© 2026 — Yehia Alsaeed</span>
+    <span class="links"><a href="https://github.com/Yehia-Alsaeed">GitHub</a><a href="https://linkedin.com/in/yehia-alsaeed">LinkedIn</a><a href="index.html">Home</a></span>
+  </footer>
+</div>
+<script src="app.js?v=7"></script>
+</body>
+</html>

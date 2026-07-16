@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="paper">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All Projects — Yehia Alsaeed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=7">
+</head>
+<body>
+<div class="demo-ribbon">Demo — on the real site this grid is <b>auto-synced from GitHub daily</b>; push a repo and it appears here</div>
+<div class="frame">
+
+  <header class="site-head">
+    <a class="logo" href="index.html">YA<b>.</b></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="projects.html" aria-current="page">Projects</a>
+      <a href="services.html">Services</a>
+      <a href="index.html#contact">Contact</a>
+      <button class="kbd-hint" type="button">⌘K</button>
+    </nav>
+  </header>
+
+  <div class="page-title">
+    <h1>All <span class="blue">17</span> projects.</h1>
+    <div class="sub">Auto-synced from github.com/Yehia-Alsaeed · categorized by topic · flagships link to case studies</div>
+  </div>
+
+  <div class="chips" role="group" aria-label="Filter by category">
+    <button class="chip" aria-pressed="true" data-filter="all">All</button>
+    <button class="chip" aria-pressed="false" data-filter="llm">LLM &amp; Agents</button>
+    <button class="chip" aria-pressed="false" data-filter="cv">Computer Vision</button>
+    <button class="chip" aria-pressed="false" data-filter="ml">ML &amp; Data Science</button>
+    <button class="chip" aria-pressed="false" data-filter="fs">Full-Stack &amp; Mobile</button>
+    <button class="chip" aria-pressed="false" data-filter="games">Games &amp; Game AI</button>
+    <button class="chip" aria-pressed="false" data-filter="dist">Distributed Systems</button>
+    <span style="margin-left:auto;color:var(--dim);align-self:center" id="pcount">17 projects</span>
+  </div>
+
+  <section class="pgrid">
+    <a class="pcard" data-cat="llm" href="case-study.html">
+      <div class="top"><span>LLM &amp; Agents · Python</span><span class="badge">★ Flagship</span></div>
+      <h3>SkillBridge AI Interviewer</h3>
+      <p>Multimodal mock-interview coach — scores webcam interviews on five traits using speech transcription, eye-contact estimation, and LLM scoring.</p>
+      <div class="ft"><span>react · fastapi · pytorch · openai</span><span class="go">case study →</span></div>
+    </a>
+    <a class="pcard" data-cat="llm" href="https://github.com/Yehia-Alsaeed/llama-qlora-education-qa">
+      <div class="top"><span>LLM &amp; Agents · Python</span><span class="badge">★ Flagship</span></div>
+      <h3>Llama QLoRA Education QA</h3>
+      <p>Fine-tuned Llama 3.x with QLoRA for educational QA — Exact Match improved 0.00 → 0.66 with full eval pipeline.</p>
+      <div class="ft"><span>transformers · peft · trl</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="llm" href="case-study-agents.html">
+      <div class="top"><span>LLM &amp; Agents · Python</span><span class="badge">★ Flagship</span></div>
+      <h3>AI Study Planner Agents</h3>
+      <p>Multi-agent system (profiler, generator, critic, optimizer) generating and refining study schedules with tool-augmented reasoning.</p>
+      <div class="ft"><span>crewai · gpt-4o-mini · embeddings</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="cv" href="case-study-oxford.html">
+      <div class="top"><span>Computer Vision · Python</span><span class="badge">★ Flagship</span></div>
+      <h3>Oxford Pet Segmentation</h3>
+      <p>Benchmarked FCN-ResNet18, SegNet-VGG16 &amp; HRNet-W18 — selected HRNet at 0.93 mIoU / 0.06s per image.</p>
+      <div class="ft"><span>pytorch · timm · hrnet</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="cv" href="https://github.com/Yehia-Alsaeed/yolov8-handwritten-digit-detector">
+      <div class="top"><span>Computer Vision · Python</span><span></span></div>
+      <h3>YOLOv8 Digit Detector</h3>
+      <p>Handwritten digit detection on HashiDigits — localizes and classifies digits in images.</p>
+      <div class="ft"><span>yolov8 · opencv · roboflow</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="fs" href="case-study-prestige.html">
+      <div class="top"><span>Full-Stack · TypeScript</span><span class="badge">★ Flagship · Live</span></div>
+      <h3>Prestige Motors Showroom</h3>
+      <p>MERN showroom platform — reservations, used-car offers, role-based admin, JWT auth, Cloudinary pipeline. Deployed.</p>
+      <div class="ft"><span>react · express · mongodb</span><span class="go">case study →</span></div>
+    </a>
+    <a class="pcard" data-cat="fs" href="https://github.com/Yehia-Alsaeed/trip-mate-travel-planner-app">
+      <div class="top"><span>Mobile · Dart</span><span></span></div>
+      <h3>TripMate Travel Planner</h3>
+      <p>Flutter travel planner — Firebase auth &amp; Firestore, Geoapify place discovery, itinerary scheduling.</p>
+      <div class="ft"><span>flutter · firebase · mvvm</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="ml" href="https://github.com/Yehia-Alsaeed/bank-churn-imbalanced-classification">
+      <div class="top"><span>ML &amp; Data · Notebook</span><span></span></div>
+      <h3>Bank Churn Classification</h3>
+      <p>Credit-card churn with KMeans features, SMOTE/ROS imbalance handling, tuned classifiers &amp; ensembles.</p>
+      <div class="ft"><span>scikit-learn · smote</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="ml" href="https://github.com/Yehia-Alsaeed/supervised-ml-classification-regression">
+      <div class="top"><span>ML &amp; Data · Notebook</span><span></span></div>
+      <h3>Supervised ML Notebooks</h3>
+      <p>Classification &amp; regression — preprocessing, feature selection, hyperparameter tuning, model evaluation.</p>
+      <div class="ft"><span>pandas · scikit-learn</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="ml" href="https://github.com/Yehia-Alsaeed/superstore-sales-data-analysis">
+      <div class="top"><span>ML &amp; Data · Notebook</span><span></span></div>
+      <h3>Superstore Sales Analysis</h3>
+      <p>EDA on sales, profit, discounts, shipping time and product performance with full visualization suite.</p>
+      <div class="ft"><span>pandas · seaborn</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="ml" href="https://github.com/Yehia-Alsaeed/rff-wine-quality-classifier">
+      <div class="top"><span>ML &amp; Data · Notebook</span><span></span></div>
+      <h3>RFF Wine Quality Classifier</h3>
+      <p>PyTorch Random Fourier Features classifier — 3-class and binary experiments with TensorBoard tracking.</p>
+      <div class="ft"><span>pytorch · kernel methods</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="ml" href="https://github.com/Yehia-Alsaeed/airport-luggage-robot-planning">
+      <div class="top"><span>ML &amp; Data · Notebook</span><span></span></div>
+      <h3>Airport Luggage Robots</h3>
+      <p>Multi-robot transport simulation — Q-learning with PSO hyperparameter tuning and GWO swarm optimization.</p>
+      <div class="ft"><span>q-learning · pso · pygame</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="games" href="https://github.com/Yehia-Alsaeed/lost-in-the-woods-unity-platformer">
+      <div class="top"><span>Games · Unity / C#</span><span></span></div>
+      <h3>Lost in the Woods</h3>
+      <p>Unity 2D action-adventure platformer — traps, enemies, checkpoints, dialogue, boss combat.</p>
+      <div class="ft"><span>unity · c# · level design</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="games" href="https://github.com/Yehia-Alsaeed/connect-six-ai-game">
+      <div class="top"><span>Game AI · Python</span><span></span></div>
+      <h3>Connect Six AI</h3>
+      <p>Pygame Connect6 with heuristic AI — minimax search and alpha-beta pruning opponents.</p>
+      <div class="ft"><span>minimax · alpha-beta</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="games" href="https://github.com/Yehia-Alsaeed/game-tree-alpha-beta-board-game">
+      <div class="top"><span>Game AI · C++</span><span></span></div>
+      <h3>Game-Tree Board Game</h3>
+      <p>Windows C++ board game — game-tree search, recursive backtracking, minimax with alpha-beta pruning.</p>
+      <div class="ft"><span>c++ · win32 · algorithms</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="dist" href="https://github.com/Yehia-Alsaeed/java-socket-clothing-store-system">
+      <div class="top"><span>Distributed · Java</span><span></span></div>
+      <h3>Socket Clothing Store</h3>
+      <p>Socket-based distributed inventory simulation — Swing branch clients, resource servers, mutual exclusion.</p>
+      <div class="ft"><span>java 21 · sockets · swing</span><span class="go">github →</span></div>
+    </a>
+    <a class="pcard" data-cat="dist" href="https://github.com/Yehia-Alsaeed/java-rmi-event-notification-system">
+      <div class="top"><span>Distributed · Java</span><span></span></div>
+      <h3>RMI Event Notifications</h3>
+      <p>Publish/subscribe event system over Java RMI — topic routing, callbacks, service monitoring.</p>
+      <div class="ft"><span>java rmi · pub/sub</span><span class="go">github →</span></div>
+    </a>
+  </section>
+
+  <footer class="site">
+    <span>© 2026 — Yehia Alsaeed</span>
+    <span class="links"><a href="https://github.com/Yehia-Alsaeed">GitHub</a><a href="https://linkedin.com/in/yehia-alsaeed">LinkedIn</a><a href="index.html">Home</a></span>
+  </footer>
+</div>
+<script src="app.js?v=7"></script>
+</body>
+</html>

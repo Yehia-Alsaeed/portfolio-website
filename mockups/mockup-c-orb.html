@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup C — The Orb · Yehia Alsaeed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08090a; --card:#101214; --ink:#f4f6f2; --dim:#7d837b;
+    --acid:#b6ff3b; --cyan:#4de3ff; --line:rgba(244,246,242,.1);
+    --sans:"Sora",sans-serif; --mono:"JetBrains Mono",monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;overflow-x:hidden}
+  ::selection{background:var(--acid);color:#08090a}
+
+  .glow{position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(600px 400px at var(--mx,70%) var(--my,20%),rgba(182,255,59,.06),transparent 70%),
+               radial-gradient(800px 500px at 20% 90%,rgba(77,227,255,.05),transparent 70%)}
+
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px}
+
+  header{display:flex;justify-content:space-between;align-items:center;padding:26px 0;font-family:var(--mono);font-size:12px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:500;letter-spacing:.04em}
+  .logo .led{width:9px;height:9px;border-radius:50%;background:var(--acid);box-shadow:0 0 12px var(--acid);animation:pulse 2.4s infinite}
+  @keyframes pulse{50%{opacity:.4}}
+  header nav a{color:var(--dim);text-decoration:none;margin-left:24px;transition:color .2s}
+  header nav a:hover{color:var(--acid)}
+
+  /* hero with orb */
+  .hero{min-height:86vh;display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:40px}
+  @media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:40px}}
+  .hello{font-family:var(--mono);font-size:13px;color:var(--acid);margin-bottom:22px}
+  .hello::after{content:"_";animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  h1{font-size:clamp(44px,6.6vw,86px);font-weight:800;line-height:1.02;letter-spacing:-.035em}
+  h1 .grad{background:linear-gradient(95deg,var(--acid),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+  h1 .outline{color:transparent;-webkit-text-stroke:1.5px var(--ink)}
+  .sub{color:var(--dim);font-size:17px;max-width:480px;margin-top:26px;font-weight:300}
+  .sub b{color:var(--ink);font-weight:600}
+  .cta-row{display:flex;gap:14px;margin-top:38px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:13px;padding:15px 26px;border-radius:100px;text-decoration:none;transition:.22s;border:1px solid var(--line);color:var(--ink)}
+  .btn:hover{transform:translateY(-3px);border-color:var(--cyan);color:var(--cyan)}
+  .btn.solid{background:var(--acid);color:#08090a;border-color:var(--acid);font-weight:500}
+  .btn.solid:hover{box-shadow:0 8px 30px rgba(182,255,59,.35);color:#08090a}
+
+  /* the orb */
+  .orb-zone{display:flex;justify-content:center;align-items:center}
+  .orb{width:min(340px,70vw);aspect-ratio:1;border-radius:50%;position:relative;transition:transform .15s ease-out;
+    background:radial-gradient(circle at 32% 28%,#eaffd0 0%,var(--acid) 22%,#3fae52 48%,#0d3520 78%,#08090a 100%);
+    box-shadow:0 0 90px rgba(182,255,59,.25),inset -18px -24px 60px rgba(0,0,0,.55)}
+  .orb::before,.orb::after{content:"";position:absolute;border-radius:50%;background:#08090a;transition:.3s}
+  .orb::before{width:11%;height:16%;left:32%;top:34%}
+  .orb::after{width:11%;height:16%;right:30%;top:34%}
+  .orb .mouth{position:absolute;left:50%;top:57%;transform:translateX(-50%);width:34%;height:17%;border-radius:0 0 999px 999px;border:5px solid #08090a;border-top:none;transition:.3s}
+  .orb:hover::before,.orb:hover::after{height:3%;top:41%;border-radius:99px}
+  .orb:hover .mouth{height:22%}
+  .orb .tag{position:absolute;bottom:-46px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;color:var(--dim);white-space:nowrap;letter-spacing:.08em}
+
+  /* marquee */
+  .marquee{border-block:1px solid var(--line);overflow:hidden;padding:16px 0;margin:60px 0;white-space:nowrap}
+  .marquee .track{display:inline-block;animation:scroll 26s linear infinite;font-family:var(--mono);font-size:13px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+  .marquee .track b{color:var(--acid);font-weight:400;margin:0 14px}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+
+  /* bento stats */
+  .bento{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:90px}
+  .cell{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 24px;transition:.25s;position:relative;overflow:hidden}
+  .cell:hover{transform:translateY(-5px);border-color:rgba(182,255,59,.4)}
+  .cell .n{font-size:40px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .cell .n span{color:var(--acid)}
+  .cell .l{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:8px;letter-spacing:.06em;text-transform:uppercase}
+  .cell.wide{grid-column:span 2;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .cell.wide .msg{font-size:19px;font-weight:600;line-height:1.35}
+  .cell.wide .msg em{font-style:normal;color:var(--cyan)}
+  @media(max-width:900px){.bento{grid-template-columns:repeat(2,1fr)}.cell.wide{grid-column:span 2}}
+
+  .sec-title{display:flex;align-items:center;gap:16px;margin-bottom:34px;font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-.03em}
+  .sec-title .h{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--acid);letter-spacing:.1em}
+
+  /* projects */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:90px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 26px;text-decoration:none;color:var(--ink);transition:.25s;display:flex;flex-direction:column;min-height:230px}
+  .card:hover{transform:translateY(-6px);border-color:rgba(77,227,255,.45);box-shadow:0 18px 50px rgba(0,0,0,.45)}
+  .card .emoji-slot{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:auto;background:rgba(182,255,59,.1)}
+  .card svg{width:22px;height:22px;stroke:var(--acid);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .card.c2 .emoji-slot{background:rgba(77,227,255,.1)} .card.c2 svg{stroke:var(--cyan)}
+  .card h3{font-size:19px;font-weight:700;margin:20px 0 8px;letter-spacing:-.01em}
+  .card p{font-size:13.5px;color:var(--dim);font-weight:300}
+  .card .ft{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:18px;display:flex;justify-content:space-between}
+  .card .ft .go{color:var(--acid);transition:.2s}
+  .card:hover .ft .go{transform:translateX(5px)}
+  @media(max-width:900px){.cards{grid-template-columns:1fr}}
+
+  /* contact */
+  .outro{text-align:center;padding:30px 0 130px}
+  .outro h2{font-size:clamp(38px,6.4vw,84px);font-weight:800;letter-spacing:-.035em;line-height:1.04}
+  .outro h2 .grad{background:linear-gradient(95deg,var(--acid),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .outro p{font-family:var(--mono);font-size:13px;color:var(--dim);margin:24px 0 38px}
+  footer{border-top:1px solid var(--line);padding:24px 0;display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--dim)}
+
+  @media(prefers-reduced-motion:reduce){
+    .marquee .track{animation:none}.logo .led{animation:none}.hello::after{animation:none}
+    .orb{transition:none}.cell:hover,.card:hover,.btn:hover{transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="glow" id="glow"></div>
+<div class="wrap">
+
+  <header>
+    <div class="logo"><span class="led"></span>yehia.dev — online</div>
+    <nav><a href="#work">work</a><a href="#services">services</a><a href="#contact">contact</a><a href="https://github.com/Yehia-Alsaeed">github ↗</a></nav>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="hello">$ hey, I'm Yehia</div>
+      <h1>I teach <span class="grad">machines</span><br>to think &amp; build<br><span class="outline">websites</span> that work.</h1>
+      <p class="sub">AI/ML engineer from Cairo — <b>LLM fine-tuning</b>, <b>multi-agent systems</b>, <b>computer vision</b>. Also your freelance guy for <b>Shopify</b> and full-stack builds.</p>
+      <div class="cta-row">
+        <a class="btn solid" href="#work">see my work</a>
+        <a class="btn" href="#contact">say hello</a>
+      </div>
+    </div>
+    <div class="orb-zone">
+      <div class="orb" id="orb"><div class="mouth"></div><span class="tag">// the ai core — hover me</span></div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true"><div class="track" id="track">
+    PyTorch <b>✦</b> LLM Fine-tuning <b>✦</b> QLoRA <b>✦</b> CrewAI <b>✦</b> Computer Vision <b>✦</b> React <b>✦</b> TypeScript <b>✦</b> FastAPI <b>✦</b> MongoDB <b>✦</b> Shopify <b>✦</b> Liquid <b>✦</b> Next.js <b>✦</b>&nbsp;
+  </div></div>
+
+  <section class="bento" id="stats">
+    <div class="cell"><div class="n">17</div><div class="l">projects shipped</div></div>
+    <div class="cell"><div class="n">0.93<span>↑</span></div><div class="l">mIoU · segmentation</div></div>
+    <div class="cell"><div class="n">0.66<span>↑</span></div><div class="l">exact-match · qlora</div></div>
+    <div class="cell"><div class="n">1+<span>yr</span></div><div class="l">freelance shipping</div></div>
+    <div class="cell wide"><div class="msg">Currently: <em>open to AI/ML roles</em> &amp; taking freelance clients for Q3 2026.</div></div>
+    <div class="cell wide"><div class="msg">Latest: fine-tuned Llama 3.x — exact match <em>0.00 → 0.66</em> 🎯</div></div>
+  </section>
+
+  <section id="work">
+    <div class="sec-title"><span class="h">01/</span>things I've built</div>
+    <div class="cards">
+      <a class="card" href="#">
+        <div class="emoji-slot"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg></div>
+        <h3>SkillBridge AI Interviewer</h3>
+        <p>Multimodal mock-interview coach — scores speech, eye contact &amp; answers with LLMs.</p>
+        <div class="ft"><span>react · fastapi · pytorch</span><span class="go">→</span></div>
+      </a>
+      <a class="card c2" href="#">
+        <div class="emoji-slot"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h.01M15 9h.01M9 15c1 1 5 1 6 0"/></svg></div>
+        <h3>AI Study Planner Agents</h3>
+        <p>Four LLM agents that plan, critique &amp; optimize personalized study schedules.</p>
+        <div class="ft"><span>crewai · gpt-4o-mini</span><span class="go">→</span></div>
+      </a>
+      <a class="card" href="#">
+        <div class="emoji-slot"><svg viewBox="0 0 24 24"><path d="M5 17h14M6 17l1.5-4.5h9L18 17M8.5 12.5 10 8h4l1.5 4.5"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg></div>
+        <h3>Prestige Motors — live</h3>
+        <p>Full-stack MERN showroom with reservations, offers &amp; admin dashboard. Deployed.</p>
+        <div class="ft"><span>typescript · express · mongo</span><span class="go">→</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section id="services">
+    <div class="sec-title"><span class="h">02/</span>hire me for</div>
+    <div class="cards" style="grid-template-columns:repeat(2,1fr)">
+      <a class="card" href="#contact">
+        <div class="emoji-slot"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg></div>
+        <h3>Shopify stores</h3>
+        <p>End-to-end builds with Liquid customization — conversion-first, SEO-ready, fast. 1+ year of client stores shipped.</p>
+        <div class="ft"><span>from brief to first sale</span><span class="go">→</span></div>
+      </a>
+      <a class="card c2" href="#contact">
+        <div class="emoji-slot"><svg viewBox="0 0 24 24"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13 5l-2 14"/></svg></div>
+        <h3>Full-stack &amp; AI apps</h3>
+        <p>Web platforms, dashboards, and AI-powered features — React front, Node/FastAPI back, deployed on Vercel.</p>
+        <div class="ft"><span>idea → production</span><span class="go">→</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="outro" id="contact">
+    <h2>got an idea?<br><span class="grad">let's make it real.</span></h2>
+    <p>// no forms yet — this is a mockup. the real one will have a slick contact form.</p>
+    <a class="btn solid" href="mailto:yehias3eed11@gmail.com">yehias3eed11@gmail.com</a>
+  </section>
+
+  <footer>
+    <span>© 2026 yehia alsaeed — cairo, egypt</span>
+    <span>github · linkedin · cv</span>
+  </footer>
+</div>
+
+<script>
+  const orb=document.getElementById('orb');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduced){
+    addEventListener('mousemove',e=>{
+      const x=e.clientX/innerWidth, y=e.clientY/innerHeight;
+      document.getElementById('glow').style.setProperty('--mx',(x*100)+'%');
+      document.getElementById('glow').style.setProperty('--my',(y*100)+'%');
+      if(orb){const r=orb.getBoundingClientRect();
+        const dx=(e.clientX-(r.left+r.width/2))/innerWidth, dy=(e.clientY-(r.top+r.height/2))/innerHeight;
+        orb.style.transform=`translate(${dx*26}px,${dy*26}px)`;}
+    });
+  }
+  // duplicate marquee content for seamless loop
+  const t=document.getElementById('track'); t.innerHTML+=t.innerHTML;
+</script>
+</body>
+</html>
