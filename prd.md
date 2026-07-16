@@ -197,7 +197,7 @@ First-party, cookieless, privacy-respecting. A lightweight client beacon posts t
 - **Visitor identity:** daily-rotating salted hash of IP + user agent (industry-standard cookieless uniques). Raw IPs are never stored.
 - **Bot filtering:** drop known bot user agents server-side.
 - **Self-exclusion:** admin sessions / a localStorage flag exclude Yehia's own visits.
-- No cookies, no fingerprinting beyond the daily hash, no third-party scripts. (Optionally run Vercel Analytics in parallel as a sanity check — decision open.)
+- No cookies, no fingerprinting beyond the daily hash, no third-party scripts. V1 uses the custom first-party analytics system only; Vercel Analytics is not added in parallel.
 
 ## 8. Data model (initial)
 
@@ -245,7 +245,7 @@ Daily aggregation can be added later if event volume grows; raw events are fine 
 2. **Shopify client work** — which stores/screenshots can be shown publicly? (Blocks Services page content, not layout.)
 3. **CV file** — deferred; decide which version to publish before launch (Phase 5). Doesn't block anything earlier.
 4. **Design direction** — ✅ Resolved: **Mockup B "YA Monogram"** approved (`mockups/mockup-b-monogram.html`). Swiss-grid structure inspired by harryjatkins.com; giant Y/A monogram hero, numbered project index, ruled lines, stat-widget cells, electric blue `#2b3cff` accent, Archivo (variable, expanded weights) + JetBrains Mono, three display modes (Paper default / Night / Mono). Stat-widgets idea retained from displace.agency. Mockups A (`mockup-a-renaissance.html`) and C (`mockup-c-orb.html`) rejected but kept for reference.
-5. Run Vercel Analytics alongside custom analytics as a cross-check, or custom only?
+5. **Analytics** — ✅ Resolved: v1 uses custom first-party analytics only; Vercel Analytics is not added in parallel.
 
 ## 13. Current build status (read this before writing any code)
 
