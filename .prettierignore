@@ -8,3 +8,7 @@ reports/lighthouse
 test-results
 mockups
 public/cv
+pnpm-lock.yaml
+docs
+handoff.md
+prd.md

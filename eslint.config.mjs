@@ -10,7 +10,7 @@ export default defineConfig([
     rules: {
       "@typescript-eslint/consistent-type-imports": [
         "error",
-        { prefer: "type-imports", fixStyle: "inline-type-imports" }
+        { prefer: "type-imports", fixStyle: "inline-type-imports" },
       ],
       "no-restricted-imports": [
         "error",
@@ -18,12 +18,12 @@ export default defineConfig([
           patterns: [
             {
               group: ["mockups", "mockups/*", "@/../mockups/*"],
-              message: "Production code must not import prototype files."
-            }
-          ]
-        }
-      ]
-    }
+              message: "Production code must not import prototype files.",
+            },
+          ],
+        },
+      ],
+    },
   },
   prettier,
   globalIgnores([
@@ -34,6 +34,6 @@ export default defineConfig([
     "mockups/**",
     "playwright-report/**",
     "reports/lighthouse/**",
-    "test-results/**"
-  ])
+    "test-results/**",
+  ]),
 ]);
