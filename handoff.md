@@ -12,8 +12,8 @@
 
 - GitHub: `Yehia-Alsaeed` (18 repos total — 17 project repos + 1 profile README repo)
 - LinkedIn: linkedin.com/in/yehia-alsaeed
-- Contact email for the site: `yehias3eed11@gmail.com` (this is the email that appears on his CV and should be used everywhere on the site — a different address, ``, is only his Claude account login and is **not** for the site)
-- CV source file: `D:\job hunt\CV VERSIONS\Yehia_Alsaeed_CV_AI.docx` (still the source of truth for experience/education content; a PDF export for the site's download button is an open item — see PRD §12.3)
+- Contact email for the site: `yehias3eed11@gmail.com` (the public contact on the site and CV).
+- CV source file: `D:\job hunt\CV VERSIONS\Yehia_Alsaeed_CV_AI.docx` (source of truth for experience/education content). The reviewed download PDF is tracked at `public/cv/Yehia_Alsaeed_CV_AI.pdf` and served at `/cv/Yehia_Alsaeed_CV_AI.pdf`.
 
 Two professional identities the site must serve simultaneously:
 1. **AI/ML engineer job-seeker** — LLM fine-tuning (QLoRA/PEFT), multi-agent systems (CrewAI), computer vision (PyTorch, YOLOv8, segmentation), full-stack ML products. Audience: recruiters/hiring managers.
@@ -217,7 +217,7 @@ Patterns Yehia has shown consistently across this project, worth carrying forwar
 
 ## 11. What happens next
 
-Per PRD §13 and §11 (milestones): scaffold the real Next.js/TypeScript/Tailwind/shadcn-ui project in this directory, rebuild Mockup B's design system as Tailwind theme tokens (the CSS custom properties in `mockups/demo/style.css` map almost 1:1), and build Phase 1 (home page) matching `mockups/demo/index.html` exactly using the real, final content documented in PRD §5.1 and this file's §1–§2. Then proceed through Phases 2–5 in the PRD's milestone table. The two open items that don't block starting (PRD §12.2, §12.3) are: which of the 6 client projects Yehia can get approval to show live, and which CV file version becomes the downloadable PDF — both can be resolved in parallel with the build, not before it.
+Per PRD §13 and §11, Phase 1 is limited to the real Next.js/TypeScript/Tailwind/shadcn-ui scaffold, test and CI tooling, environment handling, and Vercel preview deployment. Do not build production pages or provision Neon, Cloudinary, or Neon Auth in this phase; `docs/implementation/phase-1-inputs.md` is the controlling scope contract. Phase 2 builds the approved design system and responsive application shell. Production homepage work begins in Phase 3, matching `mockups/demo/index.html` with the reviewed content in PRD §5.1 and this file's §1–§2. The remaining non-blocking content decision is which of the six client projects Yehia can approve for public display; until then, preserve the documented anonymized placeholder states.
 
 ## 12. Demo refresh completed July 17, 2026
 

@@ -209,7 +209,7 @@ contact_message: id, name, email, message, is_read, created_at
 
 Authentication users and sessions live in Neon's managed `neon_auth` schema rather than an application-owned `admin_user` table.
 
-Daily aggregation can be added later if event volume grows; raw events are fine at portfolio scale.
+Phase 6 must implement rolling raw-event retention and daily aggregates together. Raw events remain bounded by the retention window; daily aggregates preserve longer-term trends within Neon's storage limit.
 
 ## 9. Non-functional requirements
 
@@ -233,17 +233,21 @@ Daily aggregation can be added later if event volume grows; raw events are fine 
 
 | Phase | Deliverable |
 |-------|-------------|
-| 1. Foundation | Scaffold (Next.js, Tailwind, shadcn/ui), layout, theme, hero + skills + experience sections with real CV content |
-| 2. Projects & services | GitHub API integration with ISR + category filters, featured projects, services page (placeholders for client work), contact form → DB |
-| 3. Deploy | GitHub repo, Vercel project, Neon DB provisioned, live preview → production |
-| 4. Analytics & admin | Event tracking API, Neon Auth login, dashboard with charts, contact inbox |
-| 5. Polish & launch | SEO (OG images, sitemap, JSON-LD), accessibility pass, Lighthouse tuning, optional custom domain |
+| 1. Foundation | Scaffold Next.js, TypeScript, Tailwind, shadcn/ui, tests, CI, environment handling, and Vercel preview deployment; no production pages or service provisioning |
+| 2. Design system & shell | Implement the approved tokens, responsive application shell, global navigation, modes, accessibility primitives, and component gallery |
+| 3. Homepage | Build the production recruiter-first homepage and dual-audience journey with reviewed content |
+| 4. Projects & case studies | GitHub integration, project routes, case studies, and resilient media/content fallbacks |
+| 5. Services & interactive proof | Build the services journey and progressively enhanced, accessible proof modules |
+| 6. Data & analytics | Provision Neon, implement contact persistence, first-party analytics, daily aggregates, and rolling raw-event retention |
+| 7. Admin operations | Configure Neon Auth and implement the protected analytics dashboard and contact inbox |
+| 8. Quality hardening | Complete SEO, accessibility, security, and production-preview performance work |
+| 9. Production launch | Release to the selected Vercel production URL and verify critical paths end to end |
 
 ## 12. Open questions
 
 1. **Custom domain** — ✅ Resolved: launching on the free `*.vercel.app` domain. Custom domain deferred, can be attached later without code changes.
 2. **Shopify client work** — which stores/screenshots can be shown publicly? (Blocks Services page content, not layout.)
-3. **CV file** — deferred; decide which version to publish before launch (Phase 5). Doesn't block anything earlier.
+3. **CV file** — ✅ Resolved: the reviewed PDF is tracked at `public/cv/Yehia_Alsaeed_CV_AI.pdf` and served publicly at `/cv/Yehia_Alsaeed_CV_AI.pdf`.
 4. **Design direction** — ✅ Resolved: **Mockup B "YA Monogram"** approved (`mockups/mockup-b-monogram.html`). Swiss-grid structure inspired by harryjatkins.com; giant Y/A monogram hero, numbered project index, ruled lines, stat-widget cells, electric blue `#2b3cff` accent, Archivo (variable, expanded weights) + JetBrains Mono, three display modes (Paper default / Night / Mono). Stat-widgets idea retained from displace.agency. Mockups A (`mockup-a-renaissance.html`) and C (`mockup-c-orb.html`) rejected but kept for reference.
 5. **Analytics** — ✅ Resolved: v1 uses custom first-party analytics only; Vercel Analytics is not added in parallel.
 
@@ -273,10 +277,10 @@ Everything in §4–§9 of this PRD: the Next.js/TypeScript scaffold itself, Tai
 
 ### Immediate next steps, in order
 
-1. Scaffold Next.js (App Router) + TypeScript + Tailwind + shadcn/ui in this directory.
-2. Rebuild Mockup B's design system as Tailwind config + a small set of primitives (the `mockups/demo/style.css` custom properties map almost directly to Tailwind theme tokens — `--paper`/`--ink`/`--accent`/etc.).
-3. Build the home page first (Phase 1 in §11), matching `mockups/demo/index.html` exactly, with real content (already final — see §5.1 and `handoff.md`'s content appendix).
-4. Proceed through Phases 2–5 in §11's milestone table.
+1. Complete Phase 1 only: scaffold Next.js (App Router), TypeScript, Tailwind, shadcn/ui, tests, CI, environment handling, and Vercel preview deployment.
+2. Do not implement production pages or provision Neon, Cloudinary, or Neon Auth in Phase 1; follow `docs/implementation/phase-1-inputs.md` for its exact boundary.
+3. Build the approved design system and responsive application shell in Phase 2.
+4. Begin the production homepage in Phase 3, using `mockups/demo/index.html` as the visual reference and the reviewed content in §5.1 and `handoff.md`.
 
 ### Static demo refresh — July 17, 2026
 

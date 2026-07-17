@@ -35,7 +35,7 @@
 
 ## Non-Blocking Content States
 
-- CV: use the AI CV source and export the reviewed PDF in Phase 0.
+- CV: the reviewed PDF is available at `public/cv/Yehia_Alsaeed_CV_AI.pdf` and served at `/cv/Yehia_Alsaeed_CV_AI.pdf`.
 - Client work: six anonymized placeholders remain valid until written approval is recorded.
 - Resend: notification is optional; persisted contact messages remain the source of truth.
 

@@ -170,10 +170,10 @@ Required release targets, measured on production-like Vercel previews:
 | Largest Contentful Paint | <= 2.5s at the 75th percentile |
 | Interaction to Next Paint | <= 200ms at the 75th percentile |
 | Cumulative Layout Shift | <= 0.1 at the 75th percentile |
-| Lighthouse Performance | >= 90 on representative public routes |
-| Lighthouse Accessibility | >= 90, with no critical axe violations |
+| Lighthouse Performance | >= 95 on representative public routes |
+| Lighthouse Accessibility | >= 95, with no critical axe violations |
 | Lighthouse Best Practices | >= 90 |
-| Lighthouse SEO | >= 90 |
+| Lighthouse SEO | 100 |
 
 ### Practical scalability
 
