@@ -2,7 +2,7 @@
 
 **Purpose of this document:** this is the full session history and rationale behind `prd.md`. Read **both files** before writing any code. The PRD is the spec; this file is the "why" behind every decision in it, plus everything that was explicitly considered and rejected (so you don't re-propose it), plus the exact current state of the repo. Written 2026-07-12 for handoff to Codex; dual-audience strategy updated 2026-07-15; visual interaction direction updated 2026-07-16.
 
-**Locked media decision (July 2026):** Cloudinary Free is the approved media layer for project screenshots, thumbnails, profile imagery, and short demo media. Store Cloudinary public IDs and alt text in project content files; never store image binaries in the application database. Use responsive Cloudinary transformations and treat its 25 monthly credits as a shared allowance across storage, transformations, and bandwidth. Keep tiny UI assets, fonts, textures, and the CV in the repository, and avoid long-form/autoplay video that could exhaust the free allowance.
+**Locked media decision (July 2026):** Cloudinary Free is the approved media layer for project screenshots, thumbnails, profile imagery, and short demo media. Store Cloudinary public IDs and alt text in project content files; never store image binaries in the application database. Cloudinary Free provides 25 credits per month; transformations and bandwidth are evaluated over a rolling 30-day window, while storage is a current snapshot. Use responsive Cloudinary transformations. Keep tiny UI assets, fonts, textures, and the CV in the repository, and avoid long-form/autoplay video that could exhaust the free allowance.
 
 ---
 
