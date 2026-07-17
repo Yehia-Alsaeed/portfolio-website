@@ -1,0 +1,14 @@
+.next
+.lighthouseci
+.tmp
+coverage
+node_modules
+playwright-report
+reports/lighthouse
+test-results
+mockups
+public/cv
+pnpm-lock.yaml
+docs
+handoff.md
+prd.md
