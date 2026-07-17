@@ -31,6 +31,7 @@ export default defineConfig([
     ".lighthouseci/**",
     ".tmp/**",
     "coverage/**",
+    "mockups/**",
     "playwright-report/**",
     "reports/lighthouse/**",
     "test-results/**"
