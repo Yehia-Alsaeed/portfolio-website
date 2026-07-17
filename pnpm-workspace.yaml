@@ -4,3 +4,5 @@ allowBuilds:
   unrs-resolver: true
 minimumReleaseAgeExclude:
   - lucide-react@1.25.0
+patchedDependencies:
+  chrome-launcher@1.2.1: patches/chrome-launcher@1.2.1.patch

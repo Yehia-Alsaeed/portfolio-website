@@ -1,0 +1,38 @@
+{
+  "fileCount": 6,
+  "gzipBytes": 185208,
+  "scope": ".next/static/chunks/**/*.js",
+  "totalBytes": 627048,
+  "files": [
+    {
+      "file": "0cz1d0mv5g_q7.js",
+      "gzipBytes": 39627,
+      "rawBytes": 112594
+    },
+    {
+      "file": "0h7ky8net9-4o.js",
+      "gzipBytes": 6151,
+      "rawBytes": 17554
+    },
+    {
+      "file": "0vsa69-teuhw8.js",
+      "gzipBytes": 13823,
+      "rawBytes": 57908
+    },
+    {
+      "file": "2koqpw2c5pk5d.js",
+      "gzipBytes": 70993,
+      "rawBytes": 227528
+    },
+    {
+      "file": "3a4ol6rtp97k6.js",
+      "gzipBytes": 50477,
+      "rawBytes": 200917
+    },
+    {
+      "file": "turbopack-1b_896-s36yrx.js",
+      "gzipBytes": 4137,
+      "rawBytes": 10547
+    }
+  ]
+}

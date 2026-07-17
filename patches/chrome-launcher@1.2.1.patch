@@ -1,0 +1,20 @@
+diff --git a/dist/chrome-launcher.js b/dist/chrome-launcher.js
+index d7fb4cf753f817e241554438b317ec333af2e7fc..e35845b4b13d21a595bb46ca45a7ec9d3c1bff76 100644
+--- a/dist/chrome-launcher.js
++++ b/dist/chrome-launcher.js
+@@ -364,7 +364,14 @@ class Launcher {
+         // backwards support for node v12 + v14.14+
+         // https://nodejs.org/api/deprecations.html#DEP0147
+         const rmSync = this.fs.rmSync || this.fs.rmdirSync;
+-        rmSync(this.userDataDir, { recursive: true, force: true, maxRetries: 10 });
++        try {
++            rmSync(this.userDataDir, { recursive: true, force: true, maxRetries: 10 });
++        }
++        catch (err) {
++            // On Windows the dying Chrome process can hold locks on the temp
++            // profile past taskkill; a leaked temp dir must not fail the run.
++            log.warn('ChromeLauncher', `Could not remove temp profile dir: ${err.message}`);
++        }
+     }
+ }
+ ;

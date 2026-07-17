@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  chrome-launcher@1.2.1: d215b76d294a0f69ba75f6b4cb15e97ea339ae18590698c8e0dbc1a4f9a2f773
+
 importers:
 
   .:
@@ -5138,7 +5141,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  chrome-launcher@1.2.1:
+  chrome-launcher@1.2.1(patch_hash=d215b76d294a0f69ba75f6b4cb15e97ea339ae18590698c8e0dbc1a4f9a2f773):
     dependencies:
       '@types/node': 24.13.3
       escape-string-regexp: 4.0.0
@@ -6363,7 +6366,7 @@ snapshots:
       '@paulirish/trace_engine': 0.0.53
       '@sentry/node': 7.120.4
       axe-core: 4.12.1
-      chrome-launcher: 1.2.1
+      chrome-launcher: 1.2.1(patch_hash=d215b76d294a0f69ba75f6b4cb15e97ea339ae18590698c8e0dbc1a4f9a2f773)
       configstore: 5.0.1
       csp_evaluator: 1.1.5
       devtools-protocol: 0.0.1467305
