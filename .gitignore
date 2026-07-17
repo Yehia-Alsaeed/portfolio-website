@@ -30,3 +30,8 @@ mockups/demo/assets/study-planner-architecture.png
 Thumbs.db
 *.swp
 *.swo
+
+# Phase 1 generated output
+.tmp/
+.lighthouseci/
+reports/lighthouse/
