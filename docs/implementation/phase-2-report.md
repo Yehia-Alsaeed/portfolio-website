@@ -34,16 +34,28 @@
 - Command palette: mouse trigger, `Control+K`, `Meta+K`, filtering, arrow keys,
   Enter, Escape, focus restoration, navigation and display commands, and
   non-interception while typing in form fields
-- Lighthouse (median of 3, CI enforcement environment): Performance 98,
-  Accessibility 100, Best Practices 93, SEO 100, LCP 2262 ms, CLS 0.007 —
-  all Phase 1 thresholds intact, `is-crawlable` no longer skipped
-- Lighthouse (same command on the local Windows machine, recorded in
+- Lighthouse categories pass everywhere with thresholds intact and
+  `is-crawlable` no longer skipped. CI (implementation SHA `63276a4`):
+  Performance 98, Accessibility 100, Best Practices 93, SEO 100, LCP 2262 ms,
+  CLS 0.007 — all assertions green. Local Windows (recorded in
   `phase-2-lighthouse-baseline.json`): Performance 96, Accessibility 100,
-  Best Practices 93, SEO 100, LCP 2779 ms, CLS 0. The local LCP number exceeds
-  the 2500 ms budget because the fast localhost paint lands after fonts and
-  hydration complete, so Lighthouse's simulation replays them all as LCP
-  dependencies; a no-font control run measures 2250 ms. CI, where the gate is
-  enforced, passes with the same thresholds
+  Best Practices 93, SEO 100, LCP 2779 ms, CLS 0
+- **Open item for review — the LCP assertion is borderline and bimodal.**
+  Lighthouse simulates slow 4G by replaying whichever requests finished before
+  the observed paint. When paint precedes hydration the run measures
+  ~2250–2260 ms (passes); when hydration wins the race the same build measures
+  ~2560–2880 ms (fails). CI produced a passing median (2262 ms) on the
+  implementation commit and a failing median (2560 ms) on the identical
+  docs-only follow-up. Real observed LCP is ~0.2 s and CLS is ~0. The fonts
+  were already reduced 131KB → 83KB; a no-font control measures 2250 ms, so
+  the remaining exposure is the irreducible cost of the approved typography.
+  Options, with a recommendation:
+  1. **(Recommended)** Raise only the LCP budget to 2900 ms while brand fonts
+     exist, keeping every other threshold; revisit in Phase 8 hardening
+  2. Keep 2500 ms and accept a coin-flip CI gate (reruns until green) — not
+     recommended
+  3. Reduce the typography (fewer weights or system fallback) — trades the
+     approved identity for a synthetic metric
 - JavaScript inventory (`phase-2-build-baseline.json`): 15 chunks, 722,553
   bytes raw, 219,989 bytes gzip; +18.78% over the Phase 1 gzip total of
   185,208 bytes. The Phase 1 measurement scope counts every emitted chunk, so
