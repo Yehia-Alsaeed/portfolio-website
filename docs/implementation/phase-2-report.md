@@ -49,13 +49,10 @@
   docs-only follow-up. Real observed LCP is ~0.2 s and CLS is ~0. The fonts
   were already reduced 131KB → 83KB; a no-font control measures 2250 ms, so
   the remaining exposure is the irreducible cost of the approved typography.
-  Options, with a recommendation:
-  1. **(Recommended)** Raise only the LCP budget to 2900 ms while brand fonts
-     exist, keeping every other threshold; revisit in Phase 8 hardening
-  2. Keep 2500 ms and accept a coin-flip CI gate (reruns until green) — not
-     recommended
-  3. Reduce the typography (fewer weights or system fallback) — trades the
-     approved identity for a synthetic metric
+  **Resolved by Yehia on 2026-07-18:** the LCP budget is raised to 2900 ms
+  while the brand fonts exist, every other threshold unchanged; revisit during
+  Phase 8 quality hardening. (Alternatives considered and rejected: keeping
+  2500 ms with a coin-flip CI gate, or reducing the approved typography.)
 - JavaScript inventory (`phase-2-build-baseline.json`): 15 chunks, 722,553
   bytes raw, 219,989 bytes gzip; +18.78% over the Phase 1 gzip total of
   185,208 bytes. The Phase 1 measurement scope counts every emitted chunk, so
