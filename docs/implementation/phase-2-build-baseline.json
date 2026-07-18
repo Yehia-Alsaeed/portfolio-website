@@ -1,0 +1,83 @@
+{
+  "fileCount": 15,
+  "gzipBytes": 219989,
+  "scope": ".next/static/chunks/**/*.js",
+  "totalBytes": 722553,
+  "files": [
+    {
+      "file": "07rbqpvk5k5cl.js",
+      "gzipBytes": 9255,
+      "rawBytes": 44420
+    },
+    {
+      "file": "07sgqgwrpq5bf.js",
+      "gzipBytes": 4616,
+      "rawBytes": 11474
+    },
+    {
+      "file": "0_tqjjpre0nn1.js",
+      "gzipBytes": 12875,
+      "rawBytes": 54647
+    },
+    {
+      "file": "0cz1d0mv5g_q7.js",
+      "gzipBytes": 39627,
+      "rawBytes": 112594
+    },
+    {
+      "file": "0dikzyina4rer.js",
+      "gzipBytes": 37530,
+      "rawBytes": 138000
+    },
+    {
+      "file": "0eoc4kvejg_qy.js",
+      "gzipBytes": 8555,
+      "rawBytes": 27399
+    },
+    {
+      "file": "0f0y-qcu3piu8.js",
+      "gzipBytes": 600,
+      "rawBytes": 935
+    },
+    {
+      "file": "0gd87lbqilml8.js",
+      "gzipBytes": 1161,
+      "rawBytes": 2438
+    },
+    {
+      "file": "1as06o-axumkn.js",
+      "gzipBytes": 8801,
+      "rawBytes": 30915
+    },
+    {
+      "file": "2kck72pakvkig.js",
+      "gzipBytes": 1450,
+      "rawBytes": 3375
+    },
+    {
+      "file": "2koqpw2c5pk5d.js",
+      "gzipBytes": 70993,
+      "rawBytes": 227528
+    },
+    {
+      "file": "2kw-x6dnx_lps.js",
+      "gzipBytes": 16198,
+      "rawBytes": 47995
+    },
+    {
+      "file": "346mf5q8d9d6_.js",
+      "gzipBytes": 1970,
+      "rawBytes": 5364
+    },
+    {
+      "file": "3sjxujjpf6i6w.js",
+      "gzipBytes": 2195,
+      "rawBytes": 4856
+    },
+    {
+      "file": "turbopack-07lnhp-yv5_o0.js",
+      "gzipBytes": 4163,
+      "rawBytes": 10613
+    }
+  ]
+}

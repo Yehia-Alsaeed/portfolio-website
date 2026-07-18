@@ -1,10 +1,20 @@
-export default function FoundationPage() {
+import { MetadataRow } from "@/components/ui/metadata-row";
+import { PageTitle } from "@/components/ui/page-title";
+import { ModeSwitcher } from "@/features/display-mode/mode-switcher";
+
+export default function HomePage() {
   return (
-    <main data-foundation-shell="true">
-      <div>
-        <p>Foundation preview</p>
-        <h1>Yehia Alsaeed</h1>
-      </div>
-    </main>
+    <>
+      <PageTitle subtitle="AI/ML Engineer and Web Developer" title="Yehia Alsaeed" />
+      <MetadataRow
+        ariaLabel="Profile summary"
+        items={[
+          { label: "Role", value: "AI/ML Engineer + Web Dev" },
+          { label: "Base", value: "Cairo, Egypt" },
+          { label: "Status", value: "Open to roles and clients" },
+          { label: "Display", value: <ModeSwitcher /> },
+        ]}
+      />
+    </>
   );
 }
