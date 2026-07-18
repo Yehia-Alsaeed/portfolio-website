@@ -1,9 +1,6 @@
 export function SiteFooter() {
   return (
-    <footer
-      className="border-line mt-14 border-t-2 pt-4 pb-8 font-mono text-[0.6875rem] tracking-[0.08em] uppercase"
-      id="contact"
-    >
+    <footer className="border-line mt-14 border-t-2 pt-4 pb-8 font-mono text-[0.6875rem] tracking-[0.08em] uppercase">
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
         <a
           className="text-ink hover:text-accent-text inline-flex min-h-11 items-center normal-case no-underline transition-colors"

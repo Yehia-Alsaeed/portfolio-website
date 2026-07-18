@@ -81,13 +81,23 @@
   body {
     min-height: 100svh;
     margin: 0;
-    background: var(--paper);
+    background-color: var(--paper);
+    background-image: url("/textures/paper-fiber.webp");
+    background-repeat: repeat;
     color: var(--ink);
     font-family: var(--font-archivo), Arial, sans-serif;
     line-height: 1.55;
     transition:
       background-color 180ms ease,
       color 180ms ease;
+  }
+
+  :root[data-mode="night"] body {
+    background-image: none;
+  }
+
+  :root[data-mode="mono"] body {
+    background-image: url("/textures/mono-halftone.webp");
   }
 
   button,
@@ -136,6 +146,65 @@
   transform: translateY(0);
 }
 
+.page-transition {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  visibility: hidden;
+}
+
+.page-transition span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: var(--accent);
+  transform: scaleX(0);
+}
+
+.page-transition span:first-child {
+  top: 0;
+  transform-origin: left;
+}
+
+.page-transition span:last-child {
+  bottom: 0;
+  transform-origin: right;
+}
+
+.page-transition[data-active="true"] {
+  visibility: visible;
+}
+
+.page-transition[data-active="true"] span {
+  animation: register-plate 650ms cubic-bezier(0.76, 0, 0.24, 1) both;
+}
+
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 190;
+  height: 2px;
+  background: var(--accent);
+  transform-origin: left;
+  will-change: transform;
+}
+
+@keyframes register-plate {
+  0% {
+    transform: scaleX(0);
+  }
+
+  66% {
+    transform: scaleX(1);
+  }
+
+  100% {
+    transform: scaleX(0);
+  }
+}
+
 @media (max-width: 639px) {
   :root {
     --frame-gutter: 16px;
@@ -154,5 +223,10 @@
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .page-transition,
+  .scroll-progress {
+    display: none;
   }
 }

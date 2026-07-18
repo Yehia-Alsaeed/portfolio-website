@@ -41,6 +41,19 @@ for (const viewport of VIEWPORTS) {
       await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
       await expect(page.getByRole("contentinfo")).toBeVisible();
 
+      if (route === "/") {
+        await expect(page.locator("#work")).toBeVisible();
+        await expect(page.locator("#experience")).toBeVisible();
+        await expect(page.locator("#services")).toBeVisible();
+        await expect(page.locator("main #contact")).toBeVisible();
+        const emailBox = await page
+          .getByRole("link", { name: /yehias3eed11@gmail.com/ })
+          .first()
+          .boundingBox();
+        expect(emailBox).not.toBeNull();
+        if (emailBox) expect(emailBox.x + emailBox.width).toBeLessThanOrEqual(viewport.width + 1);
+      }
+
       const shortButtons = await page.evaluate(() => {
         return Array.from(document.querySelectorAll("button"))
           .filter((button) => {
@@ -70,4 +83,26 @@ for (const viewport of VIEWPORTS) {
       expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 1);
     }
   });
+}
+
+for (const viewport of [
+  { height: 844, width: 390 },
+  { height: 1000, width: 1440 },
+] as const) {
+  for (const mode of ["paper", "night", "mono"] as const) {
+    test(`contains the homepage in ${mode} mode at ${viewport.width}px`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.addInitScript((storedMode) => {
+        localStorage.setItem("ya-display-mode:v1", storedMode);
+      }, mode);
+      await page.goto("/");
+
+      await expect(page.locator("html")).toHaveAttribute("data-mode", mode);
+      const widths = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      expect(widths.scroll).toBeLessThanOrEqual(widths.client);
+    });
+  }
 }

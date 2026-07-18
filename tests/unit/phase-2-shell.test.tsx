@@ -1,8 +1,12 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { SiteShell } from "@/components/layout/site-shell";
 import { DisplayModeProvider } from "@/features/display-mode/provider";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
 
 function renderShell() {
   return render(
@@ -46,11 +50,10 @@ describe("SiteShell", () => {
     );
   });
 
-  it("keeps the contact target, approved email, and tracked CV link in the footer", () => {
+  it("keeps the approved email and tracked CV link in the footer", () => {
     renderShell();
 
     const footer = screen.getByRole("contentinfo");
-    expect(footer).toHaveAttribute("id", "contact");
     expect(within(footer).getByRole("link", { name: "yehias3eed11@gmail.com" })).toHaveAttribute(
       "href",
       "mailto:yehias3eed11@gmail.com",

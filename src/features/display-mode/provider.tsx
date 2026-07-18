@@ -8,6 +8,7 @@ import {
   nextDisplayMode,
   parseDisplayMode,
 } from "./model";
+import { shouldCycleDisplayMode } from "@/lib/keyboard";
 
 type DisplayModeContextValue = {
   mode: DisplayMode;
@@ -62,6 +63,16 @@ export function DisplayModeProvider({ children }: { children: React.ReactNode })
   }, [mode]);
 
   const value = React.useMemo(() => ({ cycleMode, mode, setMode }), [cycleMode, mode, setMode]);
+
+  React.useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (shouldCycleDisplayMode(event)) {
+        cycleMode();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [cycleMode]);
 
   return <DisplayModeContext.Provider value={value}>{children}</DisplayModeContext.Provider>;
 }

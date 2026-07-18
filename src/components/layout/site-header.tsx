@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { archivoWide } from "@/app/fonts";
 import { CommandPalette } from "@/features/command-palette/command-palette";
 
 const NAVIGATION_LINKS = [
@@ -14,7 +15,7 @@ export function SiteHeader() {
     <header className="border-line flex flex-wrap items-center justify-between gap-x-4 border-b-2 py-2.5 font-mono text-[0.6875rem] tracking-[0.08em] uppercase">
       <Link
         aria-label="Yehia Alsaeed home"
-        className="inline-flex min-h-11 items-center font-sans text-[1.625rem] font-black tracking-normal normal-case font-stretch-[125%] no-underline"
+        className={`${archivoWide.className} inline-flex min-h-11 items-center text-[1.625rem] font-black tracking-normal normal-case font-stretch-[125%] no-underline`}
         href="/"
       >
         YA<span className="text-accent-text">.</span>

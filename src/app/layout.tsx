@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { SiteShell } from "@/components/layout/site-shell";
 import { DISPLAY_MODE_BOOT_SCRIPT } from "@/features/display-mode/boot-script";
 import { DisplayModeProvider } from "@/features/display-mode/provider";
+import { PosterModeProvider } from "@/features/poster-mode/poster-mode-provider";
 import { publicEnv } from "@/lib/env/public";
 
 import { archivo, jetBrainsMono } from "./fonts";
@@ -22,13 +23,16 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html
       className={`${archivo.variable} ${jetBrainsMono.variable}`}
       data-mode="paper"
+      data-scroll-behavior="smooth"
       lang="en"
       suppressHydrationWarning
     >
       <body>
         <script dangerouslySetInnerHTML={{ __html: DISPLAY_MODE_BOOT_SCRIPT }} />
         <DisplayModeProvider>
-          <SiteShell>{children}</SiteShell>
+          <PosterModeProvider>
+            <SiteShell>{children}</SiteShell>
+          </PosterModeProvider>
         </DisplayModeProvider>
       </body>
     </html>

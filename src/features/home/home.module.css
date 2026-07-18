@@ -1,0 +1,70 @@
+.monogram {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.letterY,
+.letterA,
+.period {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.letterY {
+  animation: register-y 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.letterA {
+  animation: register-a 800ms 40ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.period {
+  animation: stamp-period 260ms 640ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes register-y {
+  from {
+    opacity: 0;
+    transform: translate3d(-7%, 9%, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes register-a {
+  from {
+    opacity: 0;
+    transform: translate3d(7%, -8%, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes stamp-period {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Mobile gets the final mark immediately to protect its first paint; the
+   kinetic registration remains a desktop/tablet signature. */
+@media (max-width: 639px), (prefers-reduced-motion: reduce) {
+  .letterY,
+  .letterA,
+  .period {
+    animation: none;
+    will-change: auto;
+  }
+}

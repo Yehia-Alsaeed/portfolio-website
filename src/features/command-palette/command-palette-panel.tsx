@@ -13,7 +13,9 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { PROFILE } from "@/content/profile";
 import { useDisplayMode } from "@/features/display-mode/provider";
+import { usePosterMode } from "@/features/poster-mode/poster-mode-provider";
 
 import { COMMAND_GROUPS, SITE_COMMANDS, type PaletteCommand } from "./commands";
 
@@ -21,15 +23,31 @@ type CommandPalettePanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
+  onStatus: (status: string) => void;
 };
 
 export default function CommandPalettePanel({
   onOpenChange,
   open,
+  onStatus,
   triggerRef,
 }: CommandPalettePanelProps) {
   const router = useRouter();
   const { setMode } = useDisplayMode();
+  const { openPoster } = usePosterMode();
+
+  async function copyEmail() {
+    try {
+      if (!navigator.clipboard) {
+        throw new Error("Clipboard API unavailable");
+      }
+      await navigator.clipboard.writeText(PROFILE.email);
+      onStatus("Email address copied");
+    } catch {
+      onStatus(`Copy failed. Email address: ${PROFILE.email}`);
+      window.location.assign("/#contact");
+    }
+  }
 
   function runCommand(command: PaletteCommand) {
     onOpenChange(false);
@@ -39,7 +57,23 @@ export default function CommandPalettePanel({
       router.push(command.href as Route);
       return;
     }
-    setMode(command.mode);
+    if (command.kind === "display-mode") {
+      setMode(command.mode);
+      return;
+    }
+    if (command.kind === "poster-mode") {
+      openPoster();
+      return;
+    }
+    if (command.kind === "download-cv") {
+      const anchor = document.createElement("a");
+      anchor.href = PROFILE.cvUrl;
+      anchor.download = "Yehia_Alsaeed_CV_AI.pdf";
+      anchor.click();
+      onStatus("CV download started");
+      return;
+    }
+    void copyEmail();
   }
 
   return (

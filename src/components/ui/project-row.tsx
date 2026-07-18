@@ -1,20 +1,22 @@
 import type { Route } from "next";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 export type ProjectRowProps = {
   index: string;
   name: string;
   category: string;
   year: string;
-  href: Route;
+  href: Route | `https://${string}`;
 };
 
+const rowClassName =
+  "group border-line hover:bg-ink hover:text-paper grid min-h-11 grid-cols-[44px_1fr_24px] items-baseline gap-[18px] border-b px-1 py-5 no-underline transition-colors min-[821px]:grid-cols-[64px_1.5fr_1fr_120px_28px]";
+
 export function ProjectRow({ category, href, index, name, year }: ProjectRowProps) {
-  return (
-    <Link
-      className="group border-line hover:bg-ink hover:text-paper grid min-h-11 grid-cols-[44px_1fr_24px] items-baseline gap-[18px] border-b px-1 py-5 no-underline transition-colors min-[821px]:grid-cols-[64px_1.5fr_1fr_120px_28px]"
-      href={href}
-    >
+  const external = href.startsWith("https://");
+  const content = (
+    <>
       <span aria-hidden="true" className="text-dim group-hover:text-paper/70 font-mono text-xs">
         {index}
       </span>
@@ -35,13 +37,22 @@ export function ProjectRow({ category, href, index, name, year }: ProjectRowProp
       </span>
       <span className="sr-only">
         {category}, {year}
+        {external ? ", opens in a new tab" : ""}
       </span>
-      <span
+      <ArrowRight
         aria-hidden="true"
-        className="group-hover:text-accent-text -translate-x-1.5 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
-      >
-        →
-      </span>
+        className="group-hover:text-accent-text size-4 -translate-x-1.5 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+      />
+    </>
+  );
+
+  return external ? (
+    <a className={rowClassName} href={href} rel="noopener noreferrer" target="_blank">
+      {content}
+    </a>
+  ) : (
+    <Link className={rowClassName} href={href}>
+      {content}
     </Link>
   );
 }
