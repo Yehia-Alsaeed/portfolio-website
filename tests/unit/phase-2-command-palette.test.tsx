@@ -1,9 +1,19 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CommandPalette } from "@/features/command-palette/command-palette";
 import { DisplayModeProvider } from "@/features/display-mode/provider";
+import { PosterModeProvider } from "@/features/poster-mode/poster-mode-provider";
+
+function Providers({ children }: { children: ReactNode }) {
+  return (
+    <DisplayModeProvider>
+      <PosterModeProvider>{children}</PosterModeProvider>
+    </DisplayModeProvider>
+  );
+}
 
 const push = vi.fn();
 
@@ -30,9 +40,9 @@ describe("command palette", () => {
   it("opens, filters, runs a command, closes, and restores focus", async () => {
     const user = userEvent.setup();
     render(
-      <DisplayModeProvider>
+      <Providers>
         <CommandPalette />
-      </DisplayModeProvider>,
+      </Providers>,
     );
     const trigger = screen.getByRole("button", { name: "Open command palette" });
     await user.click(trigger);
@@ -48,9 +58,9 @@ describe("command palette", () => {
   it("opens with Ctrl+K and closes with Escape", async () => {
     const user = userEvent.setup();
     render(
-      <DisplayModeProvider>
+      <Providers>
         <CommandPalette />
-      </DisplayModeProvider>,
+      </Providers>,
     );
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     await user.keyboard("{Control>}k{/Control}");
@@ -64,11 +74,11 @@ describe("command palette", () => {
   it("does not intercept Ctrl+K while typing in a text input", async () => {
     const user = userEvent.setup();
     render(
-      <DisplayModeProvider>
+      <Providers>
         <label htmlFor="note">Note</label>
         <input id="note" type="text" />
         <CommandPalette />
-      </DisplayModeProvider>,
+      </Providers>,
     );
     await user.click(screen.getByLabelText("Note"));
     await user.keyboard("{Control>}k{/Control}");
