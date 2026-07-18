@@ -11,13 +11,13 @@ const NAVIGATION_LINKS = [
 
 export function SiteHeader() {
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-4 border-b-2 border-line py-2.5 font-mono text-[0.6875rem] uppercase tracking-[0.08em]">
+    <header className="border-line flex flex-wrap items-center justify-between gap-x-4 border-b-2 py-2.5 font-mono text-[0.6875rem] tracking-[0.08em] uppercase">
       <Link
         aria-label="Yehia Alsaeed home"
-        className="inline-flex min-h-11 items-center font-sans text-[1.625rem] font-black normal-case tracking-normal no-underline font-stretch-[125%]"
+        className="inline-flex min-h-11 items-center font-sans text-[1.625rem] font-black tracking-normal normal-case font-stretch-[125%] no-underline"
         href="/"
       >
-        YA<span className="text-accent">.</span>
+        YA<span className="text-accent-text">.</span>
       </Link>
       <div className="flex flex-wrap items-center gap-x-4 max-[767px]:w-full max-[767px]:justify-between">
         <nav aria-label="Primary">
@@ -25,7 +25,7 @@ export function SiteHeader() {
             {NAVIGATION_LINKS.map((link) => (
               <li key={link.href}>
                 <Link
-                  className="inline-flex min-h-11 items-center text-dim no-underline transition-colors hover:text-ink focus-visible:text-ink"
+                  className="text-dim hover:text-ink focus-visible:text-ink inline-flex min-h-11 items-center no-underline transition-colors"
                   href={link.href}
                 >
                   {link.label}

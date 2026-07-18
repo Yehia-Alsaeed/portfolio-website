@@ -51,9 +51,10 @@ describe("SiteShell", () => {
 
     const footer = screen.getByRole("contentinfo");
     expect(footer).toHaveAttribute("id", "contact");
-    expect(
-      within(footer).getByRole("link", { name: "yehias3eed11@gmail.com" }),
-    ).toHaveAttribute("href", "mailto:yehias3eed11@gmail.com");
+    expect(within(footer).getByRole("link", { name: "yehias3eed11@gmail.com" })).toHaveAttribute(
+      "href",
+      "mailto:yehias3eed11@gmail.com",
+    );
     expect(within(footer).getByRole("link", { name: "GitHub" })).toHaveAttribute(
       "href",
       "https://github.com/Yehia-Alsaeed",

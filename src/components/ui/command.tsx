@@ -8,17 +8,20 @@ import { cn } from "@/lib/utils";
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return (
     <CommandPrimitive
-      className={cn("flex min-h-0 w-full flex-col overflow-hidden bg-paper text-ink", className)}
+      className={cn("bg-paper text-ink flex min-h-0 w-full flex-col overflow-hidden", className)}
       {...props}
     />
   );
 }
 
-function CommandInput({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Input>) {
+function CommandInput({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
     <CommandPrimitive.Input
       className={cn(
-        "min-h-11 w-full border-b border-line bg-transparent px-4 font-sans text-base font-semibold text-ink outline-none placeholder:text-dim",
+        "border-line text-ink placeholder:text-dim min-h-11 w-full border-b bg-transparent px-4 font-sans text-base font-semibold outline-none",
         className,
       )}
       {...props}
@@ -35,11 +38,14 @@ function CommandList({ className, ...props }: React.ComponentProps<typeof Comman
   );
 }
 
-function CommandEmpty({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
+function CommandEmpty({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Empty>) {
   return (
     <CommandPrimitive.Empty
       className={cn(
-        "px-4 py-6 text-center font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-dim",
+        "text-dim px-4 py-6 text-center font-mono text-[0.6875rem] tracking-[0.1em] uppercase",
         className,
       )}
       {...props}
@@ -47,11 +53,14 @@ function CommandEmpty({ className, ...props }: React.ComponentProps<typeof Comma
   );
 }
 
-function CommandGroup({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Group>) {
+function CommandGroup({
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Group>) {
   return (
     <CommandPrimitive.Group
       className={cn(
-        "px-2 pb-2 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:text-[0.625rem] [&_[cmdk-group-heading]]:font-bold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.14em] [&_[cmdk-group-heading]]:text-dim",
+        "[&_[cmdk-group-heading]]:text-dim px-2 pb-2 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:text-[0.625rem] [&_[cmdk-group-heading]]:font-bold [&_[cmdk-group-heading]]:tracking-[0.14em] [&_[cmdk-group-heading]]:uppercase",
         className,
       )}
       {...props}
@@ -63,7 +72,7 @@ function CommandItem({ className, ...props }: React.ComponentProps<typeof Comman
   return (
     <CommandPrimitive.Item
       className={cn(
-        "flex min-h-11 cursor-pointer select-none items-center gap-3 px-2 font-sans text-base font-semibold outline-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-ink",
+        "data-[selected=true]:bg-accent data-[selected=true]:text-accent-ink flex min-h-11 cursor-pointer items-center gap-3 px-2 font-sans text-base font-semibold outline-none select-none",
         className,
       )}
       {...props}
@@ -75,7 +84,7 @@ function CommandShortcut({ className, ...props }: React.ComponentProps<"span">) 
   return (
     <span
       className={cn(
-        "ml-auto font-mono text-[0.625rem] uppercase tracking-[0.1em] text-dim",
+        "text-dim ml-auto font-mono text-[0.625rem] tracking-[0.1em] uppercase",
         className,
       )}
       {...props}
@@ -83,4 +92,12 @@ function CommandShortcut({ className, ...props }: React.ComponentProps<"span">) 
   );
 }
 
-export { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandShortcut };
+export {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandShortcut,
+};

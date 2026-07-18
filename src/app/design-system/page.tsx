@@ -27,20 +27,20 @@ export default function DesignSystemPage() {
 
       <RuledSection meta="Archivo + JetBrains Mono" title="Typography">
         <div className="flex flex-col gap-6">
-          <p className="text-[clamp(3.5rem,10vw,8rem)] font-black font-stretch-[125%] leading-[0.85]">
+          <p className="text-[clamp(3.5rem,10vw,8rem)] leading-[0.85] font-black font-stretch-[125%]">
             Aa Rr Gg
           </p>
-          <p className="text-[clamp(2.75rem,8vw,6.875rem)] font-black font-stretch-[120%] leading-[0.95]">
+          <p className="text-[clamp(2.75rem,8vw,6.875rem)] leading-[0.95] font-black font-stretch-[120%]">
             Heading one scale
           </p>
           <p className="text-[clamp(1.375rem,3vw,2rem)] font-extrabold font-stretch-[110%]">
             Heading two scale
           </p>
           <p className="max-w-[62ch] text-base leading-relaxed">
-            Body text uses Archivo at a comfortable measure. It stays fully legible in Paper,
-            Night, and Mono display modes without changing size or spacing.
+            Body text uses Archivo at a comfortable measure. It stays fully legible in Paper, Night,
+            and Mono display modes without changing size or spacing.
           </p>
-          <p className="font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-dim">
+          <p className="text-dim font-mono text-[0.6875rem] tracking-[0.1em] uppercase">
             Mono metadata — labels, controls, and annotations
           </p>
         </div>
@@ -62,18 +62,18 @@ export default function DesignSystemPage() {
         <div className="grid max-w-3xl grid-cols-1 gap-6 min-[821px]:grid-cols-2">
           <FormField id="specimen-name" label="Name">
             <input
-              className="min-h-11 border border-line bg-transparent px-3 font-semibold text-ink outline-none"
+              className="border-line text-ink min-h-11 border bg-transparent px-3 font-semibold outline-none"
               type="text"
             />
           </FormField>
           <FormField hint="Used only to reply to the inquiry" id="specimen-email" label="Email">
             <input
-              className="min-h-11 border border-line bg-transparent px-3 font-semibold text-ink outline-none"
+              className="border-line text-ink min-h-11 border bg-transparent px-3 font-semibold outline-none"
               type="email"
             />
           </FormField>
           <FormField id="specimen-inquiry" label="Inquiry type">
-            <select className="min-h-11 cursor-pointer appearance-none border border-line bg-transparent px-3 font-semibold text-ink outline-none">
+            <select className="border-line text-ink min-h-11 cursor-pointer appearance-none border bg-transparent px-3 font-semibold outline-none">
               <option>Job opportunity</option>
               <option>Freelance project</option>
               <option>Collaboration</option>
@@ -82,19 +82,23 @@ export default function DesignSystemPage() {
           </FormField>
           <FormField id="specimen-message" label="Message">
             <textarea
-              className="min-h-24 resize-y border border-line bg-transparent px-3 py-2 font-semibold text-ink outline-none"
+              className="border-line text-ink min-h-24 resize-y border bg-transparent px-3 py-2 font-semibold outline-none"
               rows={3}
             />
           </FormField>
-          <FormField error="This field shows the error state" id="specimen-error" label="Error state">
+          <FormField
+            error="This field shows the error state"
+            id="specimen-error"
+            label="Error state"
+          >
             <input
-              className="min-h-11 border border-line bg-transparent px-3 font-semibold text-ink outline-none aria-invalid:border-accent"
+              className="border-line text-ink aria-invalid:border-accent min-h-11 border bg-transparent px-3 font-semibold outline-none"
               type="text"
             />
           </FormField>
           <FormField id="specimen-disabled" label="Disabled state">
             <input
-              className="min-h-11 border border-line bg-transparent px-3 font-semibold text-ink outline-none disabled:opacity-50"
+              className="border-line text-ink min-h-11 border bg-transparent px-3 font-semibold outline-none disabled:opacity-50"
               disabled
               type="text"
             />
@@ -115,7 +119,7 @@ export default function DesignSystemPage() {
       </RuledSection>
 
       <RuledSection meta="Neutral values — not portfolio claims" title="Statistics">
-        <div className="grid grid-cols-2 gap-px border-2 border-line bg-line min-[821px]:grid-cols-4">
+        <div className="border-line bg-line grid grid-cols-2 gap-px border-2 min-[821px]:grid-cols-4">
           <div className="bg-paper">
             <StatCell detail="Component specimen" label="Component specimen" value="01" />
           </div>
@@ -161,7 +165,7 @@ export default function DesignSystemPage() {
       <RuledSection meta="Paper / Night / Mono" title="Display modes">
         <div className="flex flex-col gap-4">
           <ModeSwitcher />
-          <p className="max-w-[62ch] font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-dim">
+          <p className="text-dim max-w-[62ch] font-mono text-[0.6875rem] tracking-[0.08em] uppercase">
             Ctrl+K or Cmd+K opens the command palette from any route; Escape closes it and returns
             focus to the header trigger. The chosen display mode persists across visits.
           </p>
@@ -172,7 +176,7 @@ export default function DesignSystemPage() {
         <ul className="flex list-none flex-col gap-3 p-0">
           {SPACING_STEPS.map((step) => (
             <li className="flex items-center gap-4" key={step}>
-              <span className="w-14 font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-dim">
+              <span className="text-dim w-14 font-mono text-[0.6875rem] tracking-[0.08em] uppercase">
                 {step}px
               </span>
               <span aria-hidden="true" className="bg-accent" style={{ height: 12, width: step }} />

@@ -17,7 +17,7 @@ export default function ProjectsPage() {
         title="Projects"
       />
       <RuledSection title="Project index">
-        <p className="max-w-[62ch] text-base leading-relaxed text-dim">
+        <p className="text-dim max-w-[62ch] text-base leading-relaxed">
           AI, computer vision, data, distributed systems, and full-stack engineering.
         </p>
       </RuledSection>

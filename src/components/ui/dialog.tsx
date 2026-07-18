@@ -35,7 +35,7 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Content
         className={cn(
-          "fixed left-1/2 top-[14svh] z-50 flex max-h-[72svh] w-[min(640px,calc(100vw-32px))] -translate-x-1/2 flex-col border-2 border-line bg-paper text-ink",
+          "border-line bg-paper text-ink fixed top-[14svh] left-1/2 z-50 flex max-h-[72svh] w-[min(640px,calc(100vw-32px))] -translate-x-1/2 flex-col border-2",
           className,
         )}
         {...props}
@@ -43,7 +43,7 @@ function DialogContent({
         {children}
         <DialogPrimitive.Close
           aria-label={closeLabel}
-          className="absolute right-0 top-0 inline-flex size-11 cursor-pointer items-center justify-center text-dim transition-colors hover:text-ink"
+          className="text-dim hover:text-ink absolute top-0 right-0 inline-flex size-11 cursor-pointer items-center justify-center transition-colors"
         >
           <X aria-hidden="true" className="size-4" />
         </DialogPrimitive.Close>
@@ -56,7 +56,7 @@ function DialogTitle({ className, ...props }: DialogPrimitive.DialogTitleProps) 
   return (
     <DialogPrimitive.Title
       className={cn(
-        "border-b border-line px-4 py-3.5 font-mono text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-dim",
+        "border-line text-dim border-b px-4 py-3.5 font-mono text-[0.6875rem] font-bold tracking-[0.14em] uppercase",
         className,
       )}
       {...props}

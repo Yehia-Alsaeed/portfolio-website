@@ -19,7 +19,7 @@ export function ModeSwitcher() {
   return (
     <div
       aria-label="Display mode"
-      className="flex items-center gap-1 font-mono text-[0.6875rem] uppercase tracking-[0.06em]"
+      className="flex items-center gap-1 font-mono text-[0.6875rem] tracking-[0.06em] uppercase"
       role="group"
     >
       {DISPLAY_MODES.map((candidate, index) => (
@@ -33,8 +33,8 @@ export function ModeSwitcher() {
             aria-label={`${MODE_LABELS[candidate]} display mode`}
             aria-pressed={mode === candidate}
             className={cn(
-              "min-h-11 cursor-pointer px-1 uppercase tracking-inherit transition-colors",
-              mode === candidate ? "font-bold text-accent" : "text-dim hover:text-ink",
+              "tracking-inherit min-h-11 cursor-pointer px-1 uppercase transition-colors",
+              mode === candidate ? "text-accent-text font-bold" : "text-dim hover:text-ink",
             )}
             onClick={() => {
               setMode(candidate);

@@ -21,7 +21,7 @@ export function FormField({ children, error, hint, id, label }: FormFieldProps) 
   return (
     <div className="flex flex-col gap-2">
       <label
-        className="font-mono text-[0.625rem] font-bold uppercase tracking-[0.12em] text-dim"
+        className="text-dim font-mono text-[0.625rem] font-bold tracking-[0.12em] uppercase"
         htmlFor={id}
       >
         {label}
@@ -32,12 +32,15 @@ export function FormField({ children, error, hint, id, label }: FormFieldProps) 
         id,
       })}
       {hint ? (
-        <p className="font-mono text-[0.6875rem] tracking-[0.06em] text-dim" id={hintId}>
+        <p className="text-dim font-mono text-[0.6875rem] tracking-[0.06em]" id={hintId}>
           {hint}
         </p>
       ) : null}
       {error ? (
-        <p className="font-mono text-[0.6875rem] font-bold tracking-[0.06em] text-accent" id={errorId}>
+        <p
+          className="text-accent-text font-mono text-[0.6875rem] font-bold tracking-[0.06em]"
+          id={errorId}
+        >
           {error}
         </p>
       ) : null}

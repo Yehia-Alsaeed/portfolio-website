@@ -34,7 +34,13 @@ describe("Phase 2 primitives", () => {
         <RuledSection title="Selected work" meta="2025 to 2026">
           <p>Body</p>
         </RuledSection>
-        <ProjectRow index="01" name="Example system" category="Machine learning" year="2026" href="/" />
+        <ProjectRow
+          index="01"
+          name="Example system"
+          category="Machine learning"
+          year="2026"
+          href="/"
+        />
       </>,
     );
     expect(screen.getByRole("heading", { level: 1, name: "Yehia Alsaeed" })).toBeVisible();
