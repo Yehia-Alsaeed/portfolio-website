@@ -81,13 +81,23 @@
   body {
     min-height: 100svh;
     margin: 0;
-    background: var(--paper);
+    background-color: var(--paper);
+    background-image: url("/textures/paper-fiber.webp");
+    background-repeat: repeat;
     color: var(--ink);
     font-family: var(--font-archivo), Arial, sans-serif;
     line-height: 1.55;
     transition:
       background-color 180ms ease,
       color 180ms ease;
+  }
+
+  :root[data-mode="night"] body {
+    background-image: none;
+  }
+
+  :root[data-mode="mono"] body {
+    background-image: url("/textures/mono-halftone.webp");
   }
 
   button,
