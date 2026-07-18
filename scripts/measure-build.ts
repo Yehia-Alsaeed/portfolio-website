@@ -53,7 +53,7 @@ export async function measureJavaScript(chunksDirectory: string): Promise<BuildM
 }
 
 async function main() {
-  const output = resolve("docs/implementation/phase-1-build-baseline.json");
+  const output = resolve("docs/implementation/phase-2-build-baseline.json");
   const result = await measureJavaScript(resolve(".next/static/chunks"));
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, `${JSON.stringify(result, null, 2)}\n`);
