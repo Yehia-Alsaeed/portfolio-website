@@ -1,20 +1,29 @@
-import { MetadataRow } from "@/components/ui/metadata-row";
-import { PageTitle } from "@/components/ui/page-title";
-import { ModeSwitcher } from "@/features/display-mode/mode-switcher";
+import type { Metadata } from "next";
+
+import { ContactSection } from "@/features/home/contact-section";
+import { EvidenceStats } from "@/features/home/evidence-stats";
+import { ExperienceSection } from "@/features/home/experience-section";
+import { FeaturedWork } from "@/features/home/featured-work";
+import { MonogramHero } from "@/features/home/monogram-hero";
+import { PositioningSection } from "@/features/home/positioning-section";
+import { ServicesTeaser } from "@/features/home/services-teaser";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  description: "Yehia Alsaeed is an AI/ML engineer and web developer building machine-learning systems, full-stack products, and Shopify experiences.",
+  title: "Yehia Alsaeed | AI/ML Engineer and Web Developer",
+};
 
 export default function HomePage() {
   return (
     <>
-      <PageTitle subtitle="AI/ML Engineer and Web Developer" title="Yehia Alsaeed" />
-      <MetadataRow
-        ariaLabel="Profile summary"
-        items={[
-          { label: "Role", value: "AI/ML Engineer + Web Dev" },
-          { label: "Base", value: "Cairo, Egypt" },
-          { label: "Status", value: "Open to roles and clients" },
-          { label: "Display", value: <ModeSwitcher /> },
-        ]}
-      />
+      <MonogramHero />
+      <PositioningSection />
+      <EvidenceStats />
+      <FeaturedWork />
+      <ExperienceSection />
+      <ServicesTeaser />
+      <ContactSection />
     </>
   );
 }
