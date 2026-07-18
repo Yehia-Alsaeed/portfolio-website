@@ -67,7 +67,8 @@ export function PageTransition() {
         window.setTimeout(() => router.push(expectedLocation as Route), PUSH_DELAY_MS),
         window.setTimeout(() => {
           if (`${window.location.pathname}${window.location.search}` !== expectedLocation) {
-            window.location.assign(destination.href);
+            window.history.pushState(null, "", destination.href);
+            window.location.reload();
           } else {
             setActive(false);
           }

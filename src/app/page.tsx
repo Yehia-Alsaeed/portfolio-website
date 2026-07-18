@@ -10,7 +10,8 @@ import { ServicesTeaser } from "@/features/home/services-teaser";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
-  description: "Yehia Alsaeed is an AI/ML engineer and web developer building machine-learning systems, full-stack products, and Shopify experiences.",
+  description:
+    "Yehia Alsaeed is an AI/ML engineer and web developer building machine-learning systems, full-stack products, and Shopify experiences.",
   title: "Yehia Alsaeed | AI/ML Engineer and Web Developer",
 };
 

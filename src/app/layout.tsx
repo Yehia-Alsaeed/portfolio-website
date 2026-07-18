@@ -23,6 +23,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html
       className={`${archivo.variable} ${jetBrainsMono.variable}`}
       data-mode="paper"
+      data-scroll-behavior="smooth"
       lang="en"
       suppressHydrationWarning
     >

@@ -1,4 +1,5 @@
 import { MetadataRow } from "@/components/ui/metadata-row";
+import { archivoWide } from "@/app/fonts";
 import { PROFILE } from "@/content/profile";
 import { ModeSwitcher } from "@/features/display-mode/mode-switcher";
 
@@ -8,7 +9,7 @@ export function MonogramHero() {
   return (
     <section aria-labelledby="home-title" id="monogram">
       <h1
-        className={`${styles.monogram} border-line grid grid-cols-2 items-end border-b-2 pt-5 text-[clamp(7.5rem,22vw,20rem)] leading-[0.76] font-black tracking-normal font-stretch-[125%]`}
+        className={`${archivoWide.className} ${styles.monogram} border-line grid grid-cols-2 items-end border-b-2 pt-5 text-[clamp(7.5rem,22vw,20rem)] leading-[0.76] font-black tracking-normal font-stretch-[125%]`}
         data-testid="kinetic-monogram"
         id="home-title"
       >

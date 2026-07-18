@@ -23,16 +23,26 @@ export function ProjectRow({ category, href, index, name, year }: ProjectRowProp
       <span className="text-[clamp(1.25rem,2.6vw,2rem)] leading-tight font-[680] font-stretch-[105%]">
         {name}
       </span>
-      <span aria-hidden="true" className="text-dim group-hover:text-paper/70 hidden font-mono text-[0.6875rem] tracking-[0.08em] uppercase min-[821px]:block">
+      <span
+        aria-hidden="true"
+        className="text-dim group-hover:text-paper/70 hidden font-mono text-[0.6875rem] tracking-[0.08em] uppercase min-[821px]:block"
+      >
         {category}
       </span>
-      <span aria-hidden="true" className="text-dim group-hover:text-paper/70 hidden text-right font-mono text-xs min-[821px]:block">
+      <span
+        aria-hidden="true"
+        className="text-dim group-hover:text-paper/70 hidden text-right font-mono text-xs min-[821px]:block"
+      >
         {year}
       </span>
       <span className="sr-only">
-        {category}, {year}{external ? ", opens in a new tab" : ""}
+        {category}, {year}
+        {external ? ", opens in a new tab" : ""}
       </span>
-      <ArrowRight aria-hidden="true" className="group-hover:text-accent-text size-4 -translate-x-1.5 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+      <ArrowRight
+        aria-hidden="true"
+        className="group-hover:text-accent-text size-4 -translate-x-1.5 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+      />
     </>
   );
 

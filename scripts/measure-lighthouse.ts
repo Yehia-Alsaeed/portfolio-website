@@ -80,7 +80,7 @@ async function main() {
 
   if (runs.length !== 3) throw new Error(`Expected 3 Lighthouse runs, received ${runs.length}`);
 
-  const output = resolve("docs/implementation/phase-2-lighthouse-baseline.json");
+  const output = resolve("docs/implementation/phase-3-lighthouse-baseline.json");
   const result = summarizeLighthouseRuns(runs);
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, `${JSON.stringify(result, null, 2)}\n`);
