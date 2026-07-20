@@ -16,6 +16,17 @@ export const PROJECT_CATEGORIES = [
 
 export const CATEGORY_OTHER = { label: "Other", slug: "other" } as const satisfies ProjectCategory;
 
+export const ALL_PROJECT_CATEGORIES = [
+  ...PROJECT_CATEGORIES,
+  CATEGORY_OTHER,
+] as const satisfies readonly ProjectCategory[];
+
+export function getCategoryLabel(slug: CategorySlug): string {
+  return (
+    ALL_PROJECT_CATEGORIES.find((category) => category.slug === slug)?.label ?? CATEGORY_OTHER.label
+  );
+}
+
 export type ProjectFallbackRecord = {
   slug: string;
   name: string;
