@@ -24,15 +24,18 @@ import {
  */
 const TOPIC_CATEGORY_MAP: Readonly<Record<string, ProjectCategorySlug>> = {
   agents: "llm",
+  "board-game": "games",
   "computer-vision": "cv",
   "data-science": "ml",
   "distributed-systems": "dist",
   "fine-tuning": "llm",
+  flutter: "fs",
   fullstack: "fs",
   "game-ai": "games",
   "game-development": "games",
   llm: "llm",
   "machine-learning": "ml",
+  mern: "fs",
   mobile: "fs",
   "multi-agent": "llm",
   "object-detection": "cv",

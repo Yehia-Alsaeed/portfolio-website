@@ -41,12 +41,17 @@ export const LIVE_URLS: Readonly<Record<string, string>> = {
 };
 
 /**
- * Manual category corrections keyed by repository slug, applied after topic
- * mapping. Empty today — every known repository maps correctly from its
- * GitHub topics — but kept so a future misclassified topic set can be fixed
- * without waiting on a GitHub metadata change.
+ * Manual category corrections keyed by repository slug, applied before topic
+ * mapping. skillbridge-ai-interviewer carries both `computer-vision` and
+ * `llm` topics on GitHub (real repo, not the curated fallback); topic mapping
+ * picks whichever comes first alphabetically, which resolved to Computer
+ * Vision instead of the intended LLM category once live GitHub data was
+ * verified against the deployed preview. Forced here to match the approved
+ * case-study framing.
  */
-export const CATEGORY_OVERRIDES: Readonly<Record<string, ProjectCategorySlug>> = {};
+export const CATEGORY_OVERRIDES: Readonly<Record<string, ProjectCategorySlug>> = {
+  "skillbridge-ai-interviewer": "llm",
+};
 
 /** Manual display-copy corrections keyed by repository slug. Empty today. */
 export const DISPLAY_OVERRIDES: Readonly<Record<string, { name?: string; description?: string }>> =

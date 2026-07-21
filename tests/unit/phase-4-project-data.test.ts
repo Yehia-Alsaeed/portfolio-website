@@ -12,7 +12,7 @@ import {
   mapTopicsToCategory,
   resolveCategory,
 } from "@/features/projects/catalogue";
-import { fetchGithubRepos } from "@/features/projects/github";
+import { fetchGithubRepos, type GithubRepo } from "@/features/projects/github";
 import { type CategorySlug, PROJECT_CATEGORIES } from "@/features/projects/model";
 
 const APPROVED_MEDIA_PUBLIC_IDS = new Set([
@@ -77,6 +77,64 @@ describe("Phase 4 project catalogue data", () => {
     expect(catalogue).toHaveLength(17);
     expect(new Set(catalogue.map((project) => project.slug)).size).toBe(17);
     expect(catalogue.filter((project) => project.isFlagship)).toHaveLength(5);
+
+    const counts = new Map<string, number>();
+    for (const project of catalogue) {
+      counts.set(project.category, (counts.get(project.category) ?? 0) + 1);
+    }
+    expect(counts.get("llm")).toBe(3);
+    expect(counts.get("cv")).toBe(2);
+    expect(counts.get("ml")).toBe(5);
+    expect(counts.get("fs")).toBe(2);
+    expect(counts.get("games")).toBe(3);
+    expect(counts.get("dist")).toBe(2);
+  });
+
+  it("keeps approved categories stable against real (not curated) live GitHub topics", () => {
+    // Regression: verified against the deployed preview with a real GITHUB_TOKEN.
+    // Real repo topics are more specific/verbose than the curated fallback
+    // topics and don't share its exact vocabulary, so `topics = live ?? fallback`
+    // can silently drift a project's category once live data is merged in.
+    const liveRepos: GithubRepo[] = [
+      {
+        description: "",
+        language: "Python",
+        slug: "skillbridge-ai-interviewer",
+        stars: 0,
+        topics: ["computer-vision", "fastapi", "llm", "machine-learning", "speech-processing"],
+        updatedAt: "2026-01-01T00:00:00Z",
+      },
+      {
+        description: "",
+        language: "JavaScript",
+        slug: "prestige-motors-showroom",
+        stars: 0,
+        topics: ["car-showroom", "cloudinary", "express", "mern", "mongodb", "react"],
+        updatedAt: "2026-01-01T00:00:00Z",
+      },
+      {
+        description: "",
+        language: "Dart",
+        slug: "trip-mate-travel-planner-app",
+        stars: 0,
+        topics: ["android", "firebase", "flutter", "mobile-app", "trip-planner"],
+        updatedAt: "2026-01-01T00:00:00Z",
+      },
+      {
+        description: "",
+        language: "C++",
+        slug: "game-tree-alpha-beta-board-game",
+        stars: 0,
+        topics: ["algorithms", "artificial-intelligence", "board-game", "game-tree", "minimax"],
+        updatedAt: "2026-01-01T00:00:00Z",
+      },
+    ];
+    const catalogue = buildCatalogue(liveRepos);
+    const bySlug = new Map(catalogue.map((project) => [project.slug, project]));
+    expect(bySlug.get("skillbridge-ai-interviewer")?.category).toBe("llm");
+    expect(bySlug.get("prestige-motors-showroom")?.category).toBe("fs");
+    expect(bySlug.get("trip-mate-travel-planner-app")?.category).toBe("fs");
+    expect(bySlug.get("game-tree-alpha-beta-board-game")?.category).toBe("games");
 
     const counts = new Map<string, number>();
     for (const project of catalogue) {
