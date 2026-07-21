@@ -65,8 +65,9 @@ Performance, Accessibility, and CLS all match the local baseline within normal r
 
 ## Review Links
 
-- Draft PR: https://github.com/Yehia-Alsaeed/portfolio-website/pull/4
-- Vercel preview: https://portfolio-website-git-worktr-3f163a-yehias3eed11-5404s-projects.vercel.app (Deployment Protection is on - Vercel's default "Standard Protection" for the Hobby plan; sign in with your Vercel account to view it directly, or use the Protection Bypass header for automation).
+- PR: https://github.com/Yehia-Alsaeed/portfolio-website/pull/4 - **merged** into `main` (merge commit `ee2792f`), at Yehia's explicit request after confirming the CI fix below.
+- Preview (pre-merge): https://portfolio-website-git-worktr-3f163a-yehias3eed11-5404s-projects.vercel.app (Deployment Protection was on - Vercel's default "Standard Protection" for the Hobby plan).
+- **Production: https://portfolio-website-azure-pi.vercel.app** - live. Verified post-merge: `/`, `/projects` (full 17-project catalogue, correct fallback rendering since Production has no `GITHUB_TOKEN`/Cloudinary configured), the SkillBridge case study, `/robots.txt`, and `/icon.svg` all return HTTP 200; no `X-Robots-Tag: noindex` (that was preview-only). Main's own "Quality" CI run passed in full post-merge.
 
 ## Bug Found And Fixed During Preview Verification
 
@@ -80,6 +81,12 @@ Running the Phase 4 Playwright specs against the live preview (with a real `GITH
 
 **Fix:** added `"skillbridge-ai-interviewer": "llm"` to `CATEGORY_OVERRIDES` (an ambiguous, multi-topic repo needs an explicit editorial call, matching the approved case-study framing) and three new specific, unambiguous tokens to `TOPIC_CATEGORY_MAP` (`mern`, `flutter`, `board-game` → their correct categories) in [catalogue.ts](../../src/features/projects/catalogue.ts) and [overrides.ts](../../src/content/projects/overrides.ts). Added a regression test in `phase-4-project-data.test.ts` that replicates the real live topic sets so this can't silently regress again. Committed (`d95bdc6`) and pushed to the same branch; Vercel redeployed the same preview URL automatically. Re-ran the full Playwright suite against the fixed preview: **19/19 passed**.
 
+## Merge To Main
+
+Yehia asked to merge to main. Before doing so, checked the PR's actual mergeability rather than assuming: the PR was still in **Draft** state, and every single CI run on this branch (and, checked separately, on `main`'s own last merged commit) had been failing GitHub's "Quality" check - not from anything in Phase 4, but from the pre-existing `phase-2-shell.test.tsx`/`localFont()` issue (see Warnings), present since the Phase 3 merge. Flagged both, plus that merging would very likely trigger a live Production deployment (Preview was all that had been tested so far), and asked Yehia to confirm how to proceed. He chose to fix the CI test rather than merge with it red.
+
+With that fixed, marked the PR ready for review (`gh pr ready 4`), waited for the branch's "Quality" run to go green - the **first time this workflow has ever passed** on this branch, and the first time it progressed past the unit-test step into the Playwright/Lighthouse steps at all - then merged with a merge commit (`gh pr merge 4 --merge`, matching PRs #1-3's precedent). Confirmed post-merge: `main`'s own "Quality" run passed, Vercel's Production deployment succeeded, and the live production site (`https://portfolio-website-azure-pi.vercel.app`) serves the full 17-project catalogue, all 5 case studies, `/robots.txt`, and the new favicon correctly.
+
 ## Warnings
 
 - ~~`tests/unit/phase-2-shell.test.tsx` fails with `TypeError: default is not a function`~~ - **fixed.** This had been failing GitHub's "Quality" CI check on every run since the Phase 3 merge (confirmed identical on `main`'s own last CI run, not a Phase 4 regression). Root cause: `next/font/local`'s real runtime module is intentionally empty - actual font loading only happens through Next's build-time bundler loader, which Vitest never runs. Mocked `next/font/local` globally in `tests/setup.ts` (Next's own documented approach for testing components that use `next/font`). All 16 test files, 69 tests now pass with zero failures.
@@ -87,10 +94,10 @@ Running the Phase 4 Playwright specs against the live preview (with a real `GITH
 - Two pre-existing Phase 2/3 e2e tests (command-palette Ctrl+K open, the `N`-key mode-cycling shortcut) flaked once each under heavy parallel load earlier in this session, unrelated to any Phase 4 code; both passed cleanly in isolation and in the final clean 161/161 CI-mode run.
 - `scripts/measure-build.ts` and `scripts/measure-lighthouse.ts` both have their output path hardcoded to `docs/implementation/phase-3-*-baseline.json` rather than deriving it from the current phase. Every phase's gate run silently overwrites the same two files with that phase's own numbers - this is evidently the established, repeated pattern (Phase 3's report itself cites a self-computed delta the same way), so this report did too, but the literal filenames are stale by one phase. Worth parameterizing later; not fixed here as it's outside Task 6's scope.
 - The site never had a `/robots.txt` route or a favicon file at any phase (confirmed via empty git history for both across all commits/branches). Both surfaced only because the live-preview Lighthouse check happened to look for them; neither was new to Phase 4 or caused by it. Both have since been added at Yehia's request after seeing the SEO/Best Practices breakdown: `robots.txt` ([src/app/robots.ts](../../src/app/robots.ts), allow-all, unit-tested) and a favicon ([src/app/icon.svg](../../src/app/icon.svg), the site's existing "YA." wordmark in white on the accent-blue background, per Yehia's choice among three color options - visually confirmed legible at both 32x32 and 16x16).
-- The live preview's Cloudinary cloud name and GitHub token are Preview-scoped only (per Yehia's Vercel configuration); Production has not been touched and still has neither configured. This is expected for a draft PR's preview and not a gap in this phase's work.
+- Cloudinary's cloud name and the GitHub token are only configured as Preview environment variables, not Production. Production now runs live (post-merge) and renders correctly via the resilient fallback (complete 17-project catalogue, local fallback images) - it just doesn't yet have the live GitHub/Cloudinary enhancements. Add those two env vars as Production variables in Vercel whenever Yehia wants that closed.
 
 ## Deferred
 
 - Phase 5 interactive proof modules (Architecture X-Ray, Model Comparison Microscope, Agent Run Replay, live iframe embed/viewport scrubber) - explicitly out of scope per the plan.
 - Real build-period dates for four of five case studies (Llama QLoRA, AI Study Planner, Oxford Pet, Prestige Motors) - Yehia will supply these during final pre-launch tweaks.
-(none remaining from this phase's Lighthouse spot-check - both `robots.txt` and the favicon are now added)
+- Configuring `GITHUB_TOKEN`/`NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` as Production environment variables (see Warnings above).
