@@ -46,10 +46,10 @@ Presented to Yehia before Task 4 began: five summaries, results tables, limitati
 
 ## Review Links
 
-- Draft PR: pending - not yet pushed (see note below).
+- Draft PR: https://github.com/Yehia-Alsaeed/portfolio-website/pull/4
 - Vercel preview: pending.
 
-**Not yet done:** pushing the branch, opening the draft PR, configuring `GITHUB_TOKEN`/`NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` in the Vercel preview, and deploying. These involve pushing to the shared GitHub remote, a publicly visible PR, and real secret values I do not have and should not handle - stopping here for Yehia's explicit go-ahead and, for the Vercel env vars, his own entry of the real values.
+**Not yet done:** configuring `GITHUB_TOKEN`/`NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` in the Vercel preview and deploying. These need real secret values I do not have and should not handle - Vercel's own CLI isn't installed in this environment either. Waiting on Yehia to configure the preview env vars himself (or share a preview URL once it's deployed) before running the Phase 4 Playwright/Lighthouse spot-check against it.
 
 ## Warnings
 
@@ -63,4 +63,4 @@ Presented to Yehia before Task 4 began: five summaries, results tables, limitati
 - Phase 5 interactive proof modules (Architecture X-Ray, Model Comparison Microscope, Agent Run Replay, live iframe embed/viewport scrubber) - explicitly out of scope per the plan.
 - Real build-period dates for four of five case studies (Llama QLoRA, AI Study Planner, Oxford Pet, Prestige Motors) - Yehia will supply these during final pre-launch tweaks.
 - Live end-to-end Cloudinary verification - needs a real cloud name in the Vercel preview.
-- Push, draft PR, and Vercel preview deployment - pending Yehia's explicit approval and his own entry of real secret values.
+- Vercel preview deployment and its env var configuration - pending Yehia's own entry of the real `GITHUB_TOKEN`/`NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` values.
