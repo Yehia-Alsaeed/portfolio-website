@@ -1,5 +1,9 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { CASE_STUDIES } from "@/content/projects/case-studies";
 import { FALLBACK_PROJECTS } from "@/content/projects/fallback";
 import { FLAGSHIP_SLUGS } from "@/content/projects/overrides";
 import {
@@ -10,6 +14,17 @@ import {
 } from "@/features/projects/catalogue";
 import { fetchGithubRepos } from "@/features/projects/github";
 import { type CategorySlug, PROJECT_CATEGORIES } from "@/features/projects/model";
+
+const APPROVED_MEDIA_PUBLIC_IDS = new Set([
+  "skillbridge-interview",
+  "skillbridge-results",
+  "prestige-home",
+  "prestige-collection",
+  "pets-fcn",
+  "pets-segnet",
+  "pets-hrnet",
+  "study-planner-architecture",
+]);
 
 const ORIGINAL_TOKEN = process.env.GITHUB_TOKEN;
 
@@ -147,5 +162,134 @@ describe("Phase 4 project catalogue data", () => {
     );
 
     expect(await fetchGithubRepos()).toBeNull();
+  });
+});
+
+describe("Phase 4 flagship case study content", () => {
+  const ledger = readFileSync(
+    path.join(process.cwd(), "docs/content/phase-4-claim-ledger.md"),
+    "utf-8",
+  );
+
+  it("has exactly five unique case studies matching the approved flagship slugs", () => {
+    expect(CASE_STUDIES).toHaveLength(5);
+    const slugs = new Set(CASE_STUDIES.map((study) => study.slug));
+    expect(slugs.size).toBe(5);
+    expect(slugs).toEqual(new Set(FLAGSHIP_SLUGS));
+  });
+
+  it("forms a valid closed previous/next navigation cycle", () => {
+    const bySlug = new Map(CASE_STUDIES.map((study) => [study.slug, study]));
+    for (const study of CASE_STUDIES) {
+      const previous = bySlug.get(study.previousSlug);
+      const next = bySlug.get(study.nextSlug);
+      expect(previous, `${study.slug} previousSlug must reference a real case study`).toBeDefined();
+      expect(next, `${study.slug} nextSlug must reference a real case study`).toBeDefined();
+      expect(next?.previousSlug).toBe(study.slug);
+      expect(previous?.nextSlug).toBe(study.slug);
+    }
+  });
+
+  it("only links to HTTPS repository and live URLs", () => {
+    for (const study of CASE_STUDIES) {
+      expect(study.repoUrl.startsWith("https://github.com/Yehia-Alsaeed/")).toBe(true);
+      if (study.liveUrl) {
+        expect(study.liveUrl.startsWith("https://")).toBe(true);
+      }
+    }
+  });
+
+  it("includes every required section, non-empty", () => {
+    for (const study of CASE_STUDIES) {
+      for (const field of [
+        "title",
+        "summary",
+        "role",
+        "type",
+        "problem",
+        "approach",
+        "architecture",
+        "reproducibility",
+      ] as const) {
+        expect(study[field].length, `${study.slug}.${field}`).toBeGreaterThan(0);
+      }
+      for (const field of ["stack", "constraints", "results", "limitations"] as const) {
+        expect(study[field].length, `${study.slug}.${field}`).toBeGreaterThan(0);
+      }
+      // `period` is optional: Yehia supplies real build dates during final
+      // pre-launch tweaks rather than have them guessed from GitHub push dates.
+      if (study.period !== undefined) {
+        expect(study.period.length, `${study.slug}.period`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("has a real build period only for SkillBridge for now, supplied directly by Yehia", () => {
+    const bySlug = new Map(CASE_STUDIES.map((study) => [study.slug, study]));
+    expect(bySlug.get("skillbridge-ai-interviewer")?.period).toBe("Oct 2025 - Jun 2026");
+    for (const slug of FLAGSHIP_SLUGS) {
+      if (slug === "skillbridge-ai-interviewer") continue;
+      expect(bySlug.get(slug)?.period, `${slug}.period should be pending`).toBeUndefined();
+    }
+  });
+
+  it("gives every media reference non-empty alt text from an approved asset", () => {
+    for (const study of CASE_STUDIES) {
+      for (const media of study.media) {
+        expect(media.alt.length, `${study.slug} media alt text`).toBeGreaterThan(0);
+        expect(APPROVED_MEDIA_PUBLIC_IDS.has(media.publicId)).toBe(true);
+      }
+    }
+  });
+
+  it("has no approved media for Llama QLoRA, matching the asset register", () => {
+    const llama = CASE_STUDIES.find((study) => study.slug === "llama-qlora-education-qa");
+    expect(llama?.media).toEqual([]);
+  });
+
+  it("matches known, source-verified metric values", () => {
+    const bySlug = new Map(CASE_STUDIES.map((study) => [study.slug, study]));
+    const resultValue = (slug: string, label: string) =>
+      bySlug.get(slug)?.results.find((result) => result.label === label)?.value;
+
+    expect(
+      resultValue("skillbridge-ai-interviewer", "Interview score accuracy (grouped split)"),
+    ).toBe("0.9094");
+    expect(
+      resultValue(
+        "llama-qlora-education-qa",
+        "Llama 3.2 3B Instruct, QLoRA fine-tuned Exact Match",
+      ),
+    ).toBe("0.660");
+    expect(
+      resultValue(
+        "llama-qlora-education-qa",
+        "Llama 3.1 8B Instruct, QLoRA fine-tuned Exact Match",
+      ),
+    ).toBe("0.595");
+    expect(resultValue("oxford-pet-binary-segmentation", "HRNet-W18 test mIoU")).toBe("0.9306");
+    expect(resultValue("prestige-motors-showroom", "Deployment status")).toBe("Live in production");
+  });
+
+  it("records a claim-ledger entry for every published metric", () => {
+    for (const study of CASE_STUDIES) {
+      for (const result of study.results) {
+        expect(
+          ledger.includes(result.label),
+          `ledger entry for ${study.slug}: "${result.label}"`,
+        ).toBe(true);
+        expect(
+          ledger.includes(result.value),
+          `ledger entry for ${study.slug} value "${result.value}"`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("never mentions unapproved secrets or credentials", () => {
+    const serialized = JSON.stringify(CASE_STUDIES);
+    expect(serialized).not.toMatch(/api[_-]?key\s*[:=]\s*["'][^"']+["']/i);
+    expect(serialized).not.toMatch(/sk-[a-zA-Z0-9]{16,}/);
+    expect(serialized).not.toMatch(/coming soon|lorem ipsum|\btbd\b/i);
   });
 });
