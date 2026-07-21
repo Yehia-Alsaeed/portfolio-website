@@ -21,7 +21,7 @@ Presented to Yehia before Task 4 began: five summaries, results tables, limitati
 ## Route And Test Counts
 
 - Routes: `/`, `/projects`, `/projects/[slug]` (5 static paths, SSG via `generateStaticParams`), `/services`, `/design-system`, `/_not-found`.
-- Unit tests: 62 passing across 14 files (1 pre-existing, unrelated failure - see Warnings).
+- Unit tests: 69 passing across 16 files, zero failures (includes `robots.test.ts` and the CI-blocking font mock fix - see Warnings).
 - Playwright: 161 passing, 0 failed, run against the production build (`next start`, CI mode with retries enabled) - homepage, projects catalogue, all 5 case studies, command palette, responsive/overflow sweep, accessibility/axe, display modes, design system, and shell boundaries.
 - Playwright against the live Vercel preview: `tests/e2e/case-studies.spec.ts` and `tests/e2e/projects.spec.ts` (19 tests) run a second time directly against the deployed, Deployment-Protection-gated preview URL (bypassed via a "Protection Bypass for Automation" header, not by disabling protection). First run: 16/19 passed, 3 failed on a real bug - see below. After the fix and redeploy: **19/19 passed**.
 
@@ -82,7 +82,7 @@ Running the Phase 4 Playwright specs against the live preview (with a real `GITH
 
 ## Warnings
 
-- `tests/unit/phase-2-shell.test.tsx` fails with `TypeError: default is not a function` in `src/app/fonts.ts`'s `localFont()` call - a pre-existing Vitest/jsdom mock issue confirmed present on `main` before any Phase 4 work; unrelated to this phase.
+- ~~`tests/unit/phase-2-shell.test.tsx` fails with `TypeError: default is not a function`~~ - **fixed.** This had been failing GitHub's "Quality" CI check on every run since the Phase 3 merge (confirmed identical on `main`'s own last CI run, not a Phase 4 regression). Root cause: `next/font/local`'s real runtime module is intentionally empty - actual font loading only happens through Next's build-time bundler loader, which Vitest never runs. Mocked `next/font/local` globally in `tests/setup.ts` (Next's own documented approach for testing components that use `next/font`). All 16 test files, 69 tests now pass with zero failures.
 - Next.js prints a workspace-root inference warning (multiple lockfiles detected: the repo root and this worktree) on every build/dev/start. Cosmetic; does not affect output. Fixable later via `turbopack.root` in `next.config.ts` if it becomes annoying.
 - Two pre-existing Phase 2/3 e2e tests (command-palette Ctrl+K open, the `N`-key mode-cycling shortcut) flaked once each under heavy parallel load earlier in this session, unrelated to any Phase 4 code; both passed cleanly in isolation and in the final clean 161/161 CI-mode run.
 - `scripts/measure-build.ts` and `scripts/measure-lighthouse.ts` both have their output path hardcoded to `docs/implementation/phase-3-*-baseline.json` rather than deriving it from the current phase. Every phase's gate run silently overwrites the same two files with that phase's own numbers - this is evidently the established, repeated pattern (Phase 3's report itself cites a self-computed delta the same way), so this report did too, but the literal filenames are stale by one phase. Worth parameterizing later; not fixed here as it's outside Task 6's scope.
