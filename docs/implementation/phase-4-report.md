@@ -21,8 +21,9 @@ Presented to Yehia before Task 4 began: five summaries, results tables, limitati
 ## Route And Test Counts
 
 - Routes: `/`, `/projects`, `/projects/[slug]` (5 static paths, SSG via `generateStaticParams`), `/services`, `/design-system`, `/_not-found`.
-- Unit tests: 61 passing across 14 files (1 pre-existing, unrelated failure - see Warnings).
+- Unit tests: 62 passing across 14 files (1 pre-existing, unrelated failure - see Warnings).
 - Playwright: 161 passing, 0 failed, run against the production build (`next start`, CI mode with retries enabled) - homepage, projects catalogue, all 5 case studies, command palette, responsive/overflow sweep, accessibility/axe, display modes, design system, and shell boundaries.
+- Playwright against the live Vercel preview: `tests/e2e/case-studies.spec.ts` and `tests/e2e/projects.spec.ts` (19 tests) run a second time directly against the deployed, Deployment-Protection-gated preview URL (bypassed via a "Protection Bypass for Automation" header, not by disabling protection). First run: 16/19 passed, 3 failed on a real bug - see below. After the fix and redeploy: **19/19 passed**.
 
 ## Responsive And Accessibility Result
 
@@ -37,19 +38,47 @@ Presented to Yehia before Task 4 began: five summaries, results tables, limitati
 ## Build And Lighthouse
 
 - `pnpm measure:build`: 19 files, 239,409 gzip bytes / 771,168 raw bytes (`.next/static/chunks/**/*.js`). The Phase 3 baseline (recovered from git history, since this script overwrites the same file every phase - see Warnings) was 18 files, 242,343 gzip bytes / 781,746 raw bytes. Phase 4 is **2,934 gzip bytes (1.2%) smaller** despite adding the full catalogue and case-study feature set, because the new routes are almost entirely Server Components - only the catalogue filter ships client JS.
-- `pnpm lighthouse` (homepage, 3 runs): Performance 93, Accessibility 100, Best Practices 96, SEO 100. LCP 2859ms, CLS 0.
+- `pnpm lighthouse` (homepage, local production build, 3 runs): Performance 93, Accessibility 100, Best Practices 96, SEO 100. LCP 2859ms, CLS 0.
 - Context: Phase 3's report left the Lighthouse LCP gate explicitly unresolved and deferred at Yehia's request (last recorded median 3028ms against a 2900ms budget; Phase 2's baseline LCP was 2852ms, no Phase 3 Lighthouse baseline JSON was ever committed). Phase 4 did not touch the homepage route or its bundle, and this run's 2859ms LCP / 93 performance score is consistent with that already-known, already-deferred variance - not a new regression introduced by this phase.
+
+### Live preview Lighthouse (single run each, per Task 6's spot-check requirement)
+
+Run directly against the deployed Vercel preview (bypass header, real Cloudinary images, real GitHub data) rather than the local build:
+
+| Page | Performance | Accessibility | Best Practices | SEO | LCP | CLS |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/projects` | 93 | 100 | 93 | 54 | 2761ms | 0 |
+| `/projects/oxford-pet-binary-segmentation` (heaviest case study, 3 images) | 91 | 100 | 96 | 61 | 3096ms | 0 |
+
+Performance, Accessibility, and CLS all match the local baseline within normal run-to-run noise. The SEO and Best Practices gaps are both explained and **neither is a Phase 4 regression**:
+
+- **SEO (54/61 vs. 100 locally):** Vercel automatically sends `X-Robots-Tag: noindex` and injects `<meta name="robots" content="noindex">` on every non-production deployment, specifically so preview URLs never get indexed - confirmed via response headers. This would not happen on the production domain. Separately, `/robots.txt` has never existed on this site at any phase (confirmed empty history across all commits/branches), so Lighthouse's `robots-txt` audit also fails here - a pre-existing gap, not something Phase 4 introduced or regressed.
+- **Best Practices (93/96 on `/projects`):** two causes, both pre-existing sitewide, not new to Phase 4's code: (1) `errors-in-console` - a single `favicon.ico` 404, because the site has never had a favicon file at any phase; (2) `font-size` - the site's existing global `text-[0.6875rem]` (11px) monospace/uppercase label styling, used in the header, footer, and badges since earlier phases, covers 41.88% of this page's text and crosses Lighthouse's 12px legibility threshold. Both are flagged in Warnings below as pre-existing, out-of-scope-for-this-phase findings.
 
 ## Cloudinary Status
 
-`NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` is not set in this local environment, so every case-study image renders via the statically-imported local fallback (`mockups/demo/assets/*`, the same tracked files referenced in `docs/content/asset-register.md` - no redundant copies). The Cloudinary code path (`next.config.ts` remote pattern, `buildCloudinaryImageUrl`) is implemented and unit-tested but has not been exercised against a real Cloudinary account. Needs a real cloud name configured in the Vercel preview to verify end-to-end.
+**Now verified live and working end-to-end.** Yehia created a Cloudinary account, uploaded all 8 approved assets under their exact allowlisted Public IDs, and configured `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` and `GITHUB_TOKEN` as Preview environment variables in Vercel. Verification against the deployed preview confirmed:
+
+- All 8 expected URLs (`https://res.cloudinary.com/cqmnouky/image/upload/f_auto,q_auto,c_limit,w_1600/<publicId>` for `skillbridge-interview`, `skillbridge-results`, `prestige-home`, `prestige-collection`, `pets-fcn`, `pets-segnet`, `pets-hrnet`, `study-planner-architecture`) return HTTP 200.
+- The rendered case-study HTML's `<img>` `src`/`srcSet` route through Next's image optimizer to the real cloud name with the exact right Public IDs (checked directly on the SkillBridge case study page).
+- The local-fallback path (`mockups/demo/assets/*`) remains the safety net if the cloud name is ever unset again; both paths are unit-tested.
 
 ## Review Links
 
 - Draft PR: https://github.com/Yehia-Alsaeed/portfolio-website/pull/4
-- Vercel preview: pending.
+- Vercel preview: https://portfolio-website-git-worktr-3f163a-yehias3eed11-5404s-projects.vercel.app (Deployment Protection is on - Vercel's default "Standard Protection" for the Hobby plan; sign in with your Vercel account to view it directly, or use the Protection Bypass header for automation).
 
-**Not yet done:** configuring `GITHUB_TOKEN`/`NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` in the Vercel preview and deploying. These need real secret values I do not have and should not handle - Vercel's own CLI isn't installed in this environment either. Waiting on Yehia to configure the preview env vars himself (or share a preview URL once it's deployed) before running the Phase 4 Playwright/Lighthouse spot-check against it.
+## Bug Found And Fixed During Preview Verification
+
+Running the Phase 4 Playwright specs against the live preview (with a real `GITHUB_TOKEN`, for the first time against real GitHub data instead of the local fallback) surfaced a real bug the fallback-only local gate could never have caught: 3 of 19 tests failed because the catalogue's live-merged category counts didn't match the approved distribution.
+
+**Root cause:** `buildCatalogue()` replaces a project's curated fallback topics entirely with its live GitHub topics when a live repo is found (`topics = live?.topics ?? record.topics`). The curated fallback topics were written with specific, unambiguous tokens (e.g. `"fullstack"`, `"game-ai"`) chosen to map cleanly through `TOPIC_CATEGORY_MAP`. The real GitHub topics are more specific/verbose and mostly don't share that vocabulary, so several projects silently drifted:
+
+- `skillbridge-ai-interviewer` carries both `computer-vision` and `llm` topics on GitHub; `mapTopicsToCategory` returns whichever comes first alphabetically, which resolved to Computer Vision instead of the intended LLM category.
+- `prestige-motors-showroom` (real topics: `mern`, `express`, `react`, `mongodb`...) and `trip-mate-travel-planner-app` (real topics: `flutter`, `android`, `firebase`...) both fell through to "Other" instead of "Full-Stack" - none of their real topics matched the map.
+- `game-tree-alpha-beta-board-game` (real topics: `board-game`, `artificial-intelligence`, `minimax`...) fell through to "Other" instead of "Games" for the same reason.
+
+**Fix:** added `"skillbridge-ai-interviewer": "llm"` to `CATEGORY_OVERRIDES` (an ambiguous, multi-topic repo needs an explicit editorial call, matching the approved case-study framing) and three new specific, unambiguous tokens to `TOPIC_CATEGORY_MAP` (`mern`, `flutter`, `board-game` → their correct categories) in [catalogue.ts](../../src/features/projects/catalogue.ts) and [overrides.ts](../../src/content/projects/overrides.ts). Added a regression test in `phase-4-project-data.test.ts` that replicates the real live topic sets so this can't silently regress again. Committed (`d95bdc6`) and pushed to the same branch; Vercel redeployed the same preview URL automatically. Re-ran the full Playwright suite against the fixed preview: **19/19 passed**.
 
 ## Warnings
 
@@ -57,10 +86,11 @@ Presented to Yehia before Task 4 began: five summaries, results tables, limitati
 - Next.js prints a workspace-root inference warning (multiple lockfiles detected: the repo root and this worktree) on every build/dev/start. Cosmetic; does not affect output. Fixable later via `turbopack.root` in `next.config.ts` if it becomes annoying.
 - Two pre-existing Phase 2/3 e2e tests (command-palette Ctrl+K open, the `N`-key mode-cycling shortcut) flaked once each under heavy parallel load earlier in this session, unrelated to any Phase 4 code; both passed cleanly in isolation and in the final clean 161/161 CI-mode run.
 - `scripts/measure-build.ts` and `scripts/measure-lighthouse.ts` both have their output path hardcoded to `docs/implementation/phase-3-*-baseline.json` rather than deriving it from the current phase. Every phase's gate run silently overwrites the same two files with that phase's own numbers - this is evidently the established, repeated pattern (Phase 3's report itself cites a self-computed delta the same way), so this report did too, but the literal filenames are stale by one phase. Worth parameterizing later; not fixed here as it's outside Task 6's scope.
+- The site has never had a `/robots.txt` route or a favicon file, at any phase (confirmed via empty git history for both across all commits/branches). Both surfaced now only because the live-preview Lighthouse check happened to look for them; neither is new to Phase 4 or caused by it. Worth adding in a later phase.
+- The live preview's Cloudinary cloud name and GitHub token are Preview-scoped only (per Yehia's Vercel configuration); Production has not been touched and still has neither configured. This is expected for a draft PR's preview and not a gap in this phase's work.
 
 ## Deferred
 
 - Phase 5 interactive proof modules (Architecture X-Ray, Model Comparison Microscope, Agent Run Replay, live iframe embed/viewport scrubber) - explicitly out of scope per the plan.
 - Real build-period dates for four of five case studies (Llama QLoRA, AI Study Planner, Oxford Pet, Prestige Motors) - Yehia will supply these during final pre-launch tweaks.
-- Live end-to-end Cloudinary verification - needs a real cloud name in the Vercel preview.
-- Vercel preview deployment and its env var configuration - pending Yehia's own entry of the real `GITHUB_TOKEN`/`NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` values.
+- Adding `/robots.txt` and a favicon - pre-existing sitewide gaps surfaced by this phase's Lighthouse check but predating it; not fixed here as they're outside Task 6's scope.
