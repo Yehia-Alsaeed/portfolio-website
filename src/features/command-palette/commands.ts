@@ -15,7 +15,12 @@ export type PaletteCommand =
         | "/#work"
         | "/#experience"
         | "/#services"
-        | "/#contact";
+        | "/#contact"
+        | "/projects/skillbridge-ai-interviewer"
+        | "/projects/llama-qlora-education-qa"
+        | "/projects/ai-study-planner-agents"
+        | "/projects/oxford-pet-binary-segmentation"
+        | "/projects/prestige-motors-showroom";
     }
   | {
       id: string;
@@ -49,6 +54,46 @@ export const SITE_COMMANDS: readonly PaletteCommand[] = [
     keywords: ["projects", "work", "portfolio"],
     kind: "navigate",
     label: "Projects",
+  },
+  {
+    group: "Navigate",
+    href: "/projects/skillbridge-ai-interviewer",
+    id: "navigate-case-study-skillbridge",
+    keywords: ["skillbridge", "interview", "case study", "multimodal"],
+    kind: "navigate",
+    label: "SkillBridge AI Interviewer case study",
+  },
+  {
+    group: "Navigate",
+    href: "/projects/llama-qlora-education-qa",
+    id: "navigate-case-study-llama-qlora",
+    keywords: ["llama", "qlora", "case study", "fine-tuning"],
+    kind: "navigate",
+    label: "Llama QLoRA Education QA case study",
+  },
+  {
+    group: "Navigate",
+    href: "/projects/ai-study-planner-agents",
+    id: "navigate-case-study-study-planner",
+    keywords: ["study planner", "agents", "case study", "crewai"],
+    kind: "navigate",
+    label: "AI Study Planner Agents case study",
+  },
+  {
+    group: "Navigate",
+    href: "/projects/oxford-pet-binary-segmentation",
+    id: "navigate-case-study-oxford-pet",
+    keywords: ["oxford", "pet", "segmentation", "case study"],
+    kind: "navigate",
+    label: "Oxford Pet Segmentation case study",
+  },
+  {
+    group: "Navigate",
+    href: "/projects/prestige-motors-showroom",
+    id: "navigate-case-study-prestige",
+    keywords: ["prestige", "motors", "showroom", "case study"],
+    kind: "navigate",
+    label: "Prestige Motors Showroom case study",
   },
   {
     group: "Navigate",

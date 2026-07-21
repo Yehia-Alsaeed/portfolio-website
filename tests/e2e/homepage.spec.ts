@@ -1,11 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const PROJECTS = [
-  ["SkillBridge AI Interviewer", "https://github.com/Yehia-Alsaeed/skillbridge-ai-interviewer"],
-  ["Llama QLoRA Education QA", "https://github.com/Yehia-Alsaeed/llama-qlora-education-qa"],
-  ["AI Study Planner Agents", "https://github.com/Yehia-Alsaeed/ai-study-planner-agents"],
-  ["Oxford Pet Segmentation", "https://github.com/Yehia-Alsaeed/oxford-pet-binary-segmentation"],
-  ["Prestige Motors Showroom", "https://github.com/Yehia-Alsaeed/prestige-motors-showroom"],
+  ["SkillBridge AI Interviewer", "/projects/skillbridge-ai-interviewer"],
+  ["Llama QLoRA Education QA", "/projects/llama-qlora-education-qa"],
+  ["AI Study Planner Agents", "/projects/ai-study-planner-agents"],
+  ["Oxford Pet Segmentation", "/projects/oxford-pet-binary-segmentation"],
+  ["Prestige Motors Showroom", "/projects/prestige-motors-showroom"],
 ] as const;
 
 function collectBrowserErrors(page: Page): string[] {

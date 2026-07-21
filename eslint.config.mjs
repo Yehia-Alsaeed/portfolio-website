@@ -25,6 +25,15 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ["src/features/media/local-fallbacks.ts"],
+    rules: {
+      // The only sanctioned exception to the mockups import ban: reusing the
+      // approved, tracked demo assets themselves (docs/content/asset-register.md)
+      // as production media, never prototype markup/behavior.
+      "no-restricted-imports": "off",
+    },
+  },
   prettier,
   globalIgnores([
     ".next/**",

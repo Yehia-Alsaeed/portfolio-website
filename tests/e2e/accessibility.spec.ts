@@ -1,6 +1,13 @@
 import { expect, test } from "./fixtures";
 
-const ROUTES = ["/", "/projects", "/services", "/design-system", "/missing-phase-2-route"] as const;
+const ROUTES = [
+  "/",
+  "/projects",
+  "/projects/skillbridge-ai-interviewer",
+  "/services",
+  "/design-system",
+  "/missing-phase-2-route",
+] as const;
 const MODES = ["paper", "night", "mono"] as const;
 
 for (const mode of MODES) {
@@ -50,3 +57,22 @@ test("honors reduced motion while staying fully usable", async ({ page }) => {
     .click();
   await expect(page.getByRole("heading", { level: 1, name: "Projects" })).toBeVisible();
 });
+
+// axe's wcag2a/wcag2aa tags do not include the heading-order best-practice
+// rule, so the shared catalogue/case-study template gets an explicit check.
+for (const route of ["/projects", "/projects/skillbridge-ai-interviewer"] as const) {
+  test(`never skips a heading level at ${route}`, async ({ page }) => {
+    await page.goto(route);
+
+    const levels = await page
+      .locator("h1, h2, h3, h4, h5, h6")
+      .evaluateAll((headings) => headings.map((heading) => Number(heading.tagName.slice(1))));
+
+    expect(levels[0]).toBe(1);
+    let maxSeen = levels[0] ?? 1;
+    for (const level of levels) {
+      expect(level, `heading levels so far: ${levels.join(", ")}`).toBeLessThanOrEqual(maxSeen + 1);
+      maxSeen = Math.max(maxSeen, level);
+    }
+  });
+}
