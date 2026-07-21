@@ -92,24 +92,36 @@ for (const viewport of VIEWPORTS) {
   });
 }
 
-for (const viewport of [
+const MODE_SWEEP_ROUTES = [
+  "/",
+  "/projects",
+  "/projects/skillbridge-ai-interviewer",
+  "/projects/prestige-motors-showroom",
+] as const;
+const MODE_SWEEP_WIDTHS = [
   { height: 844, width: 390 },
+  { height: 1024, width: 768 },
   { height: 1000, width: 1440 },
-] as const) {
-  for (const mode of ["paper", "night", "mono"] as const) {
-    test(`contains the homepage in ${mode} mode at ${viewport.width}px`, async ({ page }) => {
-      await page.setViewportSize(viewport);
-      await page.addInitScript((storedMode) => {
-        localStorage.setItem("ya-display-mode:v1", storedMode);
-      }, mode);
-      await page.goto("/");
+  { height: 1080, width: 1920 },
+] as const;
 
-      await expect(page.locator("html")).toHaveAttribute("data-mode", mode);
-      const widths = await page.evaluate(() => ({
-        client: document.documentElement.clientWidth,
-        scroll: document.documentElement.scrollWidth,
-      }));
-      expect(widths.scroll).toBeLessThanOrEqual(widths.client);
-    });
+for (const route of MODE_SWEEP_ROUTES) {
+  for (const viewport of MODE_SWEEP_WIDTHS) {
+    for (const mode of ["paper", "night", "mono"] as const) {
+      test(`contains ${route} in ${mode} mode at ${viewport.width}px`, async ({ page }) => {
+        await page.setViewportSize(viewport);
+        await page.addInitScript((storedMode) => {
+          localStorage.setItem("ya-display-mode:v1", storedMode);
+        }, mode);
+        await page.goto(route);
+
+        await expect(page.locator("html")).toHaveAttribute("data-mode", mode);
+        const widths = await page.evaluate(() => ({
+          client: document.documentElement.clientWidth,
+          scroll: document.documentElement.scrollWidth,
+        }));
+        expect(widths.scroll).toBeLessThanOrEqual(widths.client);
+      });
+    }
   }
 }
