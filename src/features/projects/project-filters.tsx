@@ -1,6 +1,5 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import * as React from "react";
 
 import { ProjectCard } from "@/features/projects/project-card";
@@ -24,8 +23,9 @@ function parseCategoryParam(value: string | null): FilterSlug {
   return isFilterSlug(value) ? value : "all";
 }
 
+const CATEGORY_CHANGE_EVENT = "projects:category-change";
+
 function readCategoryParam(): FilterSlug {
-  if (typeof window === "undefined") return "all";
   return parseCategoryParam(new URLSearchParams(window.location.search).get("category"));
 }
 
@@ -35,24 +35,36 @@ function writeCategoryParam(slug: FilterSlug) {
   else url.searchParams.set("category", slug);
   const query = url.searchParams.toString();
   window.history.replaceState(null, "", `${url.pathname}${query ? `?${query}` : ""}`);
+  // history.replaceState never fires popstate, so the store subscribers
+  // below need an explicit nudge to re-read the URL after a filter click.
+  window.dispatchEvent(new Event(CATEGORY_CHANGE_EVENT));
+}
+
+function subscribeToCategoryParam(onStoreChange: () => void) {
+  window.addEventListener("popstate", onStoreChange);
+  window.addEventListener(CATEGORY_CHANGE_EVENT, onStoreChange);
+  return () => {
+    window.removeEventListener("popstate", onStoreChange);
+    window.removeEventListener(CATEGORY_CHANGE_EVENT, onStoreChange);
+  };
+}
+
+function getServerCategorySnapshot(): FilterSlug {
+  return "all";
 }
 
 export function ProjectFilters({ projects }: ProjectFiltersProps) {
-  const searchParams = useSearchParams();
-  const [activeCategory, setActiveCategory] = React.useState<FilterSlug>(() =>
-    parseCategoryParam(searchParams.get("category")),
+  // useSyncExternalStore (not useState+useEffect) so server and the first
+  // client paint both render the complete, unfiltered catalogue - avoiding
+  // both a hydration mismatch and the client-only Suspense deferral that
+  // useSearchParams() would force onto this static route.
+  const activeCategory = React.useSyncExternalStore(
+    subscribeToCategoryParam,
+    readCategoryParam,
+    getServerCategorySnapshot,
   );
 
-  React.useEffect(() => {
-    function handlePopState() {
-      setActiveCategory(readCategoryParam());
-    }
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
   function selectCategory(slug: FilterSlug) {
-    setActiveCategory(slug);
     writeCategoryParam(slug);
   }
 

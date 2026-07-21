@@ -102,7 +102,7 @@ test("does not delay modified, external, hash, or reduced-motion navigation", as
     }
 
     return {
-      external: wasPrevented('a[href^="https://github.com/Yehia-Alsaeed/skillbridge"]'),
+      external: wasPrevented('a[href="https://github.com/Yehia-Alsaeed"]'),
       hash: wasPrevented('a[href="#work"]'),
       modified: wasPrevented('a[href="/services"]', { ctrlKey: true }),
     };

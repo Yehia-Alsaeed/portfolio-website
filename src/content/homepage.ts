@@ -7,7 +7,7 @@ export type FeaturedProject = {
   name: string;
   category: string;
   year: string;
-  href: `https://github.com/${string}`;
+  href: `/projects/${string}`;
 };
 export type TimelineEntry = { period: string; title: string; meta: string; summary: string };
 export type SkillGroup = { label: string; skills: readonly string[] };
@@ -39,35 +39,35 @@ export const HOME_STATS = [
 export const FEATURED_PROJECTS = [
   {
     category: "Multimodal ML - Grad project",
-    href: "https://github.com/Yehia-Alsaeed/skillbridge-ai-interviewer",
+    href: "/projects/skillbridge-ai-interviewer",
     index: "01",
     name: "SkillBridge AI Interviewer",
     year: "2026",
   },
   {
     category: "LLM fine-tuning",
-    href: "https://github.com/Yehia-Alsaeed/llama-qlora-education-qa",
+    href: "/projects/llama-qlora-education-qa",
     index: "02",
     name: "Llama QLoRA Education QA",
     year: "2026",
   },
   {
     category: "Multi-agent systems",
-    href: "https://github.com/Yehia-Alsaeed/ai-study-planner-agents",
+    href: "/projects/ai-study-planner-agents",
     index: "03",
     name: "AI Study Planner Agents",
     year: "2026",
   },
   {
     category: "Computer vision",
-    href: "https://github.com/Yehia-Alsaeed/oxford-pet-binary-segmentation",
+    href: "/projects/oxford-pet-binary-segmentation",
     index: "04",
     name: "Oxford Pet Segmentation",
     year: "2026",
   },
   {
     category: "Full-stack - Live on Vercel",
-    href: "https://github.com/Yehia-Alsaeed/prestige-motors-showroom",
+    href: "/projects/prestige-motors-showroom",
     index: "05",
     name: "Prestige Motors Showroom",
     year: "2026",

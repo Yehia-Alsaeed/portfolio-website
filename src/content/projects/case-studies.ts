@@ -24,7 +24,11 @@ export type CaseStudy = {
   nextSlug: string;
 };
 
-export const CASE_STUDIES = [
+// A plain type annotation (not `as const satisfies`) is used deliberately:
+// `period`/`liveUrl` are omitted on some records but not others, and
+// `satisfies` would infer a union of differently-shaped object literals,
+// making `study.period`/`study.liveUrl` inaccessible when iterating.
+export const CASE_STUDIES: readonly CaseStudy[] = [
   {
     approach:
       "SkillBridge scores a webcam interview by fusing three signal streams: transcribed speech content scored by an LLM against the question rubric, MediaPipe-based eye-contact estimation, and prosody/pacing features. Before settling on that architecture, the project ran a proper multimodal study on the First Impressions V2 interview dataset, comparing an XGBoost baseline on handcrafted audio/video/text features against transformer embeddings (wav2vec2 for audio, CLIP for vision, MPNet for text). The transformer-embedding fusion approach was evaluated with a grouped-by-source train/test split, specifically to prevent clips from the same speaker leaking across splits, and compared against the more common (and more optimistic) paper-style split used in prior work.",
@@ -321,4 +325,4 @@ export const CASE_STUDIES = [
     title: "Prestige Motors Showroom",
     type: "Full-stack web application",
   },
-] as const satisfies readonly CaseStudy[];
+];

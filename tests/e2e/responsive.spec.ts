@@ -9,7 +9,14 @@ const VIEWPORTS = [
   { height: 1080, name: "wide-desktop", width: 1920 },
 ] as const;
 
-const ROUTES = ["/", "/projects", "/design-system", "/missing-phase-2-route"] as const;
+const ROUTES = [
+  "/",
+  "/projects",
+  "/projects/skillbridge-ai-interviewer",
+  "/projects/prestige-motors-showroom",
+  "/design-system",
+  "/missing-phase-2-route",
+] as const;
 
 for (const viewport of VIEWPORTS) {
   for (const route of ROUTES) {

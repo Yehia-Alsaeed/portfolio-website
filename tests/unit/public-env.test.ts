@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveSiteUrl } from "@/lib/env/public";
+import { resolveCloudinaryCloudName, resolveSiteUrl } from "@/lib/env/public";
 
 describe("resolveSiteUrl", () => {
   it("uses the safe local URL when the value is absent", () => {
@@ -16,6 +16,27 @@ describe("resolveSiteUrl", () => {
   it("rejects non-HTTP protocols", () => {
     expect(() => resolveSiteUrl("ftp://portfolio.example")).toThrow(
       "NEXT_PUBLIC_SITE_URL must use http or https",
+    );
+  });
+});
+
+describe("resolveCloudinaryCloudName", () => {
+  it("is undefined when absent, so project images fall back to local assets", () => {
+    expect(resolveCloudinaryCloudName(undefined)).toBeUndefined();
+    expect(resolveCloudinaryCloudName("")).toBeUndefined();
+    expect(resolveCloudinaryCloudName("   ")).toBeUndefined();
+  });
+
+  it("trims and accepts a valid cloud name", () => {
+    expect(resolveCloudinaryCloudName(" demo-cloud-1 ")).toBe("demo-cloud-1");
+  });
+
+  it("rejects a cloud name with characters outside letters, numbers, and hyphens", () => {
+    expect(() => resolveCloudinaryCloudName("demo cloud")).toThrow(
+      "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME must contain only letters, numbers, and hyphens",
+    );
+    expect(() => resolveCloudinaryCloudName("demo/cloud")).toThrow(
+      "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME must contain only letters, numbers, and hyphens",
     );
   });
 });

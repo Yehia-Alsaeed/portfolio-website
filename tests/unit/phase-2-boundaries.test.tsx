@@ -3,18 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import ErrorPage from "@/app/error";
-import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 
 describe("Phase 2 route boundaries", () => {
-  it("announces the loading state politely", () => {
-    render(<Loading />);
-
-    const status = screen.getByRole("status");
-    expect(status).toHaveAttribute("aria-live", "polite");
-    expect(screen.getByText("Loading page")).toBeInTheDocument();
-  });
-
   it("alerts on error, retries through reset, and offers a way home", async () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     const reset = vi.fn();

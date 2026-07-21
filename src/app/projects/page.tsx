@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 
 import { PageTitle } from "@/components/ui/page-title";
 import { RuledSection } from "@/components/ui/ruled-section";
@@ -25,9 +24,7 @@ export default async function ProjectsPage() {
         title={`All ${count} projects`}
       />
       <RuledSection meta={`${count} total`} title="Project index">
-        <Suspense>
-          <ProjectFilters projects={projects} />
-        </Suspense>
+        <ProjectFilters projects={projects} />
       </RuledSection>
     </>
   );
