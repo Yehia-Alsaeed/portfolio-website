@@ -1,5 +1,6 @@
 import { getArchitectureProof } from "@/content/projects/proof";
 import { ArchitectureStatic } from "@/features/case-study/proof/architecture-static";
+import { ArchitectureXRayLauncher } from "@/features/case-study/proof/architecture-xray-launcher";
 
 export type CaseStudyProofProps = { slug: string };
 
@@ -15,6 +16,7 @@ export function CaseStudyProof({ slug }: CaseStudyProofProps) {
       <div className="mt-6">
         <ArchitectureStatic proof={proof} />
       </div>
+      <ArchitectureXRayLauncher proof={proof} />
     </div>
   );
 }
