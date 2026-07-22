@@ -1,11 +1,6 @@
 import { PROFILE } from "@/content/profile";
 
-export type ContactDraft = {
-  inquiryType: string;
-  name: string;
-  email: string;
-  message: string;
-};
+import type { ContactDraft } from "./model";
 
 export function buildContactMailto(draft: ContactDraft): `mailto:${string}` {
   const subject = `Portfolio inquiry: ${draft.inquiryType} - ${draft.name}`;
