@@ -24,6 +24,7 @@ type ClientWorkBase = {
   kind: "Shopify storefront";
   contribution: string;
   url: `https://${string}`;
+  trackingId: "madar-wears" | "la-glosse" | "nexo";
 };
 
 export type ClientWork = ClientWorkBase &
@@ -96,6 +97,7 @@ export const CLIENT_WORK = [
     mediaKey: "madar-wears",
     name: "Madar Wears",
     presentation: "captured",
+    trackingId: "madar-wears",
     url: "https://www.madarwears.com/",
   },
   {
@@ -105,6 +107,7 @@ export const CLIENT_WORK = [
     mediaKey: "la-glosse",
     name: "La Glosse",
     presentation: "captured",
+    trackingId: "la-glosse",
     url: "https://la-glosse.com/",
   },
   {
@@ -112,6 +115,7 @@ export const CLIENT_WORK = [
     kind: "Shopify storefront",
     name: "Nexo",
     presentation: "text-only",
+    trackingId: "nexo",
     url: "https://bh9d1w-16.myshopify.com/",
   },
 ] as const satisfies readonly ClientWork[];
