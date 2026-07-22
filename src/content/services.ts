@@ -1,3 +1,10 @@
+import type { StaticImageData } from "next/image";
+
+import laGlosseDesktop from "@/assets/client-work/la-glosse-desktop.jpg";
+import laGlosseMobile from "@/assets/client-work/la-glosse-mobile.jpg";
+import madarWearsDesktop from "@/assets/client-work/madar-wears-desktop.jpg";
+import madarWearsMobile from "@/assets/client-work/madar-wears-mobile.jpg";
+
 export type ServiceOffer = {
   index: "01" | "02";
   label: string;
@@ -26,6 +33,12 @@ export type ClientWork = ClientWorkBase &
   );
 
 export type Testimonial = { quote: string; attribution: string };
+
+export type ClientWorkMediaSet = {
+  desktop: { src: StaticImageData; alt: string };
+  mobile: { src: StaticImageData; alt: string };
+  recording: { src: `/media/client-work/${string}.webm`; description: string };
+};
 
 export const SERVICE_OFFERS = [
   {
@@ -102,5 +115,26 @@ export const CLIENT_WORK = [
     url: "https://bh9d1w-16.myshopify.com/",
   },
 ] as const satisfies readonly ClientWork[];
+
+export const CLIENT_WORK_MEDIA: Readonly<Record<"madar-wears" | "la-glosse", ClientWorkMediaSet>> =
+  {
+    "la-glosse": {
+      desktop: { alt: "La Glosse desktop storefront", src: laGlosseDesktop },
+      mobile: { alt: "La Glosse mobile storefront", src: laGlosseMobile },
+      recording: {
+        description: "Short muted walkthrough of the La Glosse storefront, scrolling the homepage.",
+        src: "/media/client-work/la-glosse.webm",
+      },
+    },
+    "madar-wears": {
+      desktop: { alt: "Madar Wears desktop storefront", src: madarWearsDesktop },
+      mobile: { alt: "Madar Wears mobile storefront", src: madarWearsMobile },
+      recording: {
+        description:
+          "Short muted walkthrough of the Madar Wears storefront, scrolling the homepage.",
+        src: "/media/client-work/madar-wears.webm",
+      },
+    },
+  };
 
 export const TESTIMONIALS = [] as const satisfies readonly Testimonial[];

@@ -5,6 +5,7 @@ import { PageTitle } from "@/components/ui/page-title";
 import { RuledSection } from "@/components/ui/ruled-section";
 import { PROFILE } from "@/content/profile";
 import { CLIENT_WORK, SERVICE_OFFERS, SERVICE_PROCESS, TESTIMONIALS } from "@/content/services";
+import { ClientWorkGrid } from "@/features/services/client-work-grid";
 import { OfferGrid } from "@/features/services/offer-grid";
 import { ProcessSection } from "@/features/services/process-section";
 import { Testimonials } from "@/features/services/testimonials";
@@ -22,22 +23,7 @@ export function ServicesPage() {
       <ProcessSection steps={SERVICE_PROCESS} />
 
       <RuledSection meta={`${CLIENT_WORK.length} client builds`} title="Client work">
-        <div className="border-line grid grid-cols-1 border-t border-l min-[700px]:grid-cols-3">
-          {CLIENT_WORK.map((entry) => (
-            <article className="border-line border-r border-b p-6" key={entry.name}>
-              <h3 className="text-lg font-bold">{entry.name}</h3>
-              <p className="text-dim mt-2 text-sm leading-relaxed">{entry.contribution}</p>
-              <a
-                className="text-accent-text mt-4 inline-block font-mono text-xs font-bold tracking-[0.1em] uppercase"
-                href={entry.url}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Open {entry.name} ↗
-              </a>
-            </article>
-          ))}
-        </div>
+        <ClientWorkGrid entries={CLIENT_WORK} />
       </RuledSection>
 
       <Testimonials items={TESTIMONIALS} />
