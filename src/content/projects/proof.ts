@@ -20,6 +20,25 @@ export type ArchitectureProof = {
   readingOrder: readonly string[];
 };
 
+export type ModelComparison = {
+  id: "fcn" | "segnet" | "hrnet";
+  label: string;
+  imagePublicId: "pets-fcn" | "pets-segnet" | "pets-hrnet";
+  miou: string;
+  inferenceTime: string;
+  parameters: string;
+  note: string;
+};
+
+export type AgentReplayStep = {
+  id: "profiler" | "generator" | "critic" | "optimizer";
+  label: string;
+  instruction: string;
+  input: string;
+  output: string;
+  decision: string;
+};
+
 // Every node/edge below is grounded directly in the matching CASE_STUDIES
 // entry's `architecture`/`approach` prose (see src/content/projects/case-studies.ts)
 // and the approved Phase 4 claim ledger - no metric, timing, or architectural
@@ -473,3 +492,88 @@ export function validateArchitectureProof(proof: ArchitectureProof): readonly st
 
   return errors;
 }
+
+// Sourced from CASE_STUDIES' oxford-pet-binary-segmentation results and
+// docs/content/phase-4-claim-ledger.md. FCN's parameter count is not
+// published in either source, so it is marked "Not published" rather than
+// estimated.
+export const MODEL_COMPARISONS = [
+  {
+    id: "fcn",
+    imagePublicId: "pets-fcn",
+    inferenceTime: "0.1919s",
+    label: "FCN-ResNet18",
+    miou: "0.9243",
+    note: "Lightweight fully convolutional baseline, transfer-learned from a pretrained ResNet18 backbone.",
+    parameters: "Not published",
+  },
+  {
+    id: "segnet",
+    imagePublicId: "pets-segnet",
+    inferenceTime: "2.3331s",
+    label: "SegNet-VGG16",
+    miou: "0.9122",
+    note: "Encoder-decoder architecture with max-unpooling, transfer-learned from a pretrained VGG16 backbone.",
+    parameters: "29.46M",
+  },
+  {
+    id: "hrnet",
+    imagePublicId: "pets-hrnet",
+    inferenceTime: "0.0633s",
+    label: "HRNet-W18",
+    miou: "0.9306",
+    note: "Highest mIoU, pet IoU, Dice/F1, and pixel accuracy of the three models, with the fewest parameters and fastest inference.",
+    parameters: "11.44M",
+  },
+] as const satisfies readonly ModelComparison[];
+
+// Sourced from the ai-study-planner-agents repository's published
+// examples/sample_input.json and examples/sample_output.md at main commit
+// 8a7ac6ecf742625b7dc91b7507a6d66ec2d852b7. The Optimizer's `decision` field
+// quotes that file's own "Changes Made" section verbatim. No API call, model
+// inference, or invented intermediate transcript is used.
+export const AGENT_REPLAY_STEPS = [
+  {
+    decision:
+      "Ranks NLP and Deep Learning as the highest priority given their harder difficulty and later exam days.",
+    id: "profiler",
+    input:
+      "Raw request: 4 subjects, 4 daily study hours, start day 1 (NLP hard/day 14, Deep Learning hard/day 12, Security medium/day 10, Database medium/day 8).",
+    instruction:
+      "Classify each subject's difficulty via semantic similarity and structure the raw request into planning data.",
+    label: "Student Profiler",
+    output:
+      "Structured planning data: NLP (hard, exam day 14), Deep Learning (hard, exam day 12), Security (medium, exam day 10), Database (medium, exam day 8).",
+  },
+  {
+    decision:
+      "Distributes study hours toward the harder, later-exam subjects first, while staying within the 4-hour daily limit.",
+    id: "generator",
+    input: "Structured planning data from the Profiler.",
+    instruction:
+      "Build an initial day-by-day schedule from the planning data, using planning constraints and a safe calculator tool.",
+    label: "Study Plan Generator",
+    output: "Initial draft schedule allocating study hours across the 14-day window.",
+  },
+  {
+    decision:
+      "Requires a dedicated buffer day immediately before every exam day and a hard cap of 4 study hours per day.",
+    id: "critic",
+    input: "Initial draft schedule from the Generator.",
+    instruction:
+      "Review the draft for overloaded days, missing buffer days, incorrect exam handling, and weak subject prioritization.",
+    label: "Plan Critic",
+    output:
+      "Structured critique flagging any day exceeding the 4-hour limit and any exam missing its buffer day.",
+  },
+  {
+    decision:
+      "Kept every day within the 4-hour daily limit, reserved the day before each exam as a buffer day, and avoided scheduling any subject after its exam day.",
+    id: "optimizer",
+    input: "Draft schedule and the Critic's structured critique.",
+    instruction: "Produce the corrected final schedule strictly from the Critic's feedback.",
+    label: "Plan Optimizer",
+    output:
+      "Final 14-day schedule with a buffer day before each exam (days 7, 9, 11, 13) and every day within the 4-hour limit. Sample run quality score: 9/10.",
+  },
+] as const satisfies readonly AgentReplayStep[];
