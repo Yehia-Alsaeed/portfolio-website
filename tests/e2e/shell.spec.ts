@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 const ROUTES = [
   { heading: "Yehia Alsaeed", path: "/" },
   { heading: "Projects", path: "/projects" },
-  { heading: "Services", path: "/services" },
+  { heading: "I build stores & software that ship.", path: "/services" },
   { heading: "Design system", path: "/design-system" },
 ] as const;
 
@@ -78,7 +78,9 @@ test("primary navigation reaches every route frame", async ({ page }) => {
     .getByRole("link", { name: "Services" })
     .click();
   await expect(page).toHaveURL(/\/services$/);
-  await expect(page.getByRole("heading", { level: 1, name: "Services" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 1, name: "I build stores & software that ship." }),
+  ).toBeVisible();
 
   await page
     .getByRole("navigation", { name: "Primary" })
