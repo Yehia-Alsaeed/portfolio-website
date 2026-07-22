@@ -33,6 +33,9 @@ for (const { slug, title } of CASE_STUDIES) {
     await expect(githubLink).toHaveAttribute("rel", "noopener noreferrer");
 
     await expect(page.getByRole("navigation", { name: "Case study navigation" })).toBeVisible();
+
+    // Phase 5: every flagship gets static architecture proof alongside its prose.
+    await expect(page.getByRole("heading", { name: "Architecture proof" })).toBeVisible();
   });
 }
 

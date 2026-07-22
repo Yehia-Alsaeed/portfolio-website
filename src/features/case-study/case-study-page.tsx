@@ -6,6 +6,7 @@ import { PageTitle } from "@/components/ui/page-title";
 import { RuledSection } from "@/components/ui/ruled-section";
 import { StatCell } from "@/components/ui/stat-cell";
 import type { CaseStudy } from "@/content/projects/case-studies";
+import { CaseStudyProof } from "@/features/case-study/proof/case-study-proof";
 import { ProjectImage } from "@/features/media/project-image";
 
 export type CaseStudyPageProps = {
@@ -48,6 +49,7 @@ export function CaseStudyPage({ next, previous, study }: CaseStudyPageProps) {
 
       <RuledSection title="03 - Architecture and stack">
         <p className={proseClassName}>{study.architecture}</p>
+        <CaseStudyProof slug={study.slug} />
       </RuledSection>
 
       <RuledSection title="04 - Results">
