@@ -74,6 +74,10 @@ test("has no WCAG A or AA violations in the contact form's unavailable state", a
   page,
   makeAxeBuilder,
 }) => {
+  test.skip(
+    process.env.PLAYWRIGHT_PHASE6_LIVE === "1",
+    "The unavailable state cannot occur against a live, working preview database.",
+  );
   await page.goto("/");
   await page.getByLabel("Inquiry type").selectOption("Freelance project");
   await page.getByLabel("Name", { exact: true }).fill("Ada Lovelace");

@@ -56,6 +56,10 @@ test.describe("Phase 6 contact form - client validation and failure states", () 
   test("preserves the draft and offers a mailto fallback when the database is unavailable", async ({
     page,
   }) => {
+    test.skip(
+      process.env.PLAYWRIGHT_PHASE6_LIVE === "1",
+      "The unavailable state cannot occur against a live, working preview database.",
+    );
     await page.goto("/");
     await fillContactForm(page, { message: "Please keep my draft if this fails." });
 
