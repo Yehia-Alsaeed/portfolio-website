@@ -11,7 +11,9 @@ export async function saveContactAndEvent(input: {
   const id = randomUUID();
 
   await getDatabase().batch([
-    getDatabase().insert(contactMessages).values({ id, ...input.contact }),
+    getDatabase()
+      .insert(contactMessages)
+      .values({ id, ...input.contact }),
     getDatabase().insert(analyticsEvents).values(input.event),
   ]);
 

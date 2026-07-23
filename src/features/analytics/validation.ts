@@ -6,7 +6,9 @@ import type { ScreenClass } from "./model";
 export type ProjectSlug = (typeof FALLBACK_PROJECTS)[number]["slug"];
 export type ClientWorkSlug = (typeof CLIENT_WORK)[number]["trackingId"];
 
-const PROJECT_SLUGS: ReadonlySet<string> = new Set(FALLBACK_PROJECTS.map((project) => project.slug));
+const PROJECT_SLUGS: ReadonlySet<string> = new Set(
+  FALLBACK_PROJECTS.map((project) => project.slug),
+);
 const CLIENT_WORK_SLUGS: ReadonlySet<string> = new Set(
   CLIENT_WORK.map((entry) => entry.trackingId),
 );
@@ -76,12 +78,7 @@ export function parseTrackPayload(value: unknown): TrackEventInput | undefined {
     const path = normalizePath(record.path);
     const { referrer, screen } = record;
 
-    if (
-      !path ||
-      typeof referrer !== "string" ||
-      referrer.length > 2048 ||
-      !isScreenClass(screen)
-    ) {
+    if (!path || typeof referrer !== "string" || referrer.length > 2048 || !isScreenClass(screen)) {
       return undefined;
     }
 

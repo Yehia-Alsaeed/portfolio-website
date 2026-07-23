@@ -47,12 +47,13 @@ export function ContactForm() {
     <form
       action={formAction}
       className="border-line grid gap-5 border-t pt-8 md:grid-cols-2"
+      noValidate
       ref={formRef}
     >
       <input
         aria-hidden="true"
         autoComplete="off"
-        className="absolute -left-[10000px] size-px"
+        className="sr-only"
         name="website"
         tabIndex={-1}
         type="text"

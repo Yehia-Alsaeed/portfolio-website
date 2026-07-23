@@ -92,6 +92,33 @@ for (const viewport of VIEWPORTS) {
   });
 }
 
+for (const viewport of VIEWPORTS) {
+  test(`keeps the contact form's invalid state inside the ${viewport.name} viewport`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: viewport.height, width: viewport.width });
+    await page.goto("/");
+
+    await page.getByRole("button", { name: "Send message" }).click();
+    const alert = page.getByRole("alert").filter({ hasText: "Complete every field" });
+    await expect(alert).toBeVisible();
+
+    const box = await alert.boundingBox();
+
+    expect(box).not.toBeNull();
+    if (box) {
+      expect(box.x).toBeGreaterThanOrEqual(-1);
+      expect(box.x + box.width).toBeLessThanOrEqual(viewport.width + 1);
+    }
+
+    const widths = await page.evaluate(() => ({
+      client: document.documentElement.clientWidth,
+      scroll: document.documentElement.scrollWidth,
+    }));
+    expect(widths.scroll).toBeLessThanOrEqual(widths.client);
+  });
+}
+
 const MODE_SWEEP_ROUTES = [
   "/",
   "/projects",

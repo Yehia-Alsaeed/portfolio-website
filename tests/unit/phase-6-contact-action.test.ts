@@ -47,11 +47,7 @@ beforeEach(() => {
 describe("Phase 6 contact submission service", () => {
   it("never consults rate limiting or persistence for an invalid submission", async () => {
     const dependencies = buildDependencies();
-    const result = await processContactSubmission(
-      buildFormData({ name: "" }),
-      facts,
-      dependencies,
-    );
+    const result = await processContactSubmission(buildFormData({ name: "" }), facts, dependencies);
 
     expect(result.status).toBe("invalid");
     expect(dependencies.consume).not.toHaveBeenCalled();
@@ -140,5 +136,22 @@ describe("Phase 6 contact submission service", () => {
     const result = await processContactSubmission(buildFormData(), facts, dependencies);
 
     expect(result).toEqual({ status: "success", message: "Message saved.", fieldErrors: {} });
+  });
+
+  it("returns unavailable with a preserved draft when ANALYTICS_HASH_SALT is unset", async () => {
+    delete process.env.ANALYTICS_HASH_SALT;
+    const dependencies = buildDependencies();
+
+    const result = await processContactSubmission(buildFormData(), facts, dependencies);
+
+    expect(result.status).toBe("unavailable");
+    expect(result.values).toEqual({
+      inquiryType: "Freelance project",
+      name: "Ada Lovelace",
+      email: "ada@example.com",
+      message: "Hello there",
+    });
+    expect(dependencies.consume).not.toHaveBeenCalled();
+    expect(dependencies.save).not.toHaveBeenCalled();
   });
 });

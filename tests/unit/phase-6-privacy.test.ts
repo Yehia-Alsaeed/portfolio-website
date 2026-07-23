@@ -20,15 +20,13 @@ const salt = "unit-test-salt";
 describe("Phase 6 request classification", () => {
   it("flags known crawler user agents as bots", () => {
     expect(classifyRequest(new Headers({ "user-agent": "Googlebot/2.1" })).isBot).toBe(true);
-    expect(
-      classifyRequest(new Headers({ "user-agent": "facebookexternalhit/1.1" })).isBot,
-    ).toBe(true);
+    expect(classifyRequest(new Headers({ "user-agent": "facebookexternalhit/1.1" })).isBot).toBe(
+      true,
+    );
   });
 
   it("does not flag unrecognized browsers as bots", () => {
-    expect(classifyRequest(new Headers({ "user-agent": "SomeNewBrowser/1.0" })).isBot).toBe(
-      false,
-    );
+    expect(classifyRequest(new Headers({ "user-agent": "SomeNewBrowser/1.0" })).isBot).toBe(false);
   });
 
   it("normalizes classifications into only the declared enums", () => {
@@ -64,9 +62,7 @@ describe("Phase 6 HMAC privacy", () => {
 
 describe("Phase 6 path normalization", () => {
   it("rejects paths carrying a query string or fragment", () => {
-    expect(
-      normalizePath("/projects/skillbridge-ai-interviewer?x=1#proof"),
-    ).toBeUndefined();
+    expect(normalizePath("/projects/skillbridge-ai-interviewer?x=1#proof")).toBeUndefined();
   });
 
   it("accepts a clean internal path", () => {

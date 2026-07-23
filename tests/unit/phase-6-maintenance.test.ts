@@ -61,10 +61,7 @@ describe("Phase 6 maintenance route authorization", () => {
         throw new Error("CRON_SECRET is required but was not set");
       },
     });
-    const response = await handleMaintenanceRequest(
-      buildRequest("Bearer anything"),
-      dependencies,
-    );
+    const response = await handleMaintenanceRequest(buildRequest("Bearer anything"), dependencies);
 
     expect(response.status).toBe(401);
     expect(dependencies.run).not.toHaveBeenCalled();

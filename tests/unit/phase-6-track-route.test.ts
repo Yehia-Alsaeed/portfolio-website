@@ -178,6 +178,21 @@ describe("Phase 6 track route", () => {
     consoleSpy.mockRestore();
   });
 
+  it("returns a safe 202 rather than throwing when ANALYTICS_HASH_SALT is unset", async () => {
+    delete process.env.ANALYTICS_HASH_SALT;
+    const request = buildRequest({
+      body: JSON.stringify({ type: "page_view", path: "/", referrer: "", screen: "large" }),
+    });
+    const dependencies = buildDependencies();
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const response = await handleTrackRequest(request, dependencies);
+
+    expect(response.status).toBe(202);
+    expect(dependencies.insert).not.toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
+
   it("sets Cache-Control: no-store on every response", async () => {
     const request = buildRequest({
       body: JSON.stringify({ type: "page_view", path: "/", referrer: "", screen: "large" }),

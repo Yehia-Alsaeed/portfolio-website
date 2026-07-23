@@ -100,46 +100,48 @@ export async function handleTrackRequest(
     return emptyResponse(204);
   }
 
-  const salt = readAnalyticsSalt();
-  const now = dependencies.now();
-  const rateLimitKey = createRateLimitKey(facts, salt);
-
-  const decision = await dependencies.consume({
-    scope: RATE_LIMIT_SCOPE,
-    keyHash: rateLimitKey,
-    limit: RATE_LIMIT_MAX_ATTEMPTS,
-    windowSeconds: RATE_LIMIT_WINDOW_SECONDS,
-    now,
-  });
-
-  if (!decision.allowed) {
-    return emptyResponse(429);
-  }
-
-  const referrerDomain =
-    payload.type === "page_view"
-      ? reduceReferrerToDomain(payload.referrer, request.url)
-      : "direct";
-
-  const event: AnalyticsEventInsert = {
-    type: payload.type,
-    path: payload.path,
-    referrerDomain,
-    country: facts.country,
-    device: facts.device,
-    browser: facts.browser,
-    os: facts.os,
-    screen: payload.screen,
-    visitorHash: createVisitorHash(facts, now, salt),
-    metadata: buildMetadata(payload),
-    createdAt: now,
-  };
-
   try {
+    const salt = readAnalyticsSalt();
+    const now = dependencies.now();
+    const rateLimitKey = createRateLimitKey(facts, salt);
+
+    const decision = await dependencies.consume({
+      scope: RATE_LIMIT_SCOPE,
+      keyHash: rateLimitKey,
+      limit: RATE_LIMIT_MAX_ATTEMPTS,
+      windowSeconds: RATE_LIMIT_WINDOW_SECONDS,
+      now,
+    });
+
+    if (!decision.allowed) {
+      return emptyResponse(429);
+    }
+
+    const referrerDomain =
+      payload.type === "page_view"
+        ? reduceReferrerToDomain(payload.referrer, request.url)
+        : "direct";
+
+    const event: AnalyticsEventInsert = {
+      type: payload.type,
+      path: payload.path,
+      referrerDomain,
+      country: facts.country,
+      device: facts.device,
+      browser: facts.browser,
+      os: facts.os,
+      screen: payload.screen,
+      visitorHash: createVisitorHash(facts, now, salt),
+      metadata: buildMetadata(payload),
+      createdAt: now,
+    };
+
     await dependencies.insert(event);
+
+    return emptyResponse(202);
   } catch {
     safeLog("ANALYTICS_DB_FAILED", randomUUID());
-  }
 
-  return emptyResponse(202);
+    return emptyResponse(202);
+  }
 }

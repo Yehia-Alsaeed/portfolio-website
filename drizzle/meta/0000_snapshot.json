@@ -59,12 +59,7 @@
       "compositePrimaryKeys": {
         "analytics_daily_aggregates_date_eventType_dimension_dimensionValue_pk": {
           "name": "analytics_daily_aggregates_date_eventType_dimension_dimensionValue_pk",
-          "columns": [
-            "date",
-            "eventType",
-            "dimension",
-            "dimensionValue"
-          ]
+          "columns": ["date", "eventType", "dimension", "dimensionValue"]
         }
       },
       "uniqueConstraints": {},
@@ -396,11 +391,7 @@
       "compositePrimaryKeys": {
         "rate_limit_buckets_scope_keyHash_windowStart_pk": {
           "name": "rate_limit_buckets_scope_keyHash_windowStart_pk",
-          "columns": [
-            "scope",
-            "keyHash",
-            "windowStart"
-          ]
+          "columns": ["scope", "keyHash", "windowStart"]
         }
       },
       "uniqueConstraints": {},
@@ -413,37 +404,17 @@
     "public.aggregate_dimension": {
       "name": "aggregate_dimension",
       "schema": "public",
-      "values": [
-        "overall",
-        "path",
-        "referrer",
-        "country",
-        "device",
-        "browser",
-        "os",
-        "screen"
-      ]
+      "values": ["overall", "path", "referrer", "country", "device", "browser", "os", "screen"]
     },
     "public.analytics_event_type": {
       "name": "analytics_event_type",
       "schema": "public",
-      "values": [
-        "page_view",
-        "project_click",
-        "cv_download",
-        "contact_submit",
-        "outbound_click"
-      ]
+      "values": ["page_view", "project_click", "cv_download", "contact_submit", "outbound_click"]
     },
     "public.inquiry_type": {
       "name": "inquiry_type",
       "schema": "public",
-      "values": [
-        "Job opportunity",
-        "Freelance project",
-        "Collaboration",
-        "Other"
-      ]
+      "values": ["Job opportunity", "Freelance project", "Collaboration", "Other"]
     }
   },
   "schemas": {},

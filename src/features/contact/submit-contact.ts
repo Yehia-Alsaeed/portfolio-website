@@ -28,50 +28,57 @@ export async function processContactSubmission(
     };
   }
 
-  const salt = readAnalyticsSalt();
-  const now = dependencies.now();
-  const rateLimitKey = createRateLimitKey(facts, salt);
-
-  const decision = await dependencies.consume({
-    scope: RATE_LIMIT_SCOPE,
-    keyHash: rateLimitKey,
-    limit: RATE_LIMIT_MAX_ATTEMPTS,
-    windowSeconds: RATE_LIMIT_WINDOW_SECONDS,
-    now,
-  });
-
-  if (!decision.allowed) {
-    return {
-      status: "rate-limited",
-      message: "Too many messages sent recently. Try again later, or email directly.",
-      fieldErrors: {},
-      values: validation.values,
-    };
-  }
-
-  if (validation.honeypotFilled) {
-    return { status: "success", message: "Message saved.", fieldErrors: {} };
-  }
-
-  const event: AnalyticsEventInsert = {
-    type: "contact_submit",
-    path: "/",
-    referrerDomain: "direct",
-    country: facts.country,
-    device: facts.device,
-    browser: facts.browser,
-    os: facts.os,
-    screen: "unknown",
-    visitorHash: createVisitorHash(facts, now, salt),
-    metadata: {},
-    createdAt: now,
-  };
-
   const requestId = randomUUID();
-  let saved: { id: string };
 
   try {
-    saved = await dependencies.save({ contact: validation.values, event });
+    const salt = readAnalyticsSalt();
+    const now = dependencies.now();
+    const rateLimitKey = createRateLimitKey(facts, salt);
+
+    const decision = await dependencies.consume({
+      scope: RATE_LIMIT_SCOPE,
+      keyHash: rateLimitKey,
+      limit: RATE_LIMIT_MAX_ATTEMPTS,
+      windowSeconds: RATE_LIMIT_WINDOW_SECONDS,
+      now,
+    });
+
+    if (!decision.allowed) {
+      return {
+        status: "rate-limited",
+        message: "Too many messages sent recently. Try again later, or email directly.",
+        fieldErrors: {},
+        values: validation.values,
+      };
+    }
+
+    if (validation.honeypotFilled) {
+      return { status: "success", message: "Message saved.", fieldErrors: {} };
+    }
+
+    const event: AnalyticsEventInsert = {
+      type: "contact_submit",
+      path: "/",
+      referrerDomain: "direct",
+      country: facts.country,
+      device: facts.device,
+      browser: facts.browser,
+      os: facts.os,
+      screen: "unknown",
+      visitorHash: createVisitorHash(facts, now, salt),
+      metadata: {},
+      createdAt: now,
+    };
+
+    const saved = await dependencies.save({ contact: validation.values, event });
+
+    try {
+      dependencies.scheduleNotification({ ...validation.values, id: saved.id });
+    } catch {
+      // Notification-scheduling failures never change a successful contact result.
+    }
+
+    return { status: "success", message: "Message saved.", fieldErrors: {} };
   } catch {
     safeLog("CONTACT_DB_FAILED", requestId);
 
@@ -82,12 +89,4 @@ export async function processContactSubmission(
       values: validation.values,
     };
   }
-
-  try {
-    dependencies.scheduleNotification({ ...validation.values, id: saved.id });
-  } catch {
-    // Notification-scheduling failures never change a successful contact result.
-  }
-
-  return { status: "success", message: "Message saved.", fieldErrors: {} };
 }

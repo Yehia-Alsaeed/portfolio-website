@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 const externalBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
 const localBaseUrl = "http://localhost:3100";
+const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim() || undefined;
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -12,7 +13,17 @@ export default defineConfig({
   use: {
     baseURL: externalBaseUrl ?? localBaseUrl,
     screenshot: "only-on-failure",
-    trace: "retain-on-failure",
+    // The bypass secret must never enter a trace artifact, so tracing is
+    // forced off whenever it is present rather than merely defaulting.
+    trace: bypassSecret ? "off" : "retain-on-failure",
+    ...(bypassSecret
+      ? {
+          extraHTTPHeaders: {
+            "x-vercel-protection-bypass": bypassSecret,
+            "x-vercel-set-bypass-cookie": "true",
+          },
+        }
+      : {}),
   },
   projects: [
     {
