@@ -119,20 +119,19 @@ async function checkTrackAcceptance(guards: Guards): Promise<void> {
 }
 
 async function checkAnalyticsRateLimit(guards: Guards): Promise<void> {
-  let sawLimit = false;
-
-  for (let attempt = 0; attempt < 130; attempt += 1) {
-    const response = await fetch(`${guards.previewUrl}/api/track`, {
+  // Fired concurrently rather than sequentially awaited: 130 round-trips to a
+  // remote deployment can take well over the 60-second window when awaited
+  // one at a time, letting the fixed window roll over before the limit is
+  // ever reached. Concurrency keeps every attempt inside the same window.
+  const attempts = Array.from({ length: 130 }, () =>
+    fetch(`${guards.previewUrl}/api/track`, {
       method: "POST",
       headers: buildHeaders(guards.bypassSecret, { "content-type": "application/json" }),
       body: JSON.stringify({ type: "page_view", path: "/", referrer: "", screen: "large" }),
-    });
-
-    if (response.status === 429) {
-      sawLimit = true;
-      break;
-    }
-  }
+    }),
+  );
+  const responses = await Promise.all(attempts);
+  const sawLimit = responses.some((response) => response.status === 429);
 
   record("enforces the 120-per-minute analytics rate limit", sawLimit);
 }
@@ -154,16 +153,19 @@ async function checkMaintenanceIdempotency(guards: Guards): Promise<void> {
   });
 
   const first = await fetch(`${guards.previewUrl}/api/maintenance`, { headers });
-  const firstBody: unknown = await first.json();
+  const firstBody = (await first.json()) as { aggregateRows: number };
   const second = await fetch(`${guards.previewUrl}/api/maintenance`, { headers });
-  const secondBody: unknown = await second.json();
+  const secondBody = (await second.json()) as { aggregateRows: number };
 
+  // Only aggregateRows must match across runs: deletedEvents/deletedBuckets
+  // are one-time cleanup counts that legitimately shrink (often to zero) on
+  // a second run once the first run has already deleted them.
   record(
     "maintenance is idempotent across two consecutive runs",
     first.status === 200 &&
       second.status === 200 &&
-      JSON.stringify(firstBody) === JSON.stringify(secondBody),
-    `counts: ${JSON.stringify(firstBody)}`,
+      firstBody.aggregateRows === secondBody.aggregateRows,
+    `aggregateRows: ${firstBody.aggregateRows} -> ${secondBody.aggregateRows}`,
   );
 }
 
@@ -173,7 +175,14 @@ async function verifyAndCleanMarkedContacts(runId: string): Promise<void> {
   const marked = await db
     .select({ id: contactMessages.id, createdAt: contactMessages.createdAt })
     .from(contactMessages)
-    .where(like(contactMessages.message, `%${runId}%`));
+    .where(like(contactMessages.message, `%${runId}%`))
+    .catch((error: unknown) => {
+      throw new Error(
+        `direct database access unavailable from this shell (Neon's per-preview-branch connection string is injected only into the deployed Function's runtime, not retrievable via 'vercel env pull'): ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    });
 
   record(
     "finds the QA-marked contact rows created by the live spec",
@@ -257,19 +266,33 @@ async function confirmNoResidualAggregateRows(runId: string): Promise<void> {
   void runId;
 }
 
+async function runStep(name: string, step: () => Promise<void>): Promise<void> {
+  try {
+    await step();
+  } catch (error) {
+    record(name, false, error instanceof Error ? error.message : String(error));
+  }
+}
+
 async function main(): Promise<void> {
   const scriptStartedAt = new Date();
   const guards = assertGuards();
 
-  await checkHealth(guards);
-  await checkTrackAcceptance(guards);
-  await checkAnalyticsRateLimit(guards);
-  await checkContactRateLimitObserved();
-  await checkMaintenanceIdempotency(guards);
-  await verifyAndCleanMarkedContacts(guards.runId);
-  await cleanScriptGeneratedEvents(scriptStartedAt);
-  await reaggregateAfterCleanup(guards);
-  await confirmNoResidualAggregateRows(guards.runId);
+  await runStep("health check", () => checkHealth(guards));
+  await runStep("track acceptance", () => checkTrackAcceptance(guards));
+  await runStep("analytics rate limit", () => checkAnalyticsRateLimit(guards));
+  await runStep("contact rate limit (observed via Playwright)", () =>
+    checkContactRateLimitObserved(),
+  );
+  await runStep("maintenance idempotency", () => checkMaintenanceIdempotency(guards));
+  await runStep("verify and clean marked contacts", () =>
+    verifyAndCleanMarkedContacts(guards.runId),
+  );
+  await runStep("clean script-generated events", () => cleanScriptGeneratedEvents(scriptStartedAt));
+  await runStep("re-aggregate after cleanup", () => reaggregateAfterCleanup(guards));
+  await runStep("confirm no residual aggregate rows", () =>
+    confirmNoResidualAggregateRows(guards.runId),
+  );
 
   const failed = results.filter((result) => !result.pass);
 
