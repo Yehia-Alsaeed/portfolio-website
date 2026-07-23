@@ -1,6 +1,8 @@
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
+import { TrackedAnchor } from "@/features/analytics/tracked-anchor";
+import { isProjectSlug } from "@/features/analytics/validation";
 import { getCategoryLabel, type Project } from "@/features/projects/model";
 
 export type ProjectCardProps = { project: Project };
@@ -57,6 +59,17 @@ export function ProjectCard({ project }: ProjectCardProps) {
             >
               Case study →
             </Link>
+          ) : isProjectSlug(slug) ? (
+            <TrackedAnchor
+              aria-label={`View ${name} on GitHub`}
+              className={actionClassName}
+              href={repoUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+              tracking={{ type: "project_click", projectSlug: slug, destination: "github" }}
+            >
+              GitHub <ExternalLink aria-hidden="true" className="size-3" />
+            </TrackedAnchor>
           ) : (
             <a
               aria-label={`View ${name} on GitHub`}
@@ -68,7 +81,18 @@ export function ProjectCard({ project }: ProjectCardProps) {
               GitHub <ExternalLink aria-hidden="true" className="size-3" />
             </a>
           )}
-          {liveUrl ? (
+          {liveUrl && isProjectSlug(slug) ? (
+            <TrackedAnchor
+              aria-label={`Open the ${name} live site`}
+              className={actionClassName}
+              href={liveUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+              tracking={{ type: "project_click", projectSlug: slug, destination: "live-demo" }}
+            >
+              Live <ExternalLink aria-hidden="true" className="size-3" />
+            </TrackedAnchor>
+          ) : liveUrl ? (
             <a
               aria-label={`Open the ${name} live site`}
               className={actionClassName}

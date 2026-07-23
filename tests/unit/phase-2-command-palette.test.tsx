@@ -19,6 +19,7 @@ const push = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
+  usePathname: () => "/",
 }));
 
 // jsdom implements neither scrollIntoView nor ResizeObserver, both of which

@@ -6,6 +6,8 @@ import { PageTitle } from "@/components/ui/page-title";
 import { RuledSection } from "@/components/ui/ruled-section";
 import { StatCell } from "@/components/ui/stat-cell";
 import type { CaseStudy } from "@/content/projects/case-studies";
+import { TrackedAnchor } from "@/features/analytics/tracked-anchor";
+import { isProjectSlug } from "@/features/analytics/validation";
 import { CaseStudyProof } from "@/features/case-study/proof/case-study-proof";
 import { ProjectImage } from "@/features/media/project-image";
 
@@ -96,11 +98,41 @@ export function CaseStudyPage({ next, previous, study }: CaseStudyPageProps) {
       <RuledSection title="Links">
         <div className="flex flex-wrap gap-4">
           <Button asChild variant="outline">
-            <a href={study.repoUrl} rel="noopener noreferrer" target="_blank">
-              View on GitHub ↗
-            </a>
+            {isProjectSlug(study.slug) ? (
+              <TrackedAnchor
+                href={study.repoUrl}
+                rel="noopener noreferrer"
+                target="_blank"
+                tracking={{
+                  type: "project_click",
+                  projectSlug: study.slug,
+                  destination: "github",
+                }}
+              >
+                View on GitHub ↗
+              </TrackedAnchor>
+            ) : (
+              <a href={study.repoUrl} rel="noopener noreferrer" target="_blank">
+                View on GitHub ↗
+              </a>
+            )}
           </Button>
-          {study.liveUrl ? (
+          {study.liveUrl && isProjectSlug(study.slug) ? (
+            <Button asChild variant="outline">
+              <TrackedAnchor
+                href={study.liveUrl}
+                rel="noopener noreferrer"
+                target="_blank"
+                tracking={{
+                  type: "project_click",
+                  projectSlug: study.slug,
+                  destination: "live-demo",
+                }}
+              >
+                Live site ↗
+              </TrackedAnchor>
+            </Button>
+          ) : study.liveUrl ? (
             <Button asChild variant="outline">
               <a href={study.liveUrl} rel="noopener noreferrer" target="_blank">
                 Live site ↗

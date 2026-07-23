@@ -39,6 +39,10 @@ export type TrackEventInput =
       screen: ScreenClass;
     };
 
+export function isProjectSlug(value: string): value is ProjectSlug {
+  return PROJECT_SLUGS.has(value);
+}
+
 export function normalizePath(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   if (value.length === 0 || value.length > 512) return undefined;

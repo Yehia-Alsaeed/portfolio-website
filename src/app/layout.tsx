@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { SiteShell } from "@/components/layout/site-shell";
+import { PageViewTracker } from "@/features/analytics/page-view-tracker";
 import { DISPLAY_MODE_BOOT_SCRIPT } from "@/features/display-mode/boot-script";
 import { DisplayModeProvider } from "@/features/display-mode/provider";
 import { PosterModeProvider } from "@/features/poster-mode/poster-mode-provider";
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <script dangerouslySetInnerHTML={{ __html: DISPLAY_MODE_BOOT_SCRIPT }} />
         <DisplayModeProvider>
           <PosterModeProvider>
+            <PageViewTracker />
             <SiteShell>{children}</SiteShell>
           </PosterModeProvider>
         </DisplayModeProvider>
