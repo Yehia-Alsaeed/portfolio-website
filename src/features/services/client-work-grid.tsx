@@ -1,4 +1,5 @@
 import { CLIENT_WORK_MEDIA, type ClientWork } from "@/content/services";
+import { TrackedAnchor } from "@/features/analytics/tracked-anchor";
 import { ClientWorkMedia } from "@/features/services/client-work-media";
 
 export type ClientWorkGridProps = { entries: readonly ClientWork[] };
@@ -15,14 +16,15 @@ export function ClientWorkGrid({ entries }: ClientWorkGridProps) {
             <ClientWorkMedia media={CLIENT_WORK_MEDIA[entry.mediaKey]} name={entry.name} />
           ) : null}
 
-          <a
+          <TrackedAnchor
             className="text-accent-text mt-4 inline-block min-h-11 font-mono text-xs font-bold tracking-[0.1em] uppercase"
             href={entry.url}
             rel="noopener noreferrer"
             target="_blank"
+            tracking={{ type: "outbound_click", destination: entry.trackingId }}
           >
             Open {entry.name} ↗
-          </a>
+          </TrackedAnchor>
         </article>
       ))}
     </div>

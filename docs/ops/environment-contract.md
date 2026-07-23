@@ -10,7 +10,9 @@
 | `CLOUDINARY_API_KEY` | server-only | Cloudinary | Phase 4 | Required for server-side media operations once activated | Required | Required | Fatal for server-side media operations once activated |
 | `CLOUDINARY_API_SECRET` | server-only | Cloudinary | Phase 4 | Required for signed server-side media operations once activated | Required | Required | Fatal for signed server-side media operations once activated |
 | `ANALYTICS_HASH_SALT` | server-only | Application-owned secret | Phase 6 | Required; unique local value | Required; unique preview value | Required; unique production value | Fatal when analytics integration is activated |
-| `RESEND_API_KEY` | server-only | Resend | Phase 6 | Optional | Optional | Optional | Persist contact message and skip notification |
+| `CRON_SECRET` | server-only | Application-owned secret | Phase 6 | Not required for local public-page development | Required; unique preview value | Required; unique production value | Maintenance route returns generic unauthorized |
+| `RESEND_API_KEY` | server-only | Resend | Phase 6 | Optional | Optional; empty at launch | Optional; empty at launch | Persist contact message and skip notification |
+| `CONTACT_NOTIFICATION_FROM` | server-only | Application owner | Phase 6 | Required only when notifications are enabled | Required only when notifications are enabled | Required only when notifications are enabled | Fatal only if notification delivery is explicitly enabled; otherwise persist only |
 | `CONTACT_NOTIFICATION_TO` | server-only | Application owner | Phase 6 | Required when notifications are enabled | Required when notifications are enabled | Required when notifications are enabled | Fatal only if notification delivery is explicitly enabled; otherwise persist only |
 
 ## Rules
@@ -20,5 +22,6 @@
 - Local secrets live in `.env.local`, which Git ignores.
 - Preview and production values live in Vercel environment settings.
 - `RESEND_API_KEY` is optional; every other server variable becomes required in the phase that activates its integration.
-- `ANALYTICS_HASH_SALT` must differ between local, preview, and production.
+- `RESEND_API_KEY`, `CONTACT_NOTIFICATION_FROM`, and `CONTACT_NOTIFICATION_TO` remain empty in Vercel at Phase 6 launch; Resend stays implemented but disabled until an explicit later decision.
+- `ANALYTICS_HASH_SALT` and `CRON_SECRET` must differ between local, preview, and production.
 - Provider-generated Neon Auth variable names are added verbatim in Phase 7 rather than guessed in advance.

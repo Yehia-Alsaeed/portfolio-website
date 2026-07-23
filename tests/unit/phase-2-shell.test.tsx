@@ -6,6 +6,7 @@ import { DisplayModeProvider } from "@/features/display-mode/provider";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => "/",
 }));
 
 function renderShell() {

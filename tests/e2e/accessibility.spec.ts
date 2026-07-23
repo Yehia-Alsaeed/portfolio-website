@@ -58,6 +58,58 @@ test("honors reduced motion while staying fully usable", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: "Projects" })).toBeVisible();
 });
 
+test("has no WCAG A or AA violations in the contact form's invalid state", async ({
+  page,
+  makeAxeBuilder,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Complete every field" })).toBeVisible();
+
+  const result = await makeAxeBuilder().analyze();
+  expect(result.violations).toEqual([]);
+});
+
+test("has no WCAG A or AA violations in the contact form's unavailable state", async ({
+  page,
+  makeAxeBuilder,
+}) => {
+  test.skip(
+    process.env.PLAYWRIGHT_PHASE6_LIVE === "1",
+    "The unavailable state cannot occur against a live, working preview database.",
+  );
+  await page.goto("/");
+  await page.getByLabel("Inquiry type").selectOption("Freelance project");
+  await page.getByLabel("Name", { exact: true }).fill("Ada Lovelace");
+  await page.getByLabel("Email", { exact: true }).fill("ada@example.com");
+  await page.getByLabel("Message", { exact: true }).fill("Hello there");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "could not be saved" })).toBeVisible();
+
+  const result = await makeAxeBuilder().analyze();
+  expect(result.violations).toEqual([]);
+});
+
+test("has no WCAG A or AA violations in the contact form's success state", async ({
+  page,
+  makeAxeBuilder,
+}) => {
+  test.skip(
+    process.env.PLAYWRIGHT_PHASE6_LIVE !== "1",
+    "The success state requires a real Neon-backed preview deployment.",
+  );
+  await page.goto("/");
+  await page.getByLabel("Inquiry type").selectOption("Freelance project");
+  await page.getByLabel("Name", { exact: true }).fill("Ada Lovelace");
+  await page.getByLabel("Email", { exact: true }).fill("ada@example.com");
+  await page.getByLabel("Message", { exact: true }).fill("Hello there, live preview axe check.");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Message saved" })).toBeVisible();
+
+  const result = await makeAxeBuilder().analyze();
+  expect(result.violations).toEqual([]);
+});
+
 // axe's wcag2a/wcag2aa tags do not include the heading-order best-practice
 // rule, so the shared catalogue/case-study template gets an explicit check.
 for (const route of ["/projects", "/projects/skillbridge-ai-interviewer"] as const) {

@@ -79,7 +79,7 @@ test("renders experience, services, contact, and a truthful invalid form state",
     page.getByRole("contentinfo").getByRole("link", { name: "Download CV" }),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "Prepare email" }).click();
+  await page.getByRole("button", { name: "Send message" }).click();
   const alert = page.getByRole("alert").filter({ hasText: "Complete every field" });
   await expect(alert).toContainText("Complete every field");
   await expect(alert).toBeFocused();
