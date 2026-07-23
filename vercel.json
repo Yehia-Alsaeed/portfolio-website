@@ -1,0 +1,5 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "corepack pnpm db:migrate && corepack pnpm build",
+  "crons": [{ "path": "/api/maintenance", "schedule": "17 3 * * *" }]
+}
