@@ -49,7 +49,7 @@ function buildAggregateInsert(dimension: AggregateDimension, from: Date, to: Dat
 
   return sql`
     insert into ${analyticsDailyAggregates}
-      (${analyticsDailyAggregates.date}, ${analyticsDailyAggregates.eventType}, ${analyticsDailyAggregates.dimension}, ${analyticsDailyAggregates.dimensionValue}, ${analyticsDailyAggregates.eventCount}, ${analyticsDailyAggregates.uniqueVisitors})
+      (${sql.identifier("date")}, ${sql.identifier("eventType")}, ${sql.identifier("dimension")}, ${sql.identifier("dimensionValue")}, ${sql.identifier("eventCount")}, ${sql.identifier("uniqueVisitors")})
     select
       (${analyticsEvents.createdAt} at time zone 'utc')::date,
       ${analyticsEvents.type},

@@ -53,9 +53,7 @@ export async function handleMaintenanceRequest(
     const result = await dependencies.run(dependencies.now());
 
     return noStoreResponse(JSON.stringify(result), 200);
-  } catch (error) {
-    // TEMPORARY debug-only diagnostic, to be reverted before merge.
-    console.error("TEMP_DEBUG_MAINTENANCE_FAILURE", error instanceof Error ? error.stack : error);
+  } catch {
     safeLog("MAINTENANCE_FAILED", randomUUID());
 
     return noStoreResponse(null, 500);
