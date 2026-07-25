@@ -1,8 +1,8 @@
 # Phase 6 Implementation Report
 
-**Status:** Draft PR opened and verified against a real Neon-backed Vercel Preview deployment. Not merged. No production migration, cron activation, or Resend enablement performed.
+**Status:** PR #7 was merged to `main` after the verified Neon-backed Vercel Preview deployment. Production migration and Production cron activation were verified on 2026-07-26. Resend remains disabled.
 
-**PR:** https://github.com/Yehia-Alsaeed/portfolio-website/pull/7 (draft)
+**PR:** https://github.com/Yehia-Alsaeed/portfolio-website/pull/7 (merged)
 **Branch:** `worktree-phase-6-data-contact-analytics`
 **Preview URL used for live verification:** `https://portfolio-website-git-worktr-8d63cf-yehias3eed11-5404s-projects.vercel.app`
 
@@ -12,7 +12,7 @@
 - First-party analytics: `page_view`, `project_click`, `cv_download`, `contact_submit`, `outbound_click` via a closed `POST /api/track`, non-blocking client tracker, daily-rotating HMAC visitor hash, 120-per-minute atomic rate limit, bot/`/admin` drop.
 - Idempotent daily aggregation (`overall` + 7 dimensions), 90-day raw-event retention, expired rate-limit-bucket cleanup, all behind a timing-safe `CRON_SECRET`-gated `GET /api/maintenance`.
 - `GET /api/health` minimal probe, safe structured failure logging with no PII/secrets/exceptions ever logged.
-- Vercel-managed Neon Postgres provisioned via Marketplace, preview-per-branch database isolation, `vercel.json` cron (`17 3 * * *`, inactive until Production promotion).
+- Vercel-managed Neon Postgres provisioned via Marketplace, preview-per-branch database isolation, `vercel.json` cron (`17 3 * * *`) active in Production after merge.
 - Resend fully implemented, deliberately left disabled (no `RESEND_API_KEY`/sender values set in any environment).
 
 ## 2. Dependencies (exact, approved versions)
@@ -70,12 +70,16 @@ Three planned checks — confirming and deleting the QA-marked `contact_messages
 - **Verifier script robustness:** one failing check crashed the whole script and discarded every prior result. Each step is now isolated so partial failures are reported, not silently lost. The analytics-rate-limit probe was also switched from sequential to concurrent requests (130 sequential round-trips to a remote deployment can exceed the 60-second window before reaching the limit); and the maintenance-idempotency check now compares only `aggregateRows` rather than the full response, since `deletedEvents`/`deletedBuckets` are legitimately one-time counts that shrink on a second run.
 - **`.gitignore` gap:** `.env.phase6-preview.local` (the file `vercel env pull` produces) matched no existing ignore pattern. Added `.env*.local`.
 
-## 8. What remains for Yehia's explicit approval
+## 8. Post-merge production verification
 
-- Mark the PR ready for review and merge.
-- Run `db:migrate` against the Neon primary/production branch (only via a Production deployment's build; never manually).
-- Activate the Production cron (happens automatically once a Production deployment containing `vercel.json`'s `crons` entry exists).
-- Enable Resend (set `RESEND_API_KEY`, `CONTACT_NOTIFICATION_FROM`, `CONTACT_NOTIFICATION_TO`).
-- Optionally: clean up the residual QA-marked rows in the Preview database (or leave them for automatic branch deletion).
+Verified on 2026-07-26 from the linked Vercel project without printing environment values:
 
-None of the above were performed.
+- Latest Production deployment: `dpl_8PyNp9UKgJTdtc9Gsv9rstHyEhVF`, target `production`, status `Ready`, commit `01a60a0`.
+- Production build logs show `Running "corepack pnpm db:migrate && corepack pnpm build"` followed by Drizzle's `migrations applied successfully!`.
+- Read-only production database check confirmed public tables `analytics_daily_aggregates`, `analytics_events`, `contact_messages`, and `rate_limit_buckets`, plus one row in `drizzle.__drizzle_migrations`.
+- `vercel cron list` reports one Production cron job: `/api/maintenance` on schedule `17 3 * * *`.
+- Direct authorized `GET /api/maintenance` against Production returned `200` with `{"aggregateRows":0,"deletedEvents":0,"deletedBuckets":0}`.
+- `vercel cron run /api/maintenance` triggered successfully at `2026-07-25T22:35:17.675Z`; recent Production logs show the matching `GET /api/maintenance` invocation and no recent error or 500 logs for the route.
+- Production environment presence check confirmed `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `ANALYTICS_HASH_SALT`, and `CRON_SECRET` are present. `RESEND_API_KEY`, `CONTACT_NOTIFICATION_FROM`, and `CONTACT_NOTIFICATION_TO` remain absent, so email delivery is still deliberately disabled.
+
+The temporary local `.env.phase6-production.local` file used for verification was deleted immediately after these checks.

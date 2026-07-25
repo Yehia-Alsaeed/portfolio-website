@@ -8,11 +8,11 @@
 
 **Architecture:** Neon Auth owns identities and sessions in its managed `neon_auth` schema. Next.js Proxy provides an optimistic `/admin/*` gate, while a cached server-only authorization layer independently protects every page, query, Server Action, and future admin route handler using one configured user ID. Dashboard reads combine daily aggregates with bounded raw-event windows; inbox reads use keyset pagination. The admin UI is a separate dynamic route tree, so Neon Auth and Recharts never enter public route rendering or public navigation bundles.
 
-**Tech Stack:** Existing Next.js 16.2.10, React 19.2.7, TypeScript 6.0.3, Tailwind CSS 4.3.3, Drizzle 0.45.2, Neon serverless 1.1.0, Vitest, Testing Library, Playwright, axe, Lighthouse, GitHub Actions, and Vercel. Add exact current versions `@neondatabase/auth@0.4.2-beta` and `recharts@3.10.0`.
+**Tech Stack:** Existing Next.js 16.2.10, React 19.2.7, TypeScript 6.0.3, Tailwind CSS 4.3.3, Drizzle 0.45.2, Neon serverless 1.1.0, Vitest, Testing Library, Playwright, axe, Lighthouse, GitHub Actions, and Vercel. Add exact current versions `@neondatabase/auth@0.4.2-beta` and `recharts@3.10.1`.
 
 ## Global Constraints
 
-- Start only after Phase 6 is merged to `main`, its production migration and cron are verified, and `docs/implementation/phase-6-report.md` exists. Otherwise stop without changing external state.
+- Start only after Phase 6 is merged to `main`, its production migration and cron are verified, and `docs/implementation/phase-6-report.md` records that state. Otherwise stop without changing external state.
 - Create an isolated `phase-7-auth-admin-operations` worktree from freshly updated `main`; do not reuse the Phase 6 worktree.
 - Read `prd.md` section 6.3, `docs/superpowers/specs/2026-07-17-portfolio-production-roadmap-design.md` Phase 7, the Phase 6 design/report/runbook, and `mockups/demo/admin.html` before editing.
 - Follow `AGENTS.md` and `CLAUDE.md`: only `Yehia-Alsaeed <yehias3eed11@gmail.com>` may appear as author. Never add an AI co-author trailer or AI-associated email.
@@ -84,7 +84,7 @@ Record any pre-existing failure before editing. Do not continue from a dirty or 
 Confirm the registry still reports the locked versions, then run:
 
 ```powershell
-corepack pnpm add @neondatabase/auth@0.4.2-beta recharts@3.10.0
+corepack pnpm add @neondatabase/auth@0.4.2-beta recharts@3.10.1
 ```
 
 If either version is unavailable or its current API differs from the official v0.2+ `createNeonAuth` contract, stop and document the incompatibility; do not guess an auth API.
@@ -110,6 +110,8 @@ analytics_daily_aggregates_dimension_event_type_date_value_idx
 Add indexes:
 
 ```ts
+// Existing Phase 6 index contact_messages_created_at_id_idx remains the
+// primary newest-first keyset pagination index for the full inbox.
 index("contact_messages_is_read_created_at_id_idx").on(
   table.isRead,
   table.createdAt,
