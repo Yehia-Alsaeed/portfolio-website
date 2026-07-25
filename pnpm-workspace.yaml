@@ -1,8 +1,10 @@
 allowBuilds:
+  core-js: false
   esbuild: true
   sharp: true
   unrs-resolver: true
 minimumReleaseAgeExclude:
   - lucide-react@1.25.0
+  - recharts@3.10.1
 patchedDependencies:
   chrome-launcher@1.2.1: patches/chrome-launcher@1.2.1.patch

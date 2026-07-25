@@ -75,5 +75,11 @@ export const analyticsDailyAggregates = pgTable(
     primaryKey({
       columns: [table.date, table.eventType, table.dimension, table.dimensionValue],
     }),
+    index("analytics_daily_aggregates_dimension_event_type_date_value_idx").on(
+      table.dimension,
+      table.eventType,
+      table.date,
+      table.dimensionValue,
+    ),
   ],
 );
