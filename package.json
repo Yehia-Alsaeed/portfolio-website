@@ -23,6 +23,7 @@
     "db:generate": "drizzle-kit generate",
     "db:check": "drizzle-kit check",
     "db:migrate": "drizzle-kit migrate",
+    "auth:bootstrap-admin": "tsx scripts/bootstrap-neon-admin.ts",
     "lighthouse": "lhci collect && lhci assert && tsx scripts/measure-lighthouse.ts",
     "measure:build": "tsx scripts/measure-build.ts"
   },

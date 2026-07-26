@@ -18,6 +18,24 @@ This runbook covers the private Neon Auth admin area, dashboard, and inbox. Do n
 5. Open that user and confirm its ID matches the private `ADMIN_USER_ID` value configured in Vercel.
 6. If any unexpected user exists, delete or disable it in Neon Auth. The app still rejects it unless its ID equals `ADMIN_USER_ID`.
 
+## Create The First Email/Password Administrator
+
+Use this when the Neon Console user menu does not expose a password field or password-reset action.
+
+1. In Neon Console, open **Auth** -> **Configuration**.
+2. Confirm **Sign-up with Email** is on.
+3. Confirm **Sign-in with Email** is on.
+4. If a previous passwordless user already exists for the admin email, delete that user first in **Auth** -> **Users** so the email can be recreated with a credential.
+5. In a local terminal, run `pnpm auth:bootstrap-admin`.
+6. Paste the branch-specific Neon Auth URL only into the terminal prompt, not into chat or committed files.
+7. Enter the admin email, admin display name, and password at the prompts. The password prompt is hidden.
+8. Copy the printed `ADMIN_USER_ID` value.
+9. Set that exact `ADMIN_USER_ID` in Vercel for the target environment.
+10. Redeploy the Vercel Preview or Production deployment so serverless functions receive the new value.
+11. Verify `/admin/login` accepts the admin email/password and `/admin` loads.
+
+Do not commit the printed `ADMIN_USER_ID`, the Auth URL, or the password to the repository.
+
 ## Emergency Revocation
 
 To revoke access immediately:
