@@ -54,6 +54,30 @@ describe("Phase 7 admin login", () => {
     expect(signInEmail).toHaveBeenCalledTimes(1);
   });
 
+  it("preserves password characters exactly when calling Neon Auth", async () => {
+    const signInEmail = vi.fn().mockResolvedValue({
+      data: { user: { id: "admin-user-id" } },
+      error: null,
+    });
+
+    await authenticateAdminLogin(
+      formData({ email: " admin@example.com ", password: " A!pass! " }),
+      {
+        now: () => new Date("2026-07-26T00:00:00Z"),
+        rateLimitKey: () => "f".repeat(64),
+        consume: vi.fn().mockResolvedValue({ allowed: true, count: 1, retryAfterSeconds: 0 }),
+        signInEmail,
+        signOut: vi.fn(),
+        readAdminUserId: () => "admin-user-id",
+      },
+    );
+
+    expect(signInEmail).toHaveBeenCalledWith({
+      email: "admin@example.com",
+      password: " A!pass! ",
+    });
+  });
+
   it("returns a fixed rate-limited state on the sixth attempt in the window", async () => {
     const result = await authenticateAdminLogin(
       formData({ email: "admin@example.com", password: "correct horse battery staple" }),

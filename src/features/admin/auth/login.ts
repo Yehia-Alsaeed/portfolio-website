@@ -25,14 +25,19 @@ type LoginDependencies = {
   readAdminUserId: () => string;
 };
 
-function readString(formData: FormData, name: string, maxLength: number): string | undefined {
+function readString(
+  formData: FormData,
+  name: string,
+  maxLength: number,
+  options: { trim: boolean } = { trim: true },
+): string | undefined {
   const value = formData.get(name);
   if (typeof value !== "string") return undefined;
 
-  const trimmed = value.trim();
-  if (!trimmed || trimmed.length > maxLength) return undefined;
+  const normalized = options.trim ? value.trim() : value;
+  if (!normalized.trim() || normalized.length > maxLength) return undefined;
 
-  return trimmed;
+  return normalized;
 }
 
 export async function authenticateAdminLogin(
@@ -40,7 +45,7 @@ export async function authenticateAdminLogin(
   dependencies: LoginDependencies,
 ): Promise<LoginState> {
   const email = readString(formData, "email", 254);
-  const password = readString(formData, "password", 256);
+  const password = readString(formData, "password", 256, { trim: false });
 
   if (!email || !password || !email.includes("@")) return INVALID_LOGIN_STATE;
 
