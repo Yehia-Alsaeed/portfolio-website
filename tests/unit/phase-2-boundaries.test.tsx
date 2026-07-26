@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import ErrorPage from "@/app/error";
-import NotFound from "@/app/not-found";
+import ErrorPage from "@/app/(public)/error";
+import NotFound from "@/app/(public)/not-found";
 
 describe("Phase 2 route boundaries", () => {
   it("alerts on error, retries through reset, and offers a way home", async () => {

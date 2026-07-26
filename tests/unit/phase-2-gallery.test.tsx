@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import DesignSystemPage from "@/app/design-system/page";
+import DesignSystemPage from "@/app/(public)/design-system/page";
 import { DisplayModeProvider } from "@/features/display-mode/provider";
 
 describe("design system gallery", () => {

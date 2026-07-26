@@ -1,0 +1,397 @@
+.shell {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  min-height: 100svh;
+  border-bottom: 2px solid var(--line);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 22px 18px;
+  border-right: 2px solid var(--line);
+}
+
+.logo {
+  width: max-content;
+  color: var(--ink);
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.logo b {
+  color: var(--accent-text);
+}
+
+.nav {
+  display: grid;
+  gap: 4px;
+}
+
+.nav a,
+.logoutForm button {
+  border: 0;
+  background: transparent;
+  color: var(--dim);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 10px;
+  text-align: left;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.nav a[aria-current="page"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.nav span {
+  margin-left: 8px;
+  color: inherit;
+}
+
+.logoutForm {
+  margin-top: auto;
+}
+
+.logoutForm button {
+  width: 100%;
+  cursor: pointer;
+}
+
+.logoutForm button:hover {
+  color: var(--ink);
+}
+
+.user {
+  color: var(--dim);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.625rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.main {
+  min-width: 0;
+  padding: 24px;
+}
+
+.dashboard {
+  display: grid;
+  gap: 20px;
+}
+
+.titleRow {
+  align-items: end;
+  border-bottom: 2px solid var(--line);
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  padding-bottom: 18px;
+}
+
+.titleRow h1 {
+  font-size: clamp(2.25rem, 5vw, 4.5rem);
+  line-height: 0.9;
+  margin: 0;
+}
+
+.titleRow p {
+  color: var(--dim);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  margin: 10px 0 0;
+  max-width: 62ch;
+}
+
+.titleMeta {
+  align-items: end;
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
+
+.titleMeta > span {
+  color: var(--dim);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+}
+
+.rangeNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: end;
+}
+
+.rangeNav a {
+  border: 1px solid var(--line);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 7px 9px;
+  text-decoration: none;
+}
+
+.rangeNav a[aria-current="page"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.metrics {
+  border: 2px solid var(--line);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.metric {
+  border-right: 1px solid var(--line);
+  min-width: 0;
+  padding: 18px;
+}
+
+.metric:last-child {
+  border-right: 0;
+}
+
+.metric strong {
+  display: block;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 1.875rem;
+  font-weight: 700;
+}
+
+.metric span {
+  color: var(--dim);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.5625rem;
+  text-transform: uppercase;
+}
+
+.grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.5fr);
+}
+
+.panel {
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+
+.panel:first-child {
+  grid-row: span 2;
+}
+
+.panelHead {
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.625rem;
+  justify-content: space-between;
+  padding: 11px 14px;
+  text-transform: uppercase;
+}
+
+.chartArea {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+}
+
+.chartArea > div[role="img"] {
+  min-height: 250px;
+}
+
+.dataTable {
+  border-collapse: collapse;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.625rem;
+  width: 100%;
+}
+
+.dataTable caption {
+  color: var(--dim);
+  padding: 8px 0;
+  text-align: left;
+}
+
+.dataTable th,
+.dataTable td {
+  border-bottom: 1px solid var(--soft);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.dataTable th {
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.eventList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.eventList li {
+  border-bottom: 1px solid var(--soft);
+  display: grid;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.625rem;
+  gap: 10px;
+  grid-template-columns: 128px 1fr auto;
+  padding: 12px 14px;
+}
+
+.eventList time,
+.eventList em {
+  color: var(--dim);
+  font-style: normal;
+}
+
+.empty {
+  color: var(--dim);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.75rem;
+  margin: 0;
+  padding: 18px;
+}
+
+.errorState {
+  display: grid;
+  gap: 14px;
+  margin: 24px;
+  max-width: 720px;
+}
+
+.errorState h1 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 0.95;
+  margin: 0;
+}
+
+.errorState p {
+  color: var(--dim);
+  margin: 0;
+}
+
+.errorState button {
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  justify-self: start;
+  padding: 12px 18px;
+  text-transform: uppercase;
+}
+
+.skeletonTitle,
+.skeletonNumber,
+.skeletonLabel,
+.chartSkeleton {
+  background: linear-gradient(90deg, var(--soft), transparent, var(--soft));
+}
+
+.skeletonTitle {
+  height: 64px;
+  width: min(460px, 70vw);
+}
+
+.skeletonNumber {
+  height: 36px;
+  width: 92px;
+}
+
+.skeletonLabel {
+  height: 12px;
+  width: 140px;
+}
+
+.chartSkeleton {
+  height: 250px;
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    align-items: center;
+    border-bottom: 2px solid var(--line);
+    border-right: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .nav {
+    display: flex;
+  }
+
+  .logoutForm {
+    margin-left: auto;
+    margin-top: 0;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .metric:nth-child(2) {
+    border-right: 0;
+  }
+
+  .metric:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 640px) {
+  .main {
+    padding: 16px;
+  }
+
+  .titleRow {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .titleMeta {
+    justify-items: start;
+  }
+
+  .user {
+    display: none;
+  }
+
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .metric,
+  .metric:nth-child(2) {
+    border-bottom: 1px solid var(--line);
+    border-right: 0;
+  }
+
+  .metric:last-child {
+    border-bottom: 0;
+  }
+}
