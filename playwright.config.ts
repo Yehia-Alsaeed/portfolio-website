@@ -5,8 +5,8 @@ const localBaseUrl = "http://localhost:3100";
 const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim() || undefined;
 const hasLiveSecret = Boolean(
   bypassSecret ||
-    process.env.PLAYWRIGHT_ADMIN_EMAIL?.trim() ||
-    process.env.PLAYWRIGHT_ADMIN_PASSWORD?.trim(),
+  process.env.PLAYWRIGHT_ADMIN_EMAIL?.trim() ||
+  process.env.PLAYWRIGHT_ADMIN_PASSWORD?.trim(),
 );
 
 export default defineConfig({

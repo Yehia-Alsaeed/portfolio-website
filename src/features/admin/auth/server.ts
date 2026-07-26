@@ -28,7 +28,9 @@ type NeonAuthInstance = {
     GET: (request: Request, context: { params: Promise<{ path: string[] }> }) => Promise<Response>;
     POST: (request: Request, context: { params: Promise<{ path: string[] }> }) => Promise<Response>;
   };
-  middleware: (config: { loginUrl: string }) => (request: NextRequest) => NextResponse | Promise<NextResponse>;
+  middleware: (config: {
+    loginUrl: string;
+  }) => (request: NextRequest) => NextResponse | Promise<NextResponse>;
 };
 
 let authInstance: Promise<NeonAuthInstance> | undefined;
@@ -37,9 +39,9 @@ async function getAuth(): Promise<NeonAuthInstance> {
   authInstance ??= import("@neondatabase/auth/next/server").then(
     ({ createNeonAuth }) =>
       createNeonAuth({
-      baseUrl: readNeonAuthBaseUrl(),
-      cookies: { secret: readNeonAuthCookieSecret() },
-      logLevel: "silent",
+        baseUrl: readNeonAuthBaseUrl(),
+        cookies: { secret: readNeonAuthCookieSecret() },
+        logLevel: "silent",
       }) as unknown as NeonAuthInstance,
   );
 
@@ -57,7 +59,9 @@ export const auth = {
 };
 
 export function isBlockedAuthPath(pathname: string): boolean {
-  return BLOCKED_AUTH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  return BLOCKED_AUTH_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
 }
 
 export function blockSignupResponse(): NextResponse {
@@ -69,7 +73,9 @@ export function isAnonymousAdminPath(pathname: string): boolean {
 }
 
 export function isProtectedAdminPath(pathname: string): boolean {
-  return pathname === "/admin" || (pathname.startsWith("/admin/") && !isAnonymousAdminPath(pathname));
+  return (
+    pathname === "/admin" || (pathname.startsWith("/admin/") && !isAnonymousAdminPath(pathname))
+  );
 }
 
 export async function protectAdminRequest(request: NextRequest): Promise<NextResponse> {

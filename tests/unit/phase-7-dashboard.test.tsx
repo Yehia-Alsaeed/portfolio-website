@@ -60,8 +60,14 @@ describe("Phase 7 admin dashboard", () => {
     render(<AdminDashboard overview={emptyOverview} />);
 
     const ranges = screen.getByRole("navigation", { name: "Dashboard range" });
-    expect(within(ranges).getByRole("link", { name: "24h" })).toHaveAttribute("href", "/admin?range=24h");
-    expect(within(ranges).getByRole("link", { name: "30d" })).toHaveAttribute("aria-current", "page");
+    expect(within(ranges).getByRole("link", { name: "24h" })).toHaveAttribute(
+      "href",
+      "/admin?range=24h",
+    );
+    expect(within(ranges).getByRole("link", { name: "30d" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
     expect(screen.queryByText("bogus")).not.toBeInTheDocument();
   });
 

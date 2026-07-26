@@ -26,12 +26,7 @@ function utcDayStart(date: Date): Date {
 
 function utcHourStart(date: Date): Date {
   return new Date(
-    Date.UTC(
-      date.getUTCFullYear(),
-      date.getUTCMonth(),
-      date.getUTCDate(),
-      date.getUTCHours(),
-    ),
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours()),
   );
 }
 
@@ -41,7 +36,9 @@ function formatDateKey(date: Date): string {
 
 export function parseAdminRange(value: string | string[] | undefined): AdminRange {
   if (typeof value !== "string") return DEFAULT_ADMIN_RANGE;
-  return (ADMIN_RANGES as readonly string[]).includes(value) ? (value as AdminRange) : DEFAULT_ADMIN_RANGE;
+  return (ADMIN_RANGES as readonly string[]).includes(value)
+    ? (value as AdminRange)
+    : DEFAULT_ADMIN_RANGE;
 }
 
 export function buildAdminRangeWindow(range: AdminRange, now: Date): AdminRangeWindow {
@@ -105,7 +102,8 @@ export function decodeContactCursor(
     if (!UUID_PATTERN.test(parsed.id)) return undefined;
 
     const createdAt = new Date(parsed.createdAt);
-    if (!Number.isFinite(createdAt.getTime()) || createdAt.getTime() > now.getTime()) return undefined;
+    if (!Number.isFinite(createdAt.getTime()) || createdAt.getTime() > now.getTime())
+      return undefined;
 
     return { createdAt, id: parsed.id };
   } catch {

@@ -33,7 +33,9 @@ function buildContactForm(): FormData {
   return formData;
 }
 
-function buildContactDependencies(overrides: Partial<ContactDependencies> = {}): ContactDependencies {
+function buildContactDependencies(
+  overrides: Partial<ContactDependencies> = {},
+): ContactDependencies {
   return {
     now: () => new Date("2026-07-26T12:00:00Z"),
     consume: vi.fn().mockResolvedValue({ allowed: true, count: 1, retryAfterSeconds: 0 }),

@@ -24,13 +24,15 @@ function rowsOf(result: QueryResult): Row[] {
 
 function safeCount(value: unknown): number {
   const count = typeof value === "bigint" ? Number(value) : Number(value ?? 0);
-  if (!Number.isSafeInteger(count) || count < 0) throw new Error("Admin query returned an unsafe count.");
+  if (!Number.isSafeInteger(count) || count < 0)
+    throw new Error("Admin query returned an unsafe count.");
   return count;
 }
 
 function readDate(value: unknown): Date {
   const date = value instanceof Date ? value : new Date(String(value));
-  if (!Number.isFinite(date.getTime())) throw new Error("Admin query returned an invalid contact date.");
+  if (!Number.isFinite(date.getTime()))
+    throw new Error("Admin query returned an invalid contact date.");
   return date;
 }
 
@@ -46,10 +48,12 @@ function mapContact(row: Row): ContactMessageDto {
   } as ContactMessageDto;
 }
 
-export async function readContactPage(input: {
-  cursor?: string | string[];
-  now?: Date;
-} = {}): Promise<ContactPage> {
+export async function readContactPage(
+  input: {
+    cursor?: string | string[];
+    now?: Date;
+  } = {},
+): Promise<ContactPage> {
   await requireAdmin();
 
   const now = input.now ?? new Date();
@@ -75,14 +79,20 @@ export async function readContactPage(input: {
     sql`select count(*)::bigint as unread_count from ${contactMessages} where ${contactMessages.isRead} = false`,
   );
 
-  const [pageRowsResult, unreadRowsResult] = await Promise.all([pageRowsPromise, unreadRowsPromise]);
+  const [pageRowsResult, unreadRowsResult] = await Promise.all([
+    pageRowsPromise,
+    unreadRowsPromise,
+  ]);
   const allRows = rowsOf(pageRowsResult as QueryResult);
   const rows = allRows.slice(0, ADMIN_CONTACT_QUERY_SHAPE.pageSize).map(mapContact);
   const extra = allRows[ADMIN_CONTACT_QUERY_SHAPE.pageSize];
 
   return {
     rows,
-    unreadCount: safeCount(rowsOf(unreadRowsResult as QueryResult)[0]?.unreadCount ?? rowsOf(unreadRowsResult as QueryResult)[0]?.unread_count),
+    unreadCount: safeCount(
+      rowsOf(unreadRowsResult as QueryResult)[0]?.unreadCount ??
+        rowsOf(unreadRowsResult as QueryResult)[0]?.unread_count,
+    ),
     ...(extra
       ? {
           nextCursor: encodeContactCursor({

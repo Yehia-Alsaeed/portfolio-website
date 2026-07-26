@@ -22,7 +22,7 @@ export function LoginForm() {
       {hasError ? (
         <div
           aria-live="assertive"
-          className="border-2 border-line bg-soft p-4 font-mono text-sm font-bold text-accent-text"
+          className="border-line bg-soft text-accent-text border-2 p-4 font-mono text-sm font-bold"
           role="alert"
           tabIndex={-1}
         >
@@ -34,7 +34,7 @@ export function LoginForm() {
       <FormField id="admin-email" label="Email">
         <input
           autoComplete="username"
-          className="min-h-12 border-2 border-line bg-paper px-4 text-base text-ink"
+          className="border-line bg-paper text-ink min-h-12 border-2 px-4 text-base"
           name="email"
           required
           type="email"
@@ -44,7 +44,7 @@ export function LoginForm() {
       <FormField id="admin-password" label="Password">
         <input
           autoComplete="current-password"
-          className="min-h-12 border-2 border-line bg-paper px-4 text-base text-ink"
+          className="border-line bg-paper text-ink min-h-12 border-2 px-4 text-base"
           name="password"
           required
           type="password"

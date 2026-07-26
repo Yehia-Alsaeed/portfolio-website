@@ -32,9 +32,8 @@ beforeEach(() => {
 
 describe("Phase 7 inbox mutations", () => {
   it("rejects malformed UUIDs before auth or database access", async () => {
-    const { setMessageReadAction, deleteMessageAction } = await import(
-      "@/features/admin/inbox/actions"
-    );
+    const { setMessageReadAction, deleteMessageAction } =
+      await import("@/features/admin/inbox/actions");
 
     await expect(setMessageReadAction("not-a-uuid", true)).resolves.toEqual({
       status: "invalid",

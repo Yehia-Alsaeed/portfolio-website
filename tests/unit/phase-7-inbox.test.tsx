@@ -25,7 +25,9 @@ describe("Phase 7 inbox UI", () => {
 
     expect(screen.getByRole("heading", { name: "Contact inbox." })).toBeInTheDocument();
     expect(screen.getByText("1 unread")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Ada Lovelace \/ Freelance project/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Ada Lovelace \/ Freelance project/ }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ada@example.com" })).toHaveAttribute(
       "href",
       "mailto:ada@example.com",

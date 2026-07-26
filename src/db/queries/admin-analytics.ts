@@ -63,11 +63,17 @@ function mapRecent(rows: Row[]): RecentEvent[] {
     id: safeNumber(row.id),
     type: row.type as RecentEvent["type"],
     path: String(row.path),
-    createdAt: (row.createdAt instanceof Date ? row.createdAt : new Date(String(row.created_at))).toISOString(),
+    createdAt: (row.createdAt instanceof Date
+      ? row.createdAt
+      : new Date(String(row.created_at))
+    ).toISOString(),
   }));
 }
 
-async function executeRows(db: ReturnType<typeof getDatabase>, query: ReturnType<typeof sql>): Promise<Row[]> {
+async function executeRows(
+  db: ReturnType<typeof getDatabase>,
+  query: ReturnType<typeof sql>,
+): Promise<Row[]> {
   return rowsOf((await db.execute(query)) as QueryResult);
 }
 

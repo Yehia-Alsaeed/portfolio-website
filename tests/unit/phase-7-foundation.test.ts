@@ -2,11 +2,7 @@ import { getTableConfig } from "drizzle-orm/pg-core";
 import { describe, expect, it } from "vitest";
 
 import { analyticsDailyAggregates, contactMessages } from "@/db/schema";
-import {
-  readAdminUserId,
-  readNeonAuthBaseUrl,
-  readNeonAuthCookieSecret,
-} from "@/lib/env/server";
+import { readAdminUserId, readNeonAuthBaseUrl, readNeonAuthCookieSecret } from "@/lib/env/server";
 
 function indexColumns(table: Parameters<typeof getTableConfig>[0], name: string): string[] {
   const index = getTableConfig(table).indexes.find((entry) => entry.config.name === name);
@@ -22,9 +18,7 @@ function indexColumns(table: Parameters<typeof getTableConfig>[0], name: string)
 
 describe("Phase 7 admin foundation environment contract", () => {
   it("requires Neon Auth and admin variables with fixed missing-variable messages", () => {
-    expect(() => readNeonAuthBaseUrl({})).toThrow(
-      "NEON_AUTH_BASE_URL is required but was not set",
-    );
+    expect(() => readNeonAuthBaseUrl({})).toThrow("NEON_AUTH_BASE_URL is required but was not set");
     expect(() => readNeonAuthCookieSecret({})).toThrow(
       "NEON_AUTH_COOKIE_SECRET is required but was not set",
     );
@@ -34,9 +28,9 @@ describe("Phase 7 admin foundation environment contract", () => {
   it("rejects short Neon Auth cookie secrets without echoing supplied values", () => {
     const weakSecret = "short-secret-value";
 
-    expect(() =>
-      readNeonAuthCookieSecret({ NEON_AUTH_COOKIE_SECRET: weakSecret }),
-    ).toThrow("NEON_AUTH_COOKIE_SECRET must be at least 32 characters");
+    expect(() => readNeonAuthCookieSecret({ NEON_AUTH_COOKIE_SECRET: weakSecret })).toThrow(
+      "NEON_AUTH_COOKIE_SECRET must be at least 32 characters",
+    );
 
     try {
       readNeonAuthCookieSecret({ NEON_AUTH_COOKIE_SECRET: weakSecret });

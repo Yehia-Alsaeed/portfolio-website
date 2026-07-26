@@ -30,15 +30,15 @@ export default async function AdminLoginPage({
 
   return (
     <section className="site-frame grid min-h-[70svh] place-items-center py-16">
-      <div className="grid w-full max-w-[440px] gap-8 border-2 border-line bg-paper p-6 sm:p-8">
+      <div className="border-line bg-paper grid w-full max-w-[440px] gap-8 border-2 p-6 sm:p-8">
         <header className="grid gap-2">
-          <p className="font-mono text-xs font-bold tracking-[0.16em] text-dim uppercase">
+          <p className="text-dim font-mono text-xs font-bold tracking-[0.16em] uppercase">
             Private operations
           </p>
-          <h1 className="text-3xl leading-none font-black tracking-normal text-ink">Admin login</h1>
+          <h1 className="text-ink text-3xl leading-none font-black tracking-normal">Admin login</h1>
         </header>
         {reasonMessage ? (
-          <p className="border-2 border-line bg-soft p-4 font-mono text-sm text-dim" role="status">
+          <p className="border-line bg-soft text-dim border-2 p-4 font-mono text-sm" role="status">
             {reasonMessage}
           </p>
         ) : null}

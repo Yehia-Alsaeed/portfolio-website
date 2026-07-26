@@ -24,7 +24,10 @@ export function AdminShell({
           <Link aria-current={active === "overview" ? "page" : undefined} href={"/admin" as Route}>
             Overview
           </Link>
-          <Link aria-current={active === "inbox" ? "page" : undefined} href={"/admin/inbox" as Route}>
+          <Link
+            aria-current={active === "inbox" ? "page" : undefined}
+            href={"/admin/inbox" as Route}
+          >
             Inbox
             {typeof unreadCount === "number" ? <span>{unreadCount}</span> : null}
           </Link>

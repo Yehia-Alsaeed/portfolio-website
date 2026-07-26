@@ -23,10 +23,6 @@ export const contactMessages = pgTable(
   },
   (table) => [
     index("contact_messages_created_at_id_idx").on(table.createdAt, table.id),
-    index("contact_messages_is_read_created_at_id_idx").on(
-      table.isRead,
-      table.createdAt,
-      table.id,
-    ),
+    index("contact_messages_is_read_created_at_id_idx").on(table.isRead, table.createdAt, table.id),
   ],
 );

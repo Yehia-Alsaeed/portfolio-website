@@ -57,7 +57,10 @@ describe("Phase 7 admin range handling", () => {
 
 describe("Phase 7 contact cursor handling", () => {
   it("round-trips versioned base64url cursors", () => {
-    const cursor = { createdAt: "2026-07-26T04:00:00.000Z", id: "2d6c56f8-11e9-4d88-b98a-57d8d01cf8f3" };
+    const cursor = {
+      createdAt: "2026-07-26T04:00:00.000Z",
+      id: "2d6c56f8-11e9-4d88-b98a-57d8d01cf8f3",
+    };
 
     expect(decodeContactCursor(encodeContactCursor(cursor), NOW)).toEqual({
       createdAt: new Date(cursor.createdAt),
@@ -67,7 +70,9 @@ describe("Phase 7 contact cursor handling", () => {
 
   it("fails closed on invalid, garbage, and future cursors", () => {
     expect(decodeContactCursor("not-base64", NOW)).toBeUndefined();
-    expect(decodeContactCursor(Buffer.from(JSON.stringify({ v: 2 })).toString("base64url"), NOW)).toBeUndefined();
+    expect(
+      decodeContactCursor(Buffer.from(JSON.stringify({ v: 2 })).toString("base64url"), NOW),
+    ).toBeUndefined();
     expect(
       decodeContactCursor(
         encodeContactCursor({

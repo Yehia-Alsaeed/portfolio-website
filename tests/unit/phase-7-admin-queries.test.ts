@@ -27,9 +27,8 @@ beforeEach(() => {
 
 describe("Phase 7 admin analytics queries", () => {
   it("authorizes before opening the database and returns a bounded empty DTO", async () => {
-    const { readAdminOverview, ADMIN_OVERVIEW_QUERY_SHAPE } = await import(
-      "@/db/queries/admin-analytics"
-    );
+    const { readAdminOverview, ADMIN_OVERVIEW_QUERY_SHAPE } =
+      await import("@/db/queries/admin-analytics");
 
     const overview = await readAdminOverview({
       range: "30d",
@@ -75,7 +74,8 @@ describe("Phase 7 admin analytics queries", () => {
 
 describe("Phase 7 admin contact queries", () => {
   it("authorizes before database access and fetches 21 rows for a 20-row keyset page", async () => {
-    const { readContactPage, ADMIN_CONTACT_QUERY_SHAPE } = await import("@/db/queries/admin-contact");
+    const { readContactPage, ADMIN_CONTACT_QUERY_SHAPE } =
+      await import("@/db/queries/admin-contact");
 
     const page = await readContactPage({ now: new Date("2026-07-26T04:30:00Z") });
 
