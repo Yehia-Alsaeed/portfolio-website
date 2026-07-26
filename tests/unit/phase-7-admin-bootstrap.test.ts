@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildAdminSignupInput,
+  buildSignupRequest,
   extractCreatedUserId,
   normalizeAuthBaseUrl,
 } from "../../scripts/bootstrap-neon-admin";
@@ -54,5 +55,26 @@ describe("Phase 7 admin bootstrap helper", () => {
       "user_123",
     );
     expect(extractCreatedUserId({ user: { id: "user_456" } })).toBe("user_456");
+  });
+
+  it("adds absolute callback and origin data for Node-based signup", () => {
+    expect(
+      buildSignupRequest({
+        baseUrl: "https://example.neonauth.dev",
+        email: "admin@example.com",
+        name: "Yehia Alsaeed",
+        password: "correct horse battery staple",
+      }),
+    ).toEqual({
+      email: "admin@example.com",
+      name: "Yehia Alsaeed",
+      password: "correct horse battery staple",
+      callbackURL: "https://example.neonauth.dev",
+      fetchOptions: {
+        headers: {
+          Origin: "https://example.neonauth.dev",
+        },
+      },
+    });
   });
 });

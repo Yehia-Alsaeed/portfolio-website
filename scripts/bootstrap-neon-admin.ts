@@ -26,6 +26,18 @@ type SignupResponse = {
   };
 };
 
+type SignupRequest = {
+  email: string;
+  name: string;
+  password: string;
+  callbackURL: string;
+  fetchOptions: {
+    headers: {
+      Origin: string;
+    };
+  };
+};
+
 export function normalizeAuthBaseUrl(value: string): string {
   const trimmed = value.trim().replace(/\/+$/, "");
 
@@ -61,6 +73,22 @@ export function buildAdminSignupInput(input: SignupInput): SignupInput {
   }
 
   return { baseUrl, email, name, password: input.password };
+}
+
+export function buildSignupRequest(input: SignupInput): SignupRequest {
+  const origin = new URL(input.baseUrl).origin;
+
+  return {
+    email: input.email,
+    name: input.name,
+    password: input.password,
+    callbackURL: origin,
+    fetchOptions: {
+      headers: {
+        Origin: origin,
+      },
+    },
+  };
 }
 
 export function extractCreatedUserId(response: SignupResponse): string {
@@ -139,11 +167,9 @@ async function main(): Promise<void> {
 
     const signupInput = buildAdminSignupInput({ baseUrl, email, name, password });
     const authClient = createAuthClient(signupInput.baseUrl);
-    const response = (await authClient.signUp.email({
-      email: signupInput.email,
-      name: signupInput.name,
-      password: signupInput.password,
-    })) as SignupResponse;
+    const response = (await authClient.signUp.email(
+      buildSignupRequest(signupInput),
+    )) as SignupResponse;
 
     if (response.error) {
       throw new Error(response.error.message || response.error.code || "Neon Auth signup failed");
