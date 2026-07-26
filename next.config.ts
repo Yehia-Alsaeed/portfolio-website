@@ -24,6 +24,14 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   reactStrictMode: true,
+  async headers() {
+    return [
+      {
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
+        source: "/admin/:path*",
+      },
+    ];
+  },
   typedRoutes: true,
 };
 
