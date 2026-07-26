@@ -1,6 +1,9 @@
 # Phase 7 Implementation Report
 
-**Status:** Local implementation complete on branch `phase-7-auth-admin-operations`. Draft PR and live Preview verification are still pending.
+**Status:** Local implementation complete on branch `phase-7-auth-admin-operations`. Draft PR #8 is open. Live app-level Preview verification is pending because the Preview is currently behind Vercel SSO protection from this shell.
+
+**PR:** https://github.com/Yehia-Alsaeed/portfolio-website/pull/8 (draft)
+**Preview deployment:** `https://portfolio-website-4ijztcdcr-yehias3eed11-5404s-projects.vercel.app`
 
 ## Scope Delivered
 
@@ -48,11 +51,16 @@ Known provider limitation: the Neon Auth page still shows the public signup warn
 
 ## Pending Gate Items
 
-- Draft PR creation.
 - Real Vercel Preview verification against the isolated Neon branch.
 - Query-plan inspection on Preview.
 - Browser checks at 360, 768, 1024, and 1440 CSS pixels, including keyboard, 200% zoom, axe, and console/page errors.
 - Synthetic inbox read/read-toggle/delete verification.
+
+## Preview Access Status
+
+`vercel inspect` resolved deployment `dpl_84CY5jaQPo3zRRXFLXtNWjDRqiyX` as Ready at `https://portfolio-website-4ijztcdcr-yehias3eed11-5404s-projects.vercel.app`.
+
+Unauthenticated `curl -I` checks for `/admin`, `/admin/inbox`, `/admin/login`, `/robots.txt`, and `/api/auth/sign-up` all returned Vercel SSO redirects before the app. That confirms the Preview deployment is protected, but it prevents app-level verification of login, direct signup blocking, noindex/no-store, dashboard ranges, inbox mutations, and admin analytics exclusion from this shell without the Vercel bypass secret and admin credentials.
 
 ## Security And Privacy Notes
 
