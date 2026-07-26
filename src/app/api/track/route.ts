@@ -1,5 +1,6 @@
 import { insertAnalyticsEvent } from "@/db/queries/analytics";
 import { consumeRateLimit } from "@/db/queries/rate-limit";
+import { isCurrentAdminSession } from "@/features/admin/auth/authorize";
 import { handleTrackRequest } from "@/features/analytics/track-request";
 
 export async function POST(request: Request): Promise<Response> {
@@ -7,5 +8,6 @@ export async function POST(request: Request): Promise<Response> {
     now: () => new Date(),
     consume: consumeRateLimit,
     insert: insertAnalyticsEvent,
+    isAdminSession: isCurrentAdminSession,
   });
 }

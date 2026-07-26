@@ -6,16 +6,19 @@ import type { AnalyticsEventInsert, PersistedContactInput } from "@/features/ana
 
 export async function saveContactAndEvent(input: {
   contact: PersistedContactInput;
-  event: AnalyticsEventInsert;
+  event?: AnalyticsEventInsert;
 }): Promise<{ id: string }> {
   const id = randomUUID();
+  const db = getDatabase();
 
-  await getDatabase().batch([
-    getDatabase()
-      .insert(contactMessages)
-      .values({ id, ...input.contact }),
-    getDatabase().insert(analyticsEvents).values(input.event),
-  ]);
+  if (input.event) {
+    await db.batch([
+      db.insert(contactMessages).values({ id, ...input.contact }),
+      db.insert(analyticsEvents).values(input.event),
+    ]);
+  } else {
+    await db.insert(contactMessages).values({ id, ...input.contact });
+  }
 
   return { id };
 }

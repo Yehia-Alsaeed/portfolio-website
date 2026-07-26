@@ -23,4 +23,5 @@ export type ContactDependencies = {
   consume: typeof consumeRateLimit;
   save: typeof saveContactAndEvent;
   scheduleNotification: (message: PersistedContactInput & { id: string }) => void;
+  isAdminSession?: () => Promise<boolean>;
 };

@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import robots from "@/app/robots";
 
 describe("robots.txt", () => {
-  it("allows every crawler to index the whole site", () => {
+  it("allows public pages while disallowing the private admin area", () => {
     const result = robots();
-    expect(result.rules).toEqual({ userAgent: "*", allow: "/" });
+    expect(result.rules).toEqual([{ userAgent: "*", allow: "/", disallow: "/admin" }]);
   });
 
   it("advertises a host derived from the configured site URL", () => {

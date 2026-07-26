@@ -14,6 +14,7 @@ export type TrackRouteDependencies = {
   now: () => Date;
   consume: typeof consumeRateLimit;
   insert: typeof insertAnalyticsEvent;
+  isAdminSession?: () => Promise<boolean>;
 };
 
 const MAX_BODY_BYTES = 2048;
@@ -101,6 +102,10 @@ export async function handleTrackRequest(
   }
 
   try {
+    if (dependencies.isAdminSession && (await dependencies.isAdminSession())) {
+      return emptyResponse(202);
+    }
+
     const salt = readAnalyticsSalt();
     const now = dependencies.now();
     const rateLimitKey = createRateLimitKey(facts, salt);

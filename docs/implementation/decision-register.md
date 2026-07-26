@@ -12,3 +12,4 @@
 | UI-002 | Every UI ships for mobile, tablet, desktop, and wide desktop | Locked | Production roadmap section 3 | No phase may waive viewport checks |
 | PERF-001 | Performance and practical scalability are phase exit criteria | Locked | Production roadmap section 3 | Targets may only become stricter |
 | ANALYTICS-001 | Custom cookieless analytics only; no parallel Vercel Analytics | Locked | Production roadmap section 3 | Explicit user approval required |
+| AUTH-002 | Until Neon exposes restricted signup controls in this project UI, block signup routes in the app and authorize only the configured `ADMIN_USER_ID` | Active mitigation | Phase 7 implementation | Replace with provider-side restriction once available and verified |

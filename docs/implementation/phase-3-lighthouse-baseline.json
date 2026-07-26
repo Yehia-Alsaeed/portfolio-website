@@ -3,11 +3,11 @@
   "scores": {
     "performance": 93,
     "accessibility": 100,
-    "bestPractices": 96,
+    "bestPractices": 100,
     "seo": 100
   },
   "metrics": {
-    "largestContentfulPaintMs": 2859.1319999999996,
+    "largestContentfulPaintMs": 3179.781299999999,
     "cumulativeLayoutShift": 0
   }
 }

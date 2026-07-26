@@ -70,7 +70,13 @@ export async function processContactSubmission(
       createdAt: now,
     };
 
-    const saved = await dependencies.save({ contact: validation.values, event });
+    const isAdminSession = dependencies.isAdminSession
+      ? await dependencies.isAdminSession()
+      : false;
+    const saved = await dependencies.save({
+      contact: validation.values,
+      ...(isAdminSession ? {} : { event }),
+    });
 
     try {
       dependencies.scheduleNotification({ ...validation.values, id: saved.id });

@@ -3,6 +3,11 @@ import { defineConfig, devices } from "@playwright/test";
 const externalBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
 const localBaseUrl = "http://localhost:3100";
 const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim() || undefined;
+const hasLiveSecret = Boolean(
+  bypassSecret ||
+  process.env.PLAYWRIGHT_ADMIN_EMAIL?.trim() ||
+  process.env.PLAYWRIGHT_ADMIN_PASSWORD?.trim(),
+);
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -12,10 +17,9 @@ export default defineConfig({
   reporter: process.env.CI ? [["line"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: externalBaseUrl ?? localBaseUrl,
-    screenshot: "only-on-failure",
-    // The bypass secret must never enter a trace artifact, so tracing is
-    // forced off whenever it is present rather than merely defaulting.
-    trace: bypassSecret ? "off" : "retain-on-failure",
+    screenshot: hasLiveSecret ? "off" : "only-on-failure",
+    trace: hasLiveSecret ? "off" : "retain-on-failure",
+    video: hasLiveSecret ? "off" : "retain-on-failure",
     ...(bypassSecret
       ? {
           extraHTTPHeaders: {

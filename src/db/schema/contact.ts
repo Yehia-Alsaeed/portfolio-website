@@ -21,5 +21,8 @@ export const contactMessages = pgTable(
     isRead: boolean().notNull().default(false),
     createdAt: timestamp({ withTimezone: true, mode: "date" }).notNull().defaultNow(),
   },
-  (table) => [index("contact_messages_created_at_id_idx").on(table.createdAt, table.id)],
+  (table) => [
+    index("contact_messages_created_at_id_idx").on(table.createdAt, table.id),
+    index("contact_messages_is_read_created_at_id_idx").on(table.isRead, table.createdAt, table.id),
+  ],
 );

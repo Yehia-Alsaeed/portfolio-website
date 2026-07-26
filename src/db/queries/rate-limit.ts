@@ -5,10 +5,10 @@ import { rateLimitBuckets } from "@/db/schema";
 import type { RateLimitDecision } from "@/features/analytics/model";
 
 export async function consumeRateLimit(input: {
-  scope: "contact" | "analytics";
+  scope: "contact" | "analytics" | "admin-login";
   keyHash: string;
   limit: number;
-  windowSeconds: 60 | 3600;
+  windowSeconds: 60 | 900 | 3600;
   now: Date;
 }): Promise<RateLimitDecision> {
   const windowMs = input.windowSeconds * 1000;

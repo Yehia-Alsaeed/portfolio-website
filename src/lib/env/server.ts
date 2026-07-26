@@ -32,6 +32,24 @@ export function readCronSecret(env: ServerEnv = process.env): string {
   return readRequired("CRON_SECRET", env);
 }
 
+export function readNeonAuthBaseUrl(env: ServerEnv = process.env): string {
+  return readRequired("NEON_AUTH_BASE_URL", env);
+}
+
+export function readNeonAuthCookieSecret(env: ServerEnv = process.env): string {
+  const secret = readRequired("NEON_AUTH_COOKIE_SECRET", env);
+
+  if (secret.length < 32) {
+    throw new Error("NEON_AUTH_COOKIE_SECRET must be at least 32 characters");
+  }
+
+  return secret;
+}
+
+export function readAdminUserId(env: ServerEnv = process.env): string {
+  return readRequired("ADMIN_USER_ID", env);
+}
+
 export function readResendConfig(env: ServerEnv = process.env): ResendConfig | undefined {
   const apiKey = env.RESEND_API_KEY?.trim();
 

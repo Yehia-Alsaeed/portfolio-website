@@ -14,6 +14,9 @@
 | `RESEND_API_KEY` | server-only | Resend | Phase 6 | Optional | Optional; empty at launch | Optional; empty at launch | Persist contact message and skip notification |
 | `CONTACT_NOTIFICATION_FROM` | server-only | Application owner | Phase 6 | Required only when notifications are enabled | Required only when notifications are enabled | Required only when notifications are enabled | Fatal only if notification delivery is explicitly enabled; otherwise persist only |
 | `CONTACT_NOTIFICATION_TO` | server-only | Application owner | Phase 6 | Required when notifications are enabled | Required when notifications are enabled | Required when notifications are enabled | Fatal only if notification delivery is explicitly enabled; otherwise persist only |
+| `NEON_AUTH_BASE_URL` | server-only | Neon Auth/Vercel integration | Phase 7 | Required for admin auth routes | Required; branch-specific value | Required | Fatal when admin auth is activated |
+| `NEON_AUTH_COOKIE_SECRET` | server-only | Application-owned secret | Phase 7 | Required for admin auth routes; minimum 32 characters | Required; stable per environment | Required; stable per environment | Fatal when admin auth is activated |
+| `ADMIN_USER_ID` | server-only | Neon Auth administrator identity | Phase 7 | Required for admin authorization | Required; exact immutable user ID | Required; exact immutable user ID | Fail closed: no user is authorized |
 
 ## Rules
 
@@ -24,4 +27,7 @@
 - `RESEND_API_KEY` is optional; every other server variable becomes required in the phase that activates its integration.
 - `RESEND_API_KEY`, `CONTACT_NOTIFICATION_FROM`, and `CONTACT_NOTIFICATION_TO` remain empty in Vercel at Phase 6 launch; Resend stays implemented but disabled until an explicit later decision.
 - `ANALYTICS_HASH_SALT` and `CRON_SECRET` must differ between local, preview, and production.
-- Provider-generated Neon Auth variable names are added verbatim in Phase 7 rather than guessed in advance.
+- Neon Auth public registration must remain disabled before any Preview exposes `/api/auth`.
+- `ADMIN_USER_ID` is the only admin authorization key; never authorize by email or by any authenticated-user check.
+- Rotate `NEON_AUTH_COOKIE_SECRET` by setting a new server-only value and redeploying the affected environment; this invalidates existing sessions.
+- Rotate or replace `ADMIN_USER_ID` by creating the replacement Neon Auth administrator, updating the server-only variable, redeploying, and disabling or deleting the old user.

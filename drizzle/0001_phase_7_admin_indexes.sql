@@ -1,0 +1,2 @@
+CREATE INDEX "analytics_daily_aggregates_dimension_event_type_date_value_idx" ON "analytics_daily_aggregates" USING btree ("dimension","eventType","date","dimensionValue");--> statement-breakpoint
+CREATE INDEX "contact_messages_is_read_created_at_id_idx" ON "contact_messages" USING btree ("isRead","createdAt","id");
