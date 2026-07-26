@@ -5,6 +5,7 @@ import { after } from "next/server";
 
 import { saveContactAndEvent } from "@/db/queries/contact";
 import { consumeRateLimit } from "@/db/queries/rate-limit";
+import { isCurrentAdminSession } from "@/features/admin/auth/authorize";
 import { classifyRequest } from "@/features/analytics/request-facts";
 
 import type { ContactFormState } from "./model";
@@ -22,6 +23,7 @@ export async function submitContact(
     now: () => new Date(),
     consume: consumeRateLimit,
     save: saveContactAndEvent,
+    isAdminSession: isCurrentAdminSession,
     scheduleNotification: (message) => {
       after(() => sendContactNotification(message));
     },

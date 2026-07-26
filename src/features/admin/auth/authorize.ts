@@ -60,3 +60,12 @@ export async function requireAdminAccess<T>(
 
   return read();
 }
+
+export async function isCurrentAdminSession(): Promise<boolean> {
+  try {
+    const access = await getAdminAccess();
+    return access.status === "authorized";
+  } catch {
+    return false;
+  }
+}

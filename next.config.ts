@@ -27,8 +27,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
         source: "/admin/:path*",
+      },
+      {
+        headers: [{ key: "Cache-Control", value: "private, no-store" }],
+        source: "/api/auth/:path*",
       },
     ];
   },
