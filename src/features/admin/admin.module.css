@@ -298,6 +298,17 @@
   text-transform: uppercase;
 }
 
+.pageLink {
+  border: 1px solid var(--line);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  justify-self: start;
+  padding: 10px 12px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
 .skeletonTitle,
 .skeletonNumber,
 .skeletonLabel,

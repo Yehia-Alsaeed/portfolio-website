@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { readAdminOverview } from "@/db/queries/admin-analytics";
+import { AdminShell } from "@/features/admin/admin-shell";
 import { AdminDashboard } from "@/features/admin/analytics/dashboard";
 import { parseAdminRange } from "@/features/admin/analytics/ranges";
 
@@ -19,5 +20,9 @@ export default async function AdminOverviewPage({
   const range = parseAdminRange(params.range);
   const overview = await readAdminOverview({ range });
 
-  return <AdminDashboard overview={overview} />;
+  return (
+    <AdminShell active="overview">
+      <AdminDashboard overview={overview} />
+    </AdminShell>
+  );
 }

@@ -13,6 +13,8 @@ export const ADMIN_CONTACT_QUERY_SHAPE = {
   pagination: "(created_at, id) keyset",
 } as const;
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 type QueryResult = unknown[] | { rows?: unknown[] };
 type Row = Record<string, unknown>;
 
@@ -90,4 +92,42 @@ export async function readContactPage(input: {
         }
       : {}),
   };
+}
+
+export function isValidContactMessageId(id: string): boolean {
+  return UUID_PATTERN.test(id);
+}
+
+export async function setContactMessageRead(input: {
+  id: string;
+  isRead: boolean;
+}): Promise<boolean> {
+  if (!isValidContactMessageId(input.id)) return false;
+
+  await requireAdmin();
+  const rows = rowsOf(
+    (await getDatabase().execute(
+      sql`update ${contactMessages}
+          set ${contactMessages.isRead} = ${input.isRead}
+          where ${contactMessages.id} = ${input.id}
+          returning ${contactMessages.id}`,
+    )) as QueryResult,
+  );
+
+  return rows.length > 0;
+}
+
+export async function deleteContactMessage(id: string): Promise<boolean> {
+  if (!isValidContactMessageId(id)) return false;
+
+  await requireAdmin();
+  const rows = rowsOf(
+    (await getDatabase().execute(
+      sql`delete from ${contactMessages}
+          where ${contactMessages.id} = ${id}
+          returning ${contactMessages.id}`,
+    )) as QueryResult,
+  );
+
+  return rows.length > 0;
 }
