@@ -1,4 +1,4 @@
-import { randomUUID, timingSafeEqual } from "node:crypto";
+import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
 
 import type { MaintenanceResult } from "@/db/queries/maintenance";
 
@@ -22,13 +22,14 @@ function noStoreResponse(body: string | null, status: number): Response {
   });
 }
 
+// Hashing both sides to a fixed-length digest before comparing means the
+// buffers passed to timingSafeEqual are always the same length, so there is
+// no length-mismatch branch to leak the real secret's length through timing.
 function timingSafeEqualStrings(a: string, b: string): boolean {
-  const bufferA = Buffer.from(a);
-  const bufferB = Buffer.from(b);
+  const digestA = createHash("sha256").update(a).digest();
+  const digestB = createHash("sha256").update(b).digest();
 
-  if (bufferA.length !== bufferB.length) return false;
-
-  return timingSafeEqual(bufferA, bufferB);
+  return timingSafeEqual(digestA, digestB);
 }
 
 export async function handleMaintenanceRequest(
