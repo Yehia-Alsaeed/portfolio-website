@@ -12,3 +12,6 @@ pnpm-lock.yaml
 docs
 handoff.md
 prd.md
+.claude
+.superpowers
+.worktrees
