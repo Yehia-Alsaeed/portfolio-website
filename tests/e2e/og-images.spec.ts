@@ -29,7 +29,9 @@ for (const route of ROUTES) {
     const response = await request.get(image ?? "");
     expect(response.status()).toBe(200);
     expect(response.headers()["content-type"]).toBe("image/png");
-    expect(response.headers()["cache-control"]).toBeTruthy();
+    expect(response.headers()["cache-control"]).toBe(
+      "public, max-age=3600, stale-while-revalidate=86400",
+    );
 
     const body = await response.body();
     expect(readPngDimensions(body)).toEqual({ height: 630, width: 1200 });

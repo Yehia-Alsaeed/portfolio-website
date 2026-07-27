@@ -51,6 +51,7 @@ export function ClientWorkMedia({ media, name }: ClientWorkMediaProps) {
         alt={active.alt}
         className="border-line mt-3 h-auto w-full border"
         height={VIEWPORT_DIMENSIONS[viewport].height}
+        sizes="(min-width: 820px) 33vw, 100vw"
         src={active.src}
         width={VIEWPORT_DIMENSIONS[viewport].width}
       />

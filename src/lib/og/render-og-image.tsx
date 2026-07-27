@@ -99,6 +99,16 @@ export async function renderOgImage({ eyebrow, title, subtitle }: OgImageContent
         { data: archivo, name: "Archivo", style: "normal", weight: 800 },
         { data: jetBrainsMono, name: "JetBrains Mono", style: "normal", weight: 500 },
       ],
+      headers: {
+        // Not `immutable`: the build-time hash in each route's public path
+        // is derived from the route's code, not the case-study/profile text
+        // it renders, so a content-only edit between deployments would keep
+        // the same URL. A one-hour fresh window with a background
+        // revalidation day is a safer middle ground than the previous
+        // `max-age=0` (which forced a Fluid Compute invocation on every
+        // request) without risking a stale image for a full year.
+        "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+      },
     },
   );
 }

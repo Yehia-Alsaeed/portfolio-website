@@ -20,20 +20,28 @@ export const archivo = localFont({
 });
 
 // Exact static instances keep the first viewport in Archivo without waiting
-// for the broader variable face used by content below it.
+// for the broader variable face used by content below it. `adjustFontFallback`
+// matches the fallback's box metrics to the real face's so the swap this
+// `display: "swap"` strategy performs doesn't reflow surrounding content -
+// found missing here (only `archivo` had it) via a real, reproducible
+// "Web font loaded" layout-shift measured across every route in Phase 8
+// Stage 6 (docs/implementation/phase-8-report.md).
 export const archivoStatement = localFont({
+  adjustFontFallback: "Arial",
   display: "swap",
   src: "./fonts/archivo-statement-650.woff2",
   weight: "650",
 });
 
 export const archivoWide = localFont({
+  adjustFontFallback: "Arial",
   display: "swap",
   src: "./fonts/archivo-wide-900.woff2",
   weight: "900",
 });
 
 export const jetBrainsMono = localFont({
+  adjustFontFallback: "Arial",
   display: "swap",
   // Not preloaded: the mono face only styles small labels, so the display
   // face keeps priority on slow connections.

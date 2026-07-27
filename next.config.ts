@@ -86,6 +86,21 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Cache-Control", value: "private, no-store" }],
         source: "/api/auth/:path*",
       },
+      {
+        // Both are static files under `public/` that Yehia replaces
+        // manually and infrequently (a new CV, a new client-work
+        // recording) without the filename ever changing, so `immutable`
+        // would risk serving stale content indefinitely. A moderate fresh
+        // window with mandatory revalidation after that is a meaningfully
+        // better default than Next's own `max-age=0` for these paths
+        // without that risk.
+        headers: [{ key: "Cache-Control", value: "public, max-age=3600, must-revalidate" }],
+        source: "/cv/:path*",
+      },
+      {
+        headers: [{ key: "Cache-Control", value: "public, max-age=3600, must-revalidate" }],
+        source: "/media/:path*",
+      },
     ];
   },
   typedRoutes: true,

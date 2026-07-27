@@ -66,6 +66,21 @@ describe("Phase 7 admin security regression", () => {
     expect(adminHeaders).toContainEqual({ key: "Cache-Control", value: "private, no-store" });
   });
 
+  it("gives the CV and client-work media a moderate revalidating cache instead of Next's max-age=0 default", async () => {
+    const headers = await nextConfig.headers?.();
+    const cvHeaders = headers?.find((entry) => entry.source === "/cv/:path*")?.headers;
+    const mediaHeaders = headers?.find((entry) => entry.source === "/media/:path*")?.headers;
+
+    expect(cvHeaders).toContainEqual({
+      key: "Cache-Control",
+      value: "public, max-age=3600, must-revalidate",
+    });
+    expect(mediaHeaders).toContainEqual({
+      key: "Cache-Control",
+      value: "public, max-age=3600, must-revalidate",
+    });
+  });
+
   it("applies the enforced security-header policy to every route", async () => {
     const headers = await nextConfig.headers?.();
     const globalHeaders = headers?.find((entry) => entry.source === "/:path*")?.headers ?? [];

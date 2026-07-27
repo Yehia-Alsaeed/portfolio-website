@@ -287,4 +287,91 @@ Scanned tracked source, `.env.example`, the full branch diff against `main`, eve
 - `pnpm lighthouse`: three consecutive runs on the *same, unmodified* build produced performance 89/80/83 (near-failing), then CLS 0/0.30/0.30 (failing), then a clean 94/100/100/100 with LCP 3066.5ms and CLS 0 — the same run-to-run variance already documented as machine-dependent noise (Stage 2/4 baselines), not a real regression from adding response headers (which are computed once as a constant string, not per-request work of any real cost). The clean run's numbers are what's recorded in `docs/implementation/phase-8-lighthouse-baseline.json`.
 - `git diff --check`: clean after reverting the routine `next-env.d.ts` churn.
 
+## Stage 6: Performance
+
+Scope: expand Lighthouse to all 4 representative routes and remove the temporary Phase 7 thresholds, review bundle composition, audit responsive image sizing, review font-loading behavior against actual critical-path usage, design and apply a cache-header policy, finalize the database query-plan disposition, and add a synthetic INP proxy. Every change below is tied to a measured finding — nothing here is a speculative "best practice" applied without evidence, per the design's explicit instruction to optimize only measured bottlenecks.
+
+### Lighthouse expanded to 4 routes, temporary thresholds removed
+
+`lighthouserc.cjs`'s `collect.url` now covers the homepage, `/projects`, one case study (`/projects/skillbridge-ai-interviewer`), and `/services` (3 runs each, 12 total). The Phase 7 temporary allowances are gone: `categories:performance` raised from `minScore: 0.9` to `0.95`, `largest-contentful-paint` tightened from `maxNumericValue: 3400` to `2500`. `categories:accessibility` (`0.95`), `categories:best-practices` (`0.9`), `categories:seo` (`1`), and `cumulative-layout-shift` (`maxNumericValue: 0.1`) are unchanged.
+
+`scripts/measure-lighthouse.ts` had a latent bug from the single-URL era: it hardcoded `if (runs.length !== 3)`, so once `lighthouserc.cjs` grew to 4 URLs × 3 runs it would throw (`Expected 3 Lighthouse runs, received 12`) instead of writing a baseline — this is why `docs/implementation/phase-8-lighthouse-baseline.json` was still holding Stage 5's stale snapshot even after several Stage 6 measurement passes. Fixed by grouping the collected `lhr-*.json` reports by their `requestedUrl` pathname and writing a per-route summary (`Record<route, LighthouseSummary>`) instead of one flat object; the existing `summarizeLighthouseRuns` unit test (`tests/unit/measure-lighthouse.test.ts`) didn't need to change since that pure function's contract is unchanged, only how `main()` groups its input.
+
+### Bundle composition: no regression, expensive packages stay isolated
+
+`pnpm measure:build`: 28 chunks, 432,066 gzip bytes / 1,394,054 raw bytes — 21 bytes over the Stage 5 baseline (432,045 / 1,394,015), i.e. unchanged; none of this stage's fixes touch client JS. Reconfirmed both previously-flagged heavy packages stay out of the shared bundle: `src/features/admin/analytics/trend-chart.tsx` is the only importer of Recharts and is itself only reachable from `/admin`; `src/features/case-study/proof/architecture-xray-launcher.tsx` still loads `@xyflow/react` via `await import("./architecture-xray")`, so it only downloads when a visitor actually activates the Architecture X-Ray proof.
+
+### Responsive image sizing
+
+Audited every `<Image>` call site. `src/features/services/client-work-media.tsx` was missing a `sizes` prop entirely — a plain `next/image` usage (not the project's `ProjectImage` wrapper, where `sizes` is required at the type level), so it silently defaulted to Next's `100vw` assumption despite rendering at roughly one-third viewport width once the 3-column grid breakpoint (`grid-cols-1 min-[820px]:grid-cols-3` in `client-work-grid.tsx`) is active. Fixed: `sizes="(min-width: 820px) 33vw, 100vw"`. Cloudinary's `MAX_SOURCE_WIDTH = 1600` ceiling (`src/features/media/cloudinary.ts`) was reviewed and confirmed already reasonable for this project's largest rendered image size — left unchanged.
+
+### Font loading: `adjustFontFallback` gap closed, one inconclusive CLS lead investigated and not chased further
+
+`src/app/fonts.ts`: `archivoStatement`, `archivoWide`, and `jetBrainsMono` were missing `adjustFontFallback: "Arial"` (only the base `archivo` face had it — `next/font/local` only accepts `"Arial"` or `"Times New Roman"` for this option). Found via Lighthouse's `layout-shifts` audit, which named `<main>` shifting due to a web font load for both `archivo_latin_variable` and `jetbrains_mono_latin_variable` on one run. The fix is legitimate and free (it lets the fallback metrics better match the real face, reducing reflow on swap), so it was kept — but it did **not** change that specific CLS score at all, to 15 decimal places, even after being applied, which means it wasn't the actual cause of that particular instance. Further investigation (a live, unthrottled browser session: `performance.getEntriesByType('layout-shift')` returned an empty array — zero real shifts; and a review of `src/features/home/home.module.css`, confirming the monogram hero animation only ever animates `transform`/`opacity`, which are compositor-only and structurally cannot cause layout shift) points to this being a Lighthouse-simulated-throttling artifact tied to font-load timing races rather than a real user-facing bug. Per the design's instruction to optimize only measured bottlenecks — not speculative ones — this was not chased further once the live-session evidence came back clean.
+
+### Cache-header policy for static/generated assets
+
+Previously, `/cv/*`, `/media/*`, and every OG image route inherited Next's `max-age=0` default (no caching at all). Designed and applied a policy per asset class, then backed it with tests:
+
+- **OG images** (all 8 routes, via the one shared `renderOgImage()` in `src/lib/og/render-og-image.tsx`): `Cache-Control: public, max-age=3600, stale-while-revalidate=86400`. Not `immutable`: each route's build-time hash in its public path is derived from the route's *code*, not the case-study/profile *text* it renders, so a content-only edit between deployments could otherwise serve a stale image at the same URL for a full year. A one-hour fresh window with a background revalidation day removes the previous `max-age=0` cost (a Fluid Compute invocation on every single request) without that staleness risk.
+- **`/cv/*` and `/media/*`** (`next.config.ts` `headers()`): `Cache-Control: public, max-age=3600, must-revalidate`. Both are static files under `public/` that get replaced manually and infrequently (a new CV, a new client-work recording) without the filename ever changing, so `immutable` would risk serving stale content indefinitely; a moderate revalidating window is the safer middle ground.
+
+Verified live against a running `pnpm start` server with direct requests before writing regression coverage: `tests/e2e/og-images.spec.ts` now asserts the exact header value (was a loose `toBeTruthy()`), and `tests/unit/phase-7-admin-security.test.ts` gained a test asserting both the `/cv/:path*` and `/media/:path*` header rules exist with the exact expected value.
+
+### Tried and reverted: `experimental.inlineCss`
+
+LHR JSON analysis of the render-blocking-resources audit showed two CSS chunks consistently blocking first paint across all 4 routes (~307ms and ~157ms, not noise — present in every run inspected). Next's `experimental.inlineCss` flag exists for exactly this. Enabling it measurably made things worse, not better: CLS on `/services` became a consistent, repeatable 0.283 (previously clean), and LCP did not meaningfully improve. Reverted. This is recorded as a real, evidence-backed attempt rather than silently dropped, per the design's requirement not to hide unresolved bottlenecks.
+
+### Synthetic INP proxy (explicitly labeled synthetic, per design section 3)
+
+Real-user INP p75 cannot be truthfully established locally or from a low-traffic Preview — that confirmation is explicitly Phase 9/post-launch's responsibility once enough eligible visits exist. `tests/e2e/synthetic-inp.spec.ts` (new) instead instruments the same browser mechanism real INP sampling reads from — the Event Timing API (`PerformanceObserver` with `type: "event"`) — against four repeatable, scripted interactions: opening the command palette (keyboard), cycling display mode with `N` (keyboard), switching a project category filter (pointer), and activating the Architecture X-Ray (pointer, the one interaction that synchronously mounts a whole lazy-loaded canvas library, so it's checked against 2.5× the budget — 500ms vs. 200ms — rather than held to the same tight number as the other three). All 4 pass. `durationThreshold` is a real Event Timing API option that the pinned TypeScript version's bundled DOM lib doesn't yet declare; handled with a narrow `as Record<string, unknown>` spread-cast rather than a blanket `@ts-expect-error` or a type-lib change.
+
+### Database query-plan review: final disposition unchanged
+
+As recorded in Stage 2 and re-confirmed during Stage 5's endpoint audit, every spot-checked query in `src/db/queries/*.ts` already uses Drizzle's parameterized `sql` template, a hardcoded (not client-controlled) upper bound, and `WHERE`/`ORDER BY` columns that align with an existing index's leading columns (the index inventory read from migration SQL in Stage 2). Live `EXPLAIN` plans remain blocked on the same external dependency as before — no local Postgres/Neon connection is available in this environment, and genuine query-plan capture requires either a local instance or Preview/production database access, both reserved to Yehia. Nothing new to fix here; this is a disposition, not a gap.
+
+### Lighthouse result: does **not** yet pass locally against the Phase 8 thresholds — flagged, not hidden
+
+Running `pnpm lighthouse` (`lhci collect && lhci assert`) against the final Stage 6 build produced `assertion-results.json` with 5 real failures out of the full 4-route × 6-assertion matrix:
+
+| Route | Failure | Threshold | Actual |
+|---|---|---|---|
+| `/` | `categories:performance` | ≥ 0.95 | 0.94 |
+| `/` | `largest-contentful-paint` | ≤ 2500ms | 3028ms |
+| `/projects` | `largest-contentful-paint` | ≤ 2500ms | 2873ms |
+| `/projects/skillbridge-ai-interviewer` | `largest-contentful-paint` | ≤ 2500ms | 2880ms |
+| `/services` | `largest-contentful-paint` | ≤ 2500ms | 2912ms |
+
+Everything else passed: `categories:accessibility` (100 on all 4), `categories:best-practices` (100 on all 4), `categories:seo` (100 on all 4), and — despite one of the three raw runs per route showing CLS around 0.28-0.30 (the same inconclusive font-timing-race pattern investigated above) — `cumulative-layout-shift`'s median-run aggregation landed on a clean run for every route, so it passed everywhere.
+
+Root cause for the LCP overage, to the extent it was locatable: the LCP element is always text (never an image) on every route, so image loading isn't the lever; Total Blocking Time and server-response-time are already well within budget on every run inspected; the one real, consistent, measured contributor — the two render-blocking CSS chunks described above — has exactly one available Next.js lever (`experimental.inlineCss`), and enabling it traded a CLS regression for no reliable LCP win, so it was reverted rather than kept. No further un-measured "optimizations" were applied chasing this number, per the design's explicit instruction to optimize only measured bottlenecks and never weaken a target to force a pass.
+
+Per that same instruction, `lighthouserc.cjs`'s thresholds were **not** loosened to make this pass locally. This project has independently, repeatedly documented that Lighthouse readings on this local Windows machine are not simply reproducible run-to-run even on byte-identical code — Stage 5's own checkpoint saw three consecutive runs on one unmodified build swing from performance 89/80/83, to CLS 0/0.30/0.30, to a clean 94/100/100/100; this stage's 12-run set shows the same pattern (1 bad run in 3 for CLS, on every route). Checkpoint 3 (design section 8) requires Lighthouse evidence to "pass locally... before a Preview is treated as a release candidate" — that condition is **not fully met by this local measurement**, and this report does not claim otherwise. Final confirmation is deferred to Checkpoint 4's production-like Vercel Preview run in Stage 7, which is the mechanism the design itself provides for exactly this class of environment-dependent measurement.
+
+### Stage 6 summary
+
+| Area | Status |
+|---|---|
+| Lighthouse coverage | Expanded from 1 to 4 representative routes; temporary Phase 7 thresholds removed |
+| Bundle size | 432,066 gzip bytes — unchanged from Stage 5 (+21 bytes) |
+| Expensive packages | Recharts and `@xyflow/react` confirmed still isolated from the shared bundle |
+| Responsive images | Fixed missing `sizes` on `client-work-media.tsx`; Cloudinary width ceiling confirmed reasonable |
+| Font loading | `adjustFontFallback: "Arial"` completed for all 4 local faces |
+| Cache headers | Designed and applied for OG images, CV, and client-work media; backed by unit + e2e tests |
+| CSS inlining | Tried, measured a CLS regression, reverted |
+| Synthetic INP proxy | 4 interactions instrumented via the real Event Timing API, all under budget, labeled synthetic |
+| Database query plans | Disposition finalized — live `EXPLAIN` blocked on Preview/DB access (external dependency, unchanged since Stage 2) |
+| Lighthouse gate | **Not met locally**: LCP over budget on all 4 routes, performance category short on the homepage — flagged for Checkpoint 4 (Preview) confirmation |
+
+### Verification
+
+- `pnpm format:check` / `pnpm lint` / `pnpm typecheck`: clean.
+- `pnpm test`: 52 files, 288 tests passed.
+- `pnpm db:check`: passed (dummy local `DATABASE_URL`).
+- `pnpm build`: succeeds; route shape unchanged (all public routes static).
+- `pnpm measure:build`: 28 chunks, 432,066 gzip bytes, 1,394,054 raw bytes — +21 bytes over Stage 5, no meaningful change.
+- `pnpm exec playwright test` (full suite): 225 passed, 2 skipped (same two live-DB-gated tests).
+- `pnpm lighthouse`: does not pass locally — see the dedicated section above for the full failure/root-cause breakdown; not glossed over.
+- `git diff --check`: clean after reverting the routine `next-env.d.ts` churn.
+
 No production behavior regressed; the CSP is enforced (not report-only) in the committed config. Next: Stage 6 (performance — bundle/image/font/cache/query optimization against the measured baselines, plus expanding Lighthouse to all 4 representative routes and removing the temporary Phase 7 thresholds).

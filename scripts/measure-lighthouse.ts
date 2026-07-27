@@ -71,17 +71,37 @@ async function main() {
   const files = (await readdir(reportDirectory))
     .filter((file) => file.startsWith("lhr-") && file.endsWith(".json"))
     .sort();
-  const runs = await Promise.all(
-    files.map(
-      async (file) =>
-        JSON.parse(await readFile(resolve(reportDirectory, file), "utf8")) as LighthouseRun,
-    ),
+  const reports = await Promise.all(
+    files.map(async (file) => {
+      const raw = JSON.parse(
+        await readFile(resolve(reportDirectory, file), "utf8"),
+      ) as LighthouseRun & { requestedUrl: string };
+      return raw;
+    }),
   );
 
-  if (runs.length !== 3) throw new Error(`Expected 3 Lighthouse runs, received ${runs.length}`);
+  // `lighthouserc.cjs` collects the same number of runs per representative
+  // route, so grouping by requested URL (rather than assuming a single URL)
+  // is what lets this stay correct as routes are added or removed.
+  const runsByRoute = new Map<string, LighthouseRun[]>();
+  for (const report of reports) {
+    const route = new URL(report.requestedUrl).pathname;
+    const existing = runsByRoute.get(route) ?? [];
+    existing.push(report);
+    runsByRoute.set(route, existing);
+  }
+
+  if (runsByRoute.size === 0) throw new Error("No Lighthouse reports found");
+
+  const result: Record<string, LighthouseSummary> = {};
+  for (const [route, runs] of runsByRoute) {
+    if (runs.length !== 3) {
+      throw new Error(`Expected 3 Lighthouse runs for ${route}, received ${runs.length}`);
+    }
+    result[route] = summarizeLighthouseRuns(runs);
+  }
 
   const output = resolve("docs/implementation/phase-8-lighthouse-baseline.json");
-  const result = summarizeLighthouseRuns(runs);
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, `${JSON.stringify(result, null, 2)}\n`);
   console.log(JSON.stringify(result));

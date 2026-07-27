@@ -1,8 +1,8 @@
 {
   "fileCount": 28,
-  "gzipBytes": 432045,
+  "gzipBytes": 432066,
   "scope": ".next/static/chunks/**/*.js",
-  "totalBytes": 1394015,
+  "totalBytes": 1394054,
   "files": [
     {
       "file": "08_yycqhebwa-.js",
@@ -13,11 +13,6 @@
       "file": "08xin7bz6w9f7.js",
       "gzipBytes": 12873,
       "rawBytes": 54631
-    },
-    {
-      "file": "099d8-7l82r-s.js",
-      "gzipBytes": 6457,
-      "rawBytes": 17160
     },
     {
       "file": "0cz1d0mv5g_q7.js",
@@ -103,6 +98,11 @@
       "file": "2a5vqq89pmry3.js",
       "gzipBytes": 1451,
       "rawBytes": 3377
+    },
+    {
+      "file": "2qhpw1q-y42-4.js",
+      "gzipBytes": 6478,
+      "rawBytes": 17199
     },
     {
       "file": "2sxvhv_80xgwj.js",
