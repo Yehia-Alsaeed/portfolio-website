@@ -4,7 +4,6 @@ const ROUTES = [
   { heading: "Yehia Alsaeed", path: "/" },
   { heading: "Projects", path: "/projects" },
   { heading: "I build stores & software that ship.", path: "/services" },
-  { heading: "Design system", path: "/design-system" },
 ] as const;
 
 function collectBrowserErrors(page: Page): string[] {

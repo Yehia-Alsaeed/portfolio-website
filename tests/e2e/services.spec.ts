@@ -11,6 +11,12 @@ test("serves /services with correct status, metadata, canonical, and one h1", as
   expect(canonical).not.toBeNull();
   expect(new URL(canonical ?? "http://invalid").pathname).toBe("/services");
 
+  const jsonLd = JSON.parse(
+    (await page.locator('script[type="application/ld+json"]').first().textContent()) ?? "{}",
+  );
+  expect(jsonLd["@type"]).toBe("OfferCatalog");
+  expect(jsonLd.itemListElement).toHaveLength(2);
+
   expect(await page.locator("h1").count()).toBe(1);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "I build stores & software that ship.",

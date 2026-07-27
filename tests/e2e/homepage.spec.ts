@@ -27,6 +27,17 @@ test("serves the complete recruiter-first homepage with production metadata", as
   const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
   expect(canonical).not.toBeNull();
   expect(new URL(canonical ?? "http://invalid").pathname).toBe("/");
+
+  const jsonLd = JSON.parse(
+    (await page.locator('script[type="application/ld+json"]').first().textContent()) ?? "{}",
+  );
+  expect(jsonLd["@type"]).toBe("Person");
+  expect(jsonLd.name).toBe("Yehia Alsaeed");
+  expect(jsonLd.sameAs).toEqual([
+    "https://github.com/Yehia-Alsaeed",
+    "https://www.linkedin.com/in/yehia-alsaeed",
+  ]);
+
   await expect(page.getByRole("heading", { level: 1, name: "Yehia Alsaeed" })).toBeVisible();
   expect(await page.locator("h1").count()).toBe(1);
 

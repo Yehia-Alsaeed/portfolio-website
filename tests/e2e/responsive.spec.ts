@@ -14,7 +14,6 @@ const ROUTES = [
   "/projects",
   "/projects/skillbridge-ai-interviewer",
   "/projects/prestige-motors-showroom",
-  "/design-system",
   "/missing-phase-2-route",
 ] as const;
 

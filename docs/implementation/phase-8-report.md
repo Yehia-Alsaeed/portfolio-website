@@ -132,3 +132,48 @@ This establishes what indexes exist today. Confirming that `src/db/queries/*.ts`
 | Measurement tooling | Fixed `measure-build`/`measure-lighthouse` scripts to write `phase-8-*-baseline.json` instead of clobbering the Phase 3 files |
 
 No production behavior was changed in this stage. Next: Stage 3 (public release surface — remove `/design-system` and `scrollRules`, then complete SEO/social/structured-data/CV work).
+
+## Stage 3: Public Release Surface
+
+### Removed temporary routes and experiments
+
+`/design-system` (route, command-palette entry, dedicated Playwright/unit test files, and every route-list entry in `accessibility.spec.ts`/`shell.spec.ts`/`responsive.spec.ts`/`command-palette.spec.ts`) and the entire `src/features/scroll-rules` feature (its CSS, `SiteShell` wiring, and its dedicated Playwright test) were deleted per the design's explicit instruction that neither was ever approved for production. The command-palette test that exercised gallery form fields now uses the real homepage contact form instead. No other feature, content, or route was touched.
+
+### SEO completion
+
+- Fixed the two missing `alternates.canonical` tags found in Stage 2: `/projects` now sets one (matching `/`, `/services`, and the case-study pattern); `/design-system` no longer exists.
+- Created `src/app/sitemap.ts`, emitting exactly the 8 canonical public URLs (`/`, `/projects`, `/services`, 5 case studies) under `publicEnv.siteUrl.origin`. Each entry's `lastModified` is read from the real git commit history of that URL's source file (`execFileSync("git", ["log", "-1", "--format=%cI", "--", path])`), falling back to omitting the field entirely if git history is unavailable (e.g. a very shallow production checkout) — never a fabricated date. `changeFrequency`/`priority` are never set, per the design's explicit ban on inventing those values.
+- `robots.ts` now names `${origin}/sitemap.xml` in its `sitemap` field; the existing admin-disallow rule is unchanged.
+- Added one `Person` JSON-LD graph to the homepage (`src/lib/seo/person-json-ld.ts`), sourced only from `PROFILE` (name, role, Cairo location, GitHub, LinkedIn) and `SKILL_GROUPS` (`knowsAbout`) — no employer, credential, rating, award, or image field exists anywhere in the object (asserted by a unit test's explicit forbidden-key list).
+- Added one `OfferCatalog`/`Service` JSON-LD graph to `/services` (`src/lib/seo/services-json-ld.ts`), covering exactly the two published `SERVICE_OFFERS` with `PROFILE` as the only provider fact (name, email, url) — no price, rating, or availability claim (asserted by a unit test scanning the serialized JSON for those substrings).
+- Both graphs render through a shared `JsonLd` component (`src/lib/seo/json-ld.tsx`) that escapes `<` to `<` before writing `dangerouslySetInnerHTML`, so a value containing `</script>` cannot break out of the script context — verified by a unit test that round-trips a deliberately hostile string through the component and confirms both the absence of a raw `<` in the rendered markup and that `JSON.parse` still recovers the original value.
+
+### Dynamic OG images
+
+Added `next/og` `ImageResponse` image routes for the site default, `/projects`, `/services`, and each of the 5 case studies (8 total), all rendering through one shared template (`src/lib/og/render-og-image.tsx`): a Paper-mode Swiss layout (background `#f1efe9`, ink `#111114`, accent `#2b3cff`) with a mono eyebrow, bold Archivo headline, optional subtitle, and a footer row showing the real configured site host plus the "YA ." monogram. Every route's title/subtitle text is copied from that route's own already-published metadata/content (page titles, descriptions, `PROFILE`, or `CaseStudy` fields) — no new marketing copy was written for these images.
+
+Two real implementation problems surfaced only through an actual production build, not through review:
+
+1. **Node's `fetch()` cannot read `file://` URLs.** The commonly-documented `next/og` recipe of `fetch(new URL('./font.ttf', import.meta.url))` fails at build time under the Node.js runtime with `TypeError: fetch failed` / `not implemented... yet`. Fixed by using `node:fs/promises` `readFile(new URL(...))` instead, which does support `file://` URL objects directly.
+2. **Satori cannot parse the actual Google Fonts variable TTFs** (Archivo and JetBrains Mono), failing with `TypeError: Cannot read properties of undefined (reading '256')` — a known Satori limitation with certain variable-font tables. Neither family ships static instances in the `google/fonts` GitHub repository, so the fix was to fetch pre-instanced static-weight TTFs from the Google Fonts CSS API directly (`https://fonts.googleapis.com/css2?family=Archivo:wght@800` with a legacy user-agent to force a `.ttf` response instead of `.woff2`), which Satori renders correctly. These two static files (`archivo-800.ttf`, 111,948 bytes; `jetbrains-mono-500.ttf`, 112,204 bytes) are committed under `src/lib/og/fonts/` — both are OFL-licensed and used only server-side for image generation, never shipped to the client bundle.
+
+A `generateImageMetadata`-based attempt to give the case-study OG image a per-slug `alt` string was reverted after discovering it silently turned that route from statically prerendered (5 separate build-time files) into a single on-demand dynamic route handler — a regression against the design's locked static-public-rendering constraint. The case-study OG image instead uses one static, still-truthful `alt` value ("Case study | Yehia Alsaeed"); the other three routes keep per-route static `alt` strings.
+
+`tests/e2e/og-images.spec.ts` verifies, for all 5 representative routes (via each page's own `<meta property="og:image">` tag, not a hand-guessed URL — Next.js appends a content hash to nested image routes' public paths): HTTP 200, `content-type: image/png`, a `cache-control` header is present, real 1200×630 dimensions (decoded from the PNG `IHDR` chunk directly), the expected `og:image:alt` text, and that all 5 routes produce byte-distinct image content (SHA-256 of the full response body, not a truncated prefix — an earlier version of this same check only hashed the shared PNG header and produced a false pass).
+
+### CV download
+
+Existing behavior (footer `TrackedAnchor` + command-palette action, both already wired to the `cv_download` analytics event) was verified rather than changed. Added `tests/e2e/cv-download.spec.ts`: a direct `request.get()` check that the PDF response is `application/pdf` with real `%PDF-` magic bytes (ruling out a silent HTML/404 fallback), and a browser-level check that clicking the footer's "Download CV" link (not just the command-palette action, which already had coverage) produces a download with the exact expected filename.
+
+### Verification
+
+- `pnpm format:check` / `pnpm lint` / `pnpm typecheck`: clean.
+- `pnpm test`: 47 files, 251 tests passed.
+- `pnpm db:check`: passed (dummy local `DATABASE_URL`).
+- `pnpm build`: succeeds; all public routes remain static (`○`/`●`), including all 8 new OG image routes; only `/admin*` and the API routes are dynamic — unchanged from baseline.
+- `pnpm measure:build`: 28 chunks, 428,465 gzip bytes, 1,384,462 raw bytes — a 0.065% gzip increase over the Stage 2 baseline (428,186 bytes), far under the design's 10% regression gate. The OG images and JSON-LD render server-side, so they cost effectively nothing in the client bundle.
+- `pnpm exec playwright test` (full suite): 207 passed, 2 skipped (the same two live-database-gated tests noted in Stage 2), 0 failed.
+- `pnpm lighthouse`: performance 90, accessibility 100, best-practices 100, SEO 100, LCP 3322.3ms, CLS 0 — consistent with the Stage 2 baseline range, no regression.
+- `git diff --check`: clean after reverting the routine `next-env.d.ts` dev/build churn (a known toolchain artifact, not a real change).
+
+No item from the Stage 2 gap list remains open except the two Preview-only carryovers already recorded as external dependencies under Task 0.

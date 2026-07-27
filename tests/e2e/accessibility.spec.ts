@@ -5,7 +5,6 @@ const ROUTES = [
   "/projects",
   "/projects/skillbridge-ai-interviewer",
   "/services",
-  "/design-system",
   "/missing-phase-2-route",
 ] as const;
 const MODES = ["paper", "night", "mono"] as const;

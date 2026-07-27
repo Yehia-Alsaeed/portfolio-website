@@ -65,14 +65,14 @@ test("runs a display-mode command", async ({ page }) => {
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
-test("does not intercept Ctrl+K while typing in gallery form fields", async ({ page }) => {
-  await page.goto("/design-system");
+test("does not intercept Ctrl+K while typing in the contact form fields", async ({ page }) => {
+  await page.goto("/");
 
-  await page.getByLabel("Name").click();
+  await page.getByLabel("Name", { exact: true }).click();
   await page.keyboard.press("Control+KeyK");
   await expect(page.getByRole("dialog")).toHaveCount(0);
 
-  await page.getByLabel("Message").click();
+  await page.getByLabel("Message", { exact: true }).click();
   await page.keyboard.press("Control+KeyK");
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });

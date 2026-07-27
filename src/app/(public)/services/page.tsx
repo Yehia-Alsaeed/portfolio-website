@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
 import { ServicesPage } from "@/features/services/services-page";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { buildServicesJsonLd } from "@/lib/seo/services-json-ld";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/services" },
@@ -10,5 +12,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <ServicesPage />;
+  return (
+    <>
+      <JsonLd data={buildServicesJsonLd()} />
+      <ServicesPage />
+    </>
+  );
 }

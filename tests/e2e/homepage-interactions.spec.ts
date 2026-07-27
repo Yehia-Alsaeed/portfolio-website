@@ -114,18 +114,3 @@ test("does not delay modified, external, hash, or reduced-motion navigation", as
   await expect(page.getByTestId("page-transition")).toHaveAttribute("data-active", "false");
   await expect(page).toHaveURL(/\/services$/);
 });
-
-test("keeps scroll progress absent by default and updates it only when enabled", async ({
-  page,
-}) => {
-  await page.goto("/");
-  await expect(page.getByTestId("scroll-progress")).toHaveCount(0);
-
-  await page.goto("/?scrollRules=1");
-  const progress = page.getByTestId("scroll-progress");
-  await expect(progress).toHaveCount(1);
-  await expect(progress).toHaveAttribute("style", /scaleX\(0\)/);
-
-  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-  await expect(progress).toHaveAttribute("style", /scaleX\((?:0\.[8-9]|1)/);
-});

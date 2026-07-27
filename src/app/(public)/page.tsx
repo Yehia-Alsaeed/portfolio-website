@@ -7,6 +7,8 @@ import { FeaturedWork } from "@/features/home/featured-work";
 import { MonogramHero } from "@/features/home/monogram-hero";
 import { PositioningSection } from "@/features/home/positioning-section";
 import { ServicesTeaser } from "@/features/home/services-teaser";
+import { JsonLd } from "@/lib/seo/json-ld";
+import { buildPersonJsonLd } from "@/lib/seo/person-json-ld";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -18,6 +20,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
+      <JsonLd data={buildPersonJsonLd()} />
       <MonogramHero />
       <PositioningSection />
       <EvidenceStats />

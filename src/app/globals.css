@@ -181,16 +181,6 @@
   animation: register-plate 650ms cubic-bezier(0.76, 0, 0.24, 1) both;
 }
 
-.scroll-progress {
-  position: fixed;
-  inset: 0 0 auto;
-  z-index: 190;
-  height: 2px;
-  background: var(--accent);
-  transform-origin: left;
-  will-change: transform;
-}
-
 @keyframes register-plate {
   0% {
     transform: scaleX(0);
@@ -225,8 +215,7 @@
     animation-iteration-count: 1 !important;
   }
 
-  .page-transition,
-  .scroll-progress {
+  .page-transition {
     display: none;
   }
 }
