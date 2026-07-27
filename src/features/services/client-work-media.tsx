@@ -26,6 +26,7 @@ export function ClientWorkMedia({ media, name }: ClientWorkMediaProps) {
   const [viewport, setViewport] = React.useState<Viewport>("desktop");
   const [recordingRequested, setRecordingRequested] = React.useState(false);
   const active = media[viewport];
+  const descriptionId = React.useId();
 
   return (
     <div className="mt-4">
@@ -66,6 +67,7 @@ export function ClientWorkMedia({ media, name }: ClientWorkMediaProps) {
         {recordingRequested ? (
           <div className="mt-3">
             <video
+              aria-describedby={descriptionId}
               className="border-line w-full border"
               controls
               muted
@@ -75,7 +77,9 @@ export function ClientWorkMedia({ media, name }: ClientWorkMediaProps) {
             >
               <source src={media.recording.src} type="video/webm" />
             </video>
-            <p className="text-dim mt-2 text-sm leading-relaxed">{media.recording.description}</p>
+            <p className="text-dim mt-2 text-sm leading-relaxed" id={descriptionId}>
+              {media.recording.description}
+            </p>
           </div>
         ) : null}
       </details>

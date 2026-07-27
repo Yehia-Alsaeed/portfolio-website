@@ -23,10 +23,12 @@ describe("Phase 7 inbox UI", () => {
   it("renders unread count, message rows, mailto link, and escaped plain text", () => {
     render(<Inbox page={page} />);
 
-    expect(screen.getByRole("heading", { name: "Contact inbox." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Contact inbox." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Newest messages" })).toBeInTheDocument();
     expect(screen.getByText("1 unread")).toBeInTheDocument();
+    expect(screen.getByText(/Ada Lovelace \/ Freelance project/)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /Ada Lovelace \/ Freelance project/ }),
+      screen.getByRole("button", { name: "Mark message from Ada Lovelace as read" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ada@example.com" })).toHaveAttribute(
       "href",
@@ -34,6 +36,9 @@ describe("Phase 7 inbox UI", () => {
     );
     expect(screen.getByText("Line one")).toBeInTheDocument();
     expect(screen.getByText("Line two")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Ada Lovelace - Freelance project" }),
+    ).toBeInTheDocument();
   });
 
   it("renders a truthful empty inbox state", () => {

@@ -16,6 +16,17 @@ const INITIAL_STATE: LoginState = {
 export function LoginForm() {
   const [state, formAction, pending] = React.useActionState(loginAction, INITIAL_STATE);
   const hasError = state.status !== "idle";
+  const alertRef = React.useRef<HTMLDivElement>(null);
+  const previousStatus = React.useRef(state.status);
+
+  React.useEffect(() => {
+    if (state.status === previousStatus.current) return;
+    previousStatus.current = state.status;
+
+    if (state.status !== "idle") {
+      alertRef.current?.focus();
+    }
+  }, [state.status]);
 
   return (
     <form action={formAction} className="grid gap-6" noValidate>
@@ -23,6 +34,7 @@ export function LoginForm() {
         <div
           aria-live="assertive"
           className="border-line bg-soft text-accent-text border-2 p-4 font-mono text-sm font-bold"
+          ref={alertRef}
           role="alert"
           tabIndex={-1}
         >

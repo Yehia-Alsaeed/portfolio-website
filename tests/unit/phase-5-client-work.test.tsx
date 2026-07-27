@@ -70,4 +70,19 @@ describe("Phase 5 client-work presentation", () => {
     expect(video?.getAttribute("poster")).toBeTruthy();
     expect(video?.parentElement?.textContent).toMatch(/\w/);
   });
+
+  it("links the recording's description to the video via aria-describedby", async () => {
+    const user = userEvent.setup();
+    render(<ClientWorkGrid entries={CLIENT_WORK} />);
+    const { article, queries } = getMadarWearsArticle();
+
+    await user.click(queries.getByText(/Watch short recording/i));
+
+    const video = article.querySelector("video");
+    const describedBy = video?.getAttribute("aria-describedby");
+    expect(describedBy).toBeTruthy();
+
+    const description = article.querySelector(`#${describedBy}`);
+    expect(description?.textContent).toMatch(/\w/);
+  });
 });

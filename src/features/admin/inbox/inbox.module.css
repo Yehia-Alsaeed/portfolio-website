@@ -51,7 +51,7 @@
   padding: 16px 20px;
 }
 
-.detail h2,
+.detail h3,
 .detail p {
   margin: 0;
 }
@@ -71,8 +71,21 @@
   color: var(--ink);
   cursor: pointer;
   font-weight: 700;
+  min-height: 44px;
   padding: 8px 10px;
   text-transform: uppercase;
+}
+
+.deleteConfirm {
+  display: grid;
+  gap: 16px;
+  padding: 16px 20px 20px;
+}
+
+.deleteActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
 @media (max-width: 640px) {

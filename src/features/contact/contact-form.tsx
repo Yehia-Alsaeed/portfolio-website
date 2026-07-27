@@ -61,7 +61,7 @@ export function ContactForm() {
       {state.status !== "idle" ? (
         <p
           aria-live={state.status === "success" ? "polite" : undefined}
-          className="text-accent-text border-accent border-l-4 pl-3 font-mono text-xs font-bold md:col-span-2"
+          className="text-accent-text border-accent-text border-l-4 pl-3 font-mono text-xs font-bold md:col-span-2"
           ref={alertRef}
           role={state.status === "success" ? "status" : "alert"}
           tabIndex={-1}

@@ -5,7 +5,9 @@ import styles from "./inbox.module.css";
 export function MessageDialog({ message }: Readonly<{ message: ContactMessageDto }>) {
   return (
     <div className={styles.detail}>
-      <h2>{message.inquiryType}</h2>
+      <h3>
+        {message.name} - {message.inquiryType}
+      </h3>
       <p>
         From {message.name} · <a href={`mailto:${message.email}`}>{message.email}</a>
       </p>

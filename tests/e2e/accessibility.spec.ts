@@ -28,6 +28,22 @@ for (const mode of MODES) {
   }
 }
 
+// /admin/login is the only admin page reachable without a live Neon Auth
+// session (see docs/implementation/phase-8-report.md Task 0/Stage 4 for why
+// the authenticated dashboard/inbox can't be axe-checked from this shell).
+// The failed-sign-in focus-management fix (login-form.tsx) is covered by a
+// component-level unit test (tests/unit/phase-8-login-form.test.tsx)
+// instead of here: submitting this form for real requires ANALYTICS_HASH_SALT
+// and a live database, neither available in this local/CI environment - see
+// docs/implementation/phase-8-report.md Stage 4 for the full disposition.
+test("has no WCAG A or AA violations at /admin/login", async ({ page, makeAxeBuilder }) => {
+  await page.goto("/admin/login");
+  await expect(page.getByRole("heading", { level: 1, name: "Admin login" })).toBeVisible();
+
+  const result = await makeAxeBuilder().analyze();
+  expect(result.violations).toEqual([]);
+});
+
 test("honors reduced motion while staying fully usable", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");

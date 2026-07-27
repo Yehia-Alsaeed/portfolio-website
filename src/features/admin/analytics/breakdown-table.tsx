@@ -24,7 +24,7 @@ export function BreakdownTable({
   return (
     <section className={styles.panel}>
       <div className={styles.panelHead}>
-        <span>{title}</span>
+        <h2>{title}</h2>
         <span>{valueLabel}</span>
       </div>
       {rows.length === 0 ? (

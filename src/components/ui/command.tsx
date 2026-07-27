@@ -72,7 +72,7 @@ function CommandItem({ className, ...props }: React.ComponentProps<typeof Comman
   return (
     <CommandPrimitive.Item
       className={cn(
-        "data-[selected=true]:bg-accent data-[selected=true]:text-accent-ink flex min-h-11 cursor-pointer items-center gap-3 px-2 font-sans text-base font-semibold outline-none select-none",
+        "data-[selected=true]:bg-accent data-[selected=true]:text-accent-ink data-[selected=true]:ring-accent-text flex min-h-11 cursor-pointer items-center gap-3 px-2 font-sans text-base font-semibold outline-none select-none ring-inset data-[selected=true]:ring-2",
         className,
       )}
       {...props}

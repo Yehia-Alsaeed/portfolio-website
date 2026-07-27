@@ -23,7 +23,7 @@ export function Inbox({ page }: Readonly<{ page: ContactPage }>) {
 
       <section className={adminStyles.panel}>
         <div className={adminStyles.panelHead}>
-          <span>Newest messages</span>
+          <h2>Newest messages</h2>
           <span>20 per page</span>
         </div>
         {page.rows.length === 0 ? (

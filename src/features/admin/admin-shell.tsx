@@ -16,6 +16,9 @@ export function AdminShell({
 }>) {
   return (
     <div className={styles.shell}>
+      <a className="skip-link" href="#admin-content">
+        Skip to content
+      </a>
       <aside className={styles.sidebar}>
         <Link aria-label="Admin overview" className={styles.logo} href={"/admin" as Route}>
           YA<b>.</b>
