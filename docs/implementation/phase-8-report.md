@@ -95,13 +95,13 @@ The 2 consistently-skipped tests are both live-database-gated: `accessibility.sp
 
 `pnpm measure:build`: **29 JS chunks, 428,186 gzip bytes, 1,381,506 raw bytes** — effectively unchanged from the Phase 7 baseline (428,249 / 1,381,569), as expected since no application code changed in Task 0. Recorded verbatim in `docs/implementation/phase-8-build-baseline.json`. Per the design (section 7), a later measurement more than 10% above this baseline, unexplained, blocks completion.
 
-**Tooling note:** `scripts/measure-build.ts` and `scripts/measure-lighthouse.ts` both hardcode their output path to the literal `docs/implementation/phase-3-build-baseline.json` / `docs/implementation/phase-3-lighthouse-baseline.json` (never parameterized past Phase 3). Running either command overwrote those tracked Phase 3 historical files with Phase 8 numbers; both were reverted with `git checkout --` immediately after capturing the numbers above, so the Phase 3 record is intact. Every later phase that ran these scripts must have hit the same overwrite and reverted it the same way — worth fixing (e.g. a phase-agnostic filename or a CLI arg) before Stage 6 needs to run these repeatedly for before/after comparisons, so a slip doesn't silently corrupt Phase 3's record.
+**Tooling fix:** `scripts/measure-build.ts` and `scripts/measure-lighthouse.ts` both hardcoded their output path to the literal `docs/implementation/phase-3-build-baseline.json` / `docs/implementation/phase-3-lighthouse-baseline.json`. Git history shows this path was deliberately bumped once per phase during Phase 1 → 2 → 3 (`phase-1-...json` → `phase-2-...json` → `phase-3-...json`, each bump committed as part of that phase's work), then never bumped again for Phases 4-7 — so every later phase that ran these scripts silently overwrote the Phase 3 historical snapshot and (based on the absence of `phase-4/5/6/7-*-baseline.json` files) must have reverted it via `git checkout --` afterward rather than continuing the convention. Fixed by resuming the established pattern: bumped both hardcoded paths to `docs/implementation/phase-8-build-baseline.json` / `docs/implementation/phase-8-lighthouse-baseline.json`. Verified by re-running both commands: the Phase 3 files no longer appear in `git status` after running them, and the new Phase 8 files are written/updated as expected.
 
 ### Lighthouse baseline
 
 `lighthouserc.cjs` currently tests **only the homepage** (`http://127.0.0.1:3100/`, 3 runs, median aggregation) — `/projects`, a case study, and `/services` are not yet in the LHCI `collect.url` array; adding them is Stage 6 (Performance) work per the design, since it requires editing this tracked config together with the performance pass, not a Stage 2 read.
 
-Current homepage-only result: **performance 91, accessibility 100, best-practices 100, SEO 100, LCP 3023.8ms (median), CLS 0**. This still passes the temporary Phase 7 thresholds (performance ≥ 0.90, LCP ≤ 3400ms) but not yet the Phase 8 target table (performance ≥ 95, LCP ≤ 2500ms) — `lighthouserc.cjs` already carries a code comment flagging both temporary values for removal "during Phase 8 quality hardening." Reaching the Phase 8 thresholds is Stage 6 work.
+Two homepage-only runs, taken minutes apart on the same machine: **performance 91 → 90, accessibility 100, best-practices 100, SEO 100, LCP 3023.8ms → 3330.8ms (median), CLS 0**. Both pass the temporary Phase 7 thresholds (performance ≥ 0.90, LCP ≤ 3400ms) but not yet the Phase 8 target table (performance ≥ 95, LCP ≤ 2500ms). The run-to-run LCP swing (~300ms) matches the project's previously-documented machine-dependent Lighthouse variance (CI numbers are the trustworthy reference, not a single local run). `lighthouserc.cjs` already carries a code comment flagging both temporary values for removal "during Phase 8 quality hardening." Reaching the Phase 8 thresholds is Stage 6 work. The second run's numbers are what's persisted in `docs/implementation/phase-8-lighthouse-baseline.json`.
 
 ### Database query-plan baseline
 
@@ -127,7 +127,8 @@ This establishes what indexes exist today. Confirming that `src/db/queries/*.ts`
 | Fonts | Audited — 4 self-hosted subset faces, already LCP-motivated |
 | Browser coverage | Confirmed Chromium-only; 212 passed/2 skipped baseline; 1 known-flaky spec under full parallel load |
 | Bundle size | 29 chunks / 428,186 gzip bytes / 1,381,506 raw bytes (baseline file recorded) |
-| Lighthouse | Homepage-only today: perf 91 / a11y 100 / best-practices 100 / SEO 100 / LCP 3023.8ms / CLS 0 |
+| Lighthouse | Homepage-only today: perf 90-91 (2 local runs) / a11y 100 / best-practices 100 / SEO 100 / LCP 3024-3331ms / CLS 0 |
 | Database query plans | Index inventory read from migrations; live EXPLAIN blocked on DB access (external dependency) |
+| Measurement tooling | Fixed `measure-build`/`measure-lighthouse` scripts to write `phase-8-*-baseline.json` instead of clobbering the Phase 3 files |
 
 No production behavior was changed in this stage. Next: Stage 3 (public release surface — remove `/design-system` and `scrollRules`, then complete SEO/social/structured-data/CV work).

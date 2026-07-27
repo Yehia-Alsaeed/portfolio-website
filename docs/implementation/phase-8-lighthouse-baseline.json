@@ -1,0 +1,13 @@
+{
+  "runs": 3,
+  "scores": {
+    "performance": 90,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  "metrics": {
+    "largestContentfulPaintMs": 3330.834199999999,
+    "cumulativeLayoutShift": 0
+  }
+}
