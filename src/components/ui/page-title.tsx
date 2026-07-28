@@ -33,7 +33,7 @@ export function PageTitle({ accent, eyebrow, headingLevel = 1, subtitle, title }
           {eyebrow}
         </p>
       ) : null}
-      <Heading className="text-[clamp(2.75rem,8vw,6.875rem)] leading-[0.95] font-black font-stretch-[120%]">
+      <Heading className="text-[clamp(2.75rem,8vw,6.875rem)] leading-[0.95] font-black [overflow-wrap:anywhere] font-stretch-[120%]">
         {renderAccentedTitle(title, accent)}
       </Heading>
       {subtitle ? (

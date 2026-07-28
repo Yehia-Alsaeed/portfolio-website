@@ -86,7 +86,10 @@ test("primary navigation reaches every route frame", async ({ page }) => {
     .getByRole("link", { name: "Contact" })
     .click();
   await expect(page).toHaveURL(/\/#contact$/);
-  await expect(page.getByRole("contentinfo")).toBeInViewport();
+  // Checks the contact section itself, not the footer below it: on a short
+  // mobile viewport the contact form alone is taller than the viewport, so
+  // the footer legitimately scrolls out of view even on a correct jump.
+  await expect(page.getByRole("heading", { level: 2, name: "Contact" })).toBeInViewport();
 
   await page
     .getByRole("navigation", { name: "Primary" })

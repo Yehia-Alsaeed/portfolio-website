@@ -11,7 +11,10 @@ export function SiteShell({ children }: SiteShellProps) {
   return (
     <>
       <PageTransition />
-      <a className="skip-link" href="#main-content">
+      {/* WebKit's default keyboard-access mode only Tab-stops through form
+          controls, not plain links, unless Full Keyboard Access is on - an
+          explicit tabIndex opts this link into the sequence regardless. */}
+      <a className="skip-link" href="#main-content" tabIndex={0}>
         Skip to content
       </a>
       <div className="site-frame">
