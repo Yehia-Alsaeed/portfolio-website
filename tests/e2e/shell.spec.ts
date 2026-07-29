@@ -6,12 +6,26 @@ const ROUTES = [
   { heading: "I build stores & software that ship.", path: "/services" },
 ] as const;
 
+// Vercel injects its own live-feedback/comments toolbar script
+// (vercel.live/_next-live/feedback/feedback.js) only on Preview
+// deployments - never in Production - and this app's CSP correctly blocks
+// it since it's not a first-party script. That's the CSP working as
+// designed, not a real app bug, so it's excluded here rather than making
+// this assertion permanently unpassable on Preview.
+function isKnownPreviewOnlyNoise(message: string): boolean {
+  return message.includes("vercel.live");
+}
+
 function collectBrowserErrors(page: Page): string[] {
   const errors: string[] = [];
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (message.type() === "error" && !isKnownPreviewOnlyNoise(message.text())) {
+      errors.push(message.text());
+    }
   });
-  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("pageerror", (error) => {
+    if (!isKnownPreviewOnlyNoise(error.message)) errors.push(error.message);
+  });
   return errors;
 }
 

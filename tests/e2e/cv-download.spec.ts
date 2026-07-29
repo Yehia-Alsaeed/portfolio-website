@@ -19,8 +19,13 @@ test("serves the CV as a real PDF, not an HTML fallback", async ({ request }) =>
   if (contentDisposition) {
     // The filename is a static constant with no user input, so there is no
     // injection surface - this only guards against an accidental unsafe
-    // value being introduced later.
-    expect(contentDisposition).not.toMatch(/[<>"]/);
+    // value being introduced later. Vercel's own static-file serving wraps
+    // the filename in quotes (the standard RFC 6266 form), which is
+    // expected and safe, so this checks for the exact known-good filename
+    // rather than rejecting quote characters outright.
+    expect(contentDisposition).toMatch(
+      new RegExp(`^inline; filename="?${CV_FILENAME.replace(/\./g, "\\.")}"?$`),
+    );
   }
 });
 

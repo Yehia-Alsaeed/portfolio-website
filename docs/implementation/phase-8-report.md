@@ -413,11 +413,7 @@ Performed live against the running dev server via the browser-automation tool's 
 - Keyboard-only navigation and focus order were not re-walked manually width-by-width here: Stage 4 already did that work in full (Task 25) and it remains covered by dedicated automated tests (`shell.spec.ts`'s skip-link test, now also passing on every engine per above; `projects.spec.ts`'s keyboard category-filter test; `command-palette.spec.ts`). Re-deriving the same conclusion by hand at 6 widths would have duplicated that coverage rather than added to it.
 - **Tool limitation, noted rather than hidden:** the Browser pane was not displayed on the client side during this session, so `computer{action:"screenshot"}` and coordinate-based clicks were unavailable (both require the pane to be actively compositing frames). Manual verification therefore relied on `javascript_tool`/`read_console_messages`/`get_page_text` rather than visual screenshots. This is a real gap relative to the design's "screenshots stored only under ignored temporary paths" expectation — no such screenshots exist from this session. The automated Playwright suite's own failure screenshots (under `test-results/`, already gitignored) are the only visual evidence produced this stage.
 
-### Checkpoint 4 (production-like Preview matrix): handed off to Yehia, not completed here
-
-Checkpoint 4 requires exercising the actual Vercel Preview deployment — real admin login, the Vercel protection-bypass secret, and credential-gated checks that must be performed with ephemeral local values and leave no artifact. This is the same external-dependency pattern already recorded for every prior stage's Preview items (Task 0's disposition; Stage 4's admin-dashboard/inbox live-DOM verification). Claude Code cannot obtain or use Yehia's Preview credentials or bypass secret, so this checkpoint is not attempted here. Per the design's explicit boundary (section 10), a draft PR is opened only after Checkpoint 4 passes — so no PR has been opened.
-
-### Verification
+### Verification (Stage 7 local gate, before Checkpoint 4)
 
 - `pnpm format:check` / `pnpm lint` / `pnpm typecheck`: clean.
 - `pnpm test`: 52 files, 287 tests passed (unchanged — Stage 7 added no unit tests, only e2e/config changes).
@@ -426,4 +422,68 @@ Checkpoint 4 requires exercising the actual Vercel Preview deployment — real a
 - `pnpm measure:build`: 28 chunks, 432,066 gzip bytes, 1,394,054 raw bytes — byte-identical to the Stage 6 baseline, as expected (this stage's fixes are CSS/`tabIndex`/test-assertion only, no JS bundle impact).
 - `pnpm exec playwright test` (all 4 projects, full matrix): first run 774 passed / 6 failed / 8 skipped (3 real cross-browser bugs, fixed above; 1 confirmed pre-existing flake, reproduced passing 3/3 with `--workers=1`). Confirmation re-run after all fixes: **780 passed, 0 failed, 8 skipped (18.2 minutes)**.
 - `pnpm lighthouse`: not re-run this stage. Nothing in Stage 7's changes (`overflow-wrap`, `tabIndex`, a test assertion) touches anything Lighthouse measures, and `measure:build`'s byte-identical output confirms no bundle-level change occurred. The Stage 6 Lighthouse gate status (does not yet pass locally; LCP over budget on all 4 routes, performance short on the homepage) is unchanged and remains deferred to Checkpoint 4's Preview confirmation.
+- `git diff --check`: clean.
+
+## Checkpoint 4: Production-like Preview Matrix
+
+Executed against the real Preview deployment for this branch (`https://portfolio-website-e8yj2p7ba-yehias3eed11-5404s-projects.vercel.app`, resolved via the GitHub deployment API once Yehia pushed the branch), using the Vercel Automation Bypass secret Yehia retrieved from Vercel dashboard → Settings → Deployment Protection. Admin authentication was deliberately kept out of this process entirely: `scripts/verify-neon-admin-login.ts` (a pre-existing, hidden-password-prompt terminal script) and a manual authenticated click-around of `/admin` were run by Yehia himself, not by Claude Code, since real credential entry is outside what Claude Code will do regardless of mechanism.
+
+### Data-hygiene incident: real contact-form entries created by mistake
+
+Before running the automated matrix against Preview, `tests/e2e/phase-6.spec.ts` was excluded because one of its tests submits a real, unmarked contact-form entry unconditionally. This exclusion missed a second, equivalent case: `accessibility.spec.ts`'s "contact form's unavailable state" test assumes the database write will fail (matching a local, database-less dev server) and asserts a failure alert — but Preview's database is real and working, so the submission **succeeded** instead, persisting a real, unmarked contact message (name "Ada Lovelace", email `ada@example.com`, message "Hello there") once per browser project (up to 4 times) before this was caught. This is a mistake in this session's own safety review, not a product bug, and it is recorded here rather than left undiscovered. **Action needed from Yehia:** delete the "Ada Lovelace" / `ada@example.com` entries from the real `/admin/inbox` — they are easy to distinguish from real inquiries by name/email alone. Both this test and its sibling "success state" test (which has the identical issue when explicitly run live) are now excluded from any future automated Preview run pending a proper fix; neither was changed, since a real fix belongs with Phase 6's own data contract, out of Stage 7's scope.
+
+### Real bugs found and fixed
+
+1. **`vercel.live` CSP noise breaking console-error/CSP assertions.** Vercel automatically injects a live-feedback/comments-toolbar script (`vercel.live/_next-live/feedback/feedback.js`) into every Preview deployment — never Production — and this app's CSP correctly blocks it as a non-first-party script. That single, expected block cascaded into 27 of the first run's 36 failures across `shell.spec.ts`, `homepage.spec.ts`, and all 7 of `csp.spec.ts`'s tests, since every one of them asserts zero console errors / zero CSP violations. Fixed by filtering this one, specifically-identified, Preview-only, platform-owned message out of the error/violation collectors in those three files — the CSP itself was not weakened, and the filter cannot hide a real first-party violation, only this one known non-issue.
+2. **`cv-download.spec.ts`'s Content-Disposition assertion was checking for the wrong thing.** It rejected any `<>"` character in the header, intending to guard against a future injection bug — but Vercel's real static-file serving returns the standard, spec-compliant `inline; filename="Yehia_Alsaeed_CV_AI.pdf"` (RFC 6266's normal quoted form), which the regex incorrectly flagged as unsafe. Local `next dev` apparently never sets this header at all, so the test never caught its own bug until running against a real static-file response. Fixed to assert the exact expected filename (quoted or not) instead of blanket-rejecting quote characters.
+
+### Real environment gap found: `NEXT_PUBLIC_SITE_URL` unset on this Preview
+
+`curl`-ing the live deployment showed `<link rel="canonical" href="http://localhost:3000"/>` on every route, `/sitemap.xml` listing every URL as `http://localhost:3000/...`, and `/robots.txt`'s `Host`/`Sitemap` lines pointing at `localhost:3000` too. `src/lib/env/public.ts`'s `resolveSiteUrl` falls back to `http://localhost:3000` whenever `NEXT_PUBLIC_SITE_URL` is unset or empty — which is exactly what's happening on this Preview's environment configuration. This directly contradicts the design's own requirement ("local fallback URLs may be used only for local tests, never as Preview or Production canonical output," section 3). This is a Vercel project-settings gap, not application code — Claude Code cannot fix it (provider-console change, reserved to Yehia). **Action needed:** add/confirm `NEXT_PUBLIC_SITE_URL` for the Preview environment scope in Vercel dashboard → Settings → Environment Variables.
+
+### Real design-vs-metric tension found: Lighthouse's legibility heuristic vs. the approved 11px label system
+
+Lighthouse's `font-size` audit reported only 32% "legible" (≥12px) text on `/projects`, driven substantially by `.text-\[0.6875rem\]` (11px) — this project's small-caps, letter-spaced, mono-uppercase "eyebrow"/label typography, used in **25 separate files** across the entire site (headers, footers, forms, project cards, case-study proof components, and more). This is not an oversight: it is the defining, approved Swiss-editorial typographic signature chosen in Phase 2's mockup selection, not something Claude Code will unilaterally change, per the design's explicit boundary to preserve the approved visual system. It is recorded here as a genuine trade-off for Yehia's own judgment — accept the Lighthouse legibility penalty as a deliberate design cost, or reconsider the label size — not as something silently fixed or silently hidden. (This same 11px pattern is presumably present in every prior phase's Lighthouse runs too; it's unclear why this specific audit wasn't flagged in earlier local runs — Lighthouse's per-run audit sampling has already shown significant non-determinism all through this project, e.g. the CLS/performance swings documented in Stages 2, 4, 5, and 6.)
+
+### Security headers and framing policy: confirmed live, exactly as designed
+
+Direct `curl` checks against the real deployment (with the bypass header) confirmed, byte-for-byte: the full CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and `X-Frame-Options` on every response; `/admin` redirects unauthenticated with `Cache-Control: private, no-store`; `/cv/*` serves with the Stage 6 `public, max-age=3600, must-revalidate` policy; `/api/auth/sign-up` returns 404 (blocked); `/api/health` reports `{"status":"ok"}`; `/api/maintenance` returns 401 without a secret. `X-Robots-Tag: noindex` is also present site-wide — this is Vercel's own automatic Preview-deployment protection (not this app's CSP config, which only sets it on `/admin/:path*`), correctly absent from Production.
+
+### Playwright cross-browser matrix against the real Preview
+
+Final run (all 4 browser projects, `phase-6.spec.ts` and both live-database-assuming `accessibility.spec.ts` contact-state tests excluded for the data-hygiene reasons above): **746 passed, 2 failed, 4 skipped.** Both failures were re-run in isolation 3 times each and passed 3/3 — real-network-latency flakes (one command-palette search-filter interaction on Chromium, one Cloudinary-hosted video element on WebKit), not reproducible bugs, consistent with this project's established flakiness pattern under parallel load. `primary navigation reaches every route frame`'s single earlier failure (before the fixes above) was also confirmed as the same class of flake (3/3 passing in isolation).
+
+### Lighthouse against the real Preview
+
+Collected 3 runs each on the same 4 representative routes (bypassing Vercel protection via `--settings.extraHeaders`). Results are consistent with — and slightly worse than — the local Stage 6 findings, which is expected: this measures real network latency to Vercel's edge rather than a zero-latency localhost server.
+
+| Route | Performance | Accessibility | Best Practices | SEO | LCP (median) | CLS |
+|---|---:|---:|---:|---:|---:|---:|
+| `/` | 0.91 | 100 | 100 | 0.58 | 2783ms | 0 |
+| `/projects` | 0.82 | 100 | 0.89 | 0.58 | 2490ms (passes) | 0.284 (1 of 3 runs) |
+| `/projects/skillbridge-ai-interviewer` | 0.92 | 100 | 100 | 0.61 | 2646ms | 0 |
+| `/services` | 0.82 | 100 | 100 | 0.61 | 2639ms | 0.283 (all 3 runs) |
+
+- **SEO (0.58–0.61 on every route):** entirely explained by two audits — `is-crawlable` (fails because of Vercel's own Preview-only `noindex`, expected and correct, absent from Production) and `robots-txt` (fails because of the `NEXT_PUBLIC_SITE_URL` gap above, a real fix Yehia needs to make). Once fixed and re-measured on Production, SEO should read close to 100 as it has in every prior phase.
+- **`/projects`'s best-practices (0.89):** driven by the same `vercel.live`-blocked-script console/DevTools-issue audits (Preview-only, not a real gap) plus the `font-size` finding above (a real, deliberate design trade-off, not fixed here).
+- **Performance/LCP:** same category of gap as Stage 6's local findings (over the 2500ms/0.95 targets on every route), now measured with real network latency rather than localhost. Not weakened or gamed — the thresholds in `lighthouserc.cjs` remain as designed.
+- **CLS:** the same intermittent font-load-timing-race pattern already investigated in Stage 6 reproduces here too (1 of 3 runs on `/projects`, all 3 runs on `/services`), now confirmed across a second, independent environment rather than being local-machine-specific noise.
+
+### What's still needed before this checkpoint fully passes
+
+1. Yehia: add/confirm `NEXT_PUBLIC_SITE_URL` for Preview in Vercel's dashboard, then a re-check of canonical/sitemap/robots.txt.
+2. Yehia: delete the "Ada Lovelace" contact entries from the real inbox.
+3. Yehia: a decision on the 11px label legibility trade-off (keep as designed, or reconsider) — not a blocker, a judgment call.
+4. Yehia: run `scripts/verify-neon-admin-login.ts` and the manual authenticated `/admin` click-around (unchanged from the original handoff).
+5. The Lighthouse performance/LCP gate remains open, same as Stage 6, deferred to Production measurement per this project's established local/Preview-variance precedent.
+
+Per the design's explicit boundary (section 10), a draft PR opens only once Checkpoint 4 fully passes — items 1–3 above are outstanding, so no PR has been opened yet.
+
+### Verification (Checkpoint 4)
+
+- `pnpm format:check` / `pnpm lint` / `pnpm typecheck`: clean (on the 4 files touched: `shell.spec.ts`, `homepage.spec.ts`, `csp.spec.ts`, `cv-download.spec.ts`).
+- The same 4 files re-verified locally against `next dev` after the fixes: 20/20 passed (the `vercel.live` filter is a no-op locally, as expected).
+- `pnpm exec playwright test` against the live Preview (4 projects, `phase-6.spec.ts` and the two live-database-assuming `accessibility.spec.ts` tests excluded): 746 passed, 2 failed (both confirmed flakes on isolated re-run), 4 skipped.
+- `pnpm exec lhci collect` + `assert` against the live Preview (4 routes, 3 runs each): does not pass — see the table above; root-caused, not hidden.
+- Security headers, CSP, framing policy, and route-level access control: confirmed live via direct `curl` checks against the real deployment.
 - `git diff --check`: clean.
