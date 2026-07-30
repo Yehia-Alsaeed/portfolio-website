@@ -320,9 +320,24 @@ Previously, `/cv/*`, `/media/*`, and every OG image route inherited Next's `max-
 
 Verified live against a running `pnpm start` server with direct requests before writing regression coverage: `tests/e2e/og-images.spec.ts` now asserts the exact header value (was a loose `toBeTruthy()`), and `tests/unit/phase-7-admin-security.test.ts` gained a test asserting both the `/cv/:path*` and `/media/:path*` header rules exist with the exact expected value.
 
-### Tried and reverted: `experimental.inlineCss`
+### `experimental.inlineCss`: reverted in Stage 6 on a misattribution, re-tested and kept
 
-LHR JSON analysis of the render-blocking-resources audit showed two CSS chunks consistently blocking first paint across all 4 routes (~307ms and ~157ms, not noise — present in every run inspected). Next's `experimental.inlineCss` flag exists for exactly this. Enabling it measurably made things worse, not better: CLS on `/services` became a consistent, repeatable 0.283 (previously clean), and LCP did not meaningfully improve. Reverted. This is recorded as a real, evidence-backed attempt rather than silently dropped, per the design's requirement not to hide unresolved bottlenecks.
+LHR JSON analysis of the render-blocking-resources audit showed two CSS chunks consistently blocking first paint across all 4 routes (~307ms and ~157ms, ~460ms combined — not noise, present in every run inspected). Next's `experimental.inlineCss` flag exists for exactly this. Stage 6 enabled it, observed CLS 0.283 on `/services`, concluded the flag had caused a regression, and reverted it.
+
+**That conclusion was wrong.** The same 0.283 CLS was later observed repeatedly on `/services` *without* the flag — including all three runs of the Checkpoint 4 Preview measurement recorded in the table further down this report, and on three of four routes in a local baseline re-measured during the CI investigation. Stage 6 attributed a pre-existing, intermittent layout shift to the one change that happened to be in flight at the time. The correct control — measuring the same routes with the flag off — was never run.
+
+Re-tested properly during the CI investigation as a controlled A/B on the same machine, same build settings, 3 runs per route:
+
+| Route | LCP median, flag off | LCP median, flag on | Δ | CLS, flag off | CLS, flag on |
+|---|---:|---:|---:|---|---|
+| `/` | 3177ms | 2615ms | **−562ms** | 0.00 / 0.00 / 0.00 | 0.00 / 0.00 / 0.00 |
+| `/projects` | 3040ms | 2627ms | **−413ms** | 0.00 / 0.00 / **0.28** | 0.00 / 0.00 / 0.00 |
+| `/projects/skillbridge-ai-interviewer` | 2774ms | 2717ms | −57ms | **0.28** / 0.00 / **0.28** | 0.00 / 0.00 / 0.00 |
+| `/services` | 2947ms | 2717ms | **−230ms** | **0.28** / **0.28** / **0.28** | 0.00 / 0.00 / 0.00 |
+
+The flag improves LCP on every route and **eliminates** the intermittent CLS rather than causing it — 0.00 across all twelve runs with it on, versus six shifted runs out of twelve with it off. That direction is mechanically coherent: inlining the stylesheet removes the window in which markup can paint before its CSS arrives, which is exactly when that shift occurs. It also means the "inconclusive font-timing-race CLS" chased at length in Stage 6 and again in Checkpoint 4 had a real, fixable cause all along.
+
+Kept. Verified afterward that the inlined `<style>` output raises no CSP violation (the policy already carries `style-src 'self' 'unsafe-inline'`, required independently by `@xyflow/react`'s node positioning): all 8 `csp.spec.ts` checks plus `shell.spec.ts` and `og-images.spec.ts` pass against the production build with the flag on.
 
 ### Synthetic INP proxy (explicitly labeled synthetic, per design section 3)
 
