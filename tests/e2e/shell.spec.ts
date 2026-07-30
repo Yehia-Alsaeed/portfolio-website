@@ -112,6 +112,28 @@ test("primary navigation reaches every route frame", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: "Yehia Alsaeed" })).toBeVisible();
 });
 
+test("a second nav click is not overridden by the previous one's transition", async ({ page }) => {
+  await page.goto("/");
+
+  // The route transition schedules a fallback that force-navigates if its own
+  // push has not landed yet. Nav links are Next `<Link>`s, so a route change
+  // neither unmounts the transition nor fires `popstate`, and that fallback
+  // used to survive into the next route - clicking a second nav item inside
+  // the fallback window sent the visitor back to the first destination via a
+  // full page load. Clicking straight through without waiting is the case
+  // that reproduced it.
+  const nav = page.getByRole("navigation", { name: "Primary" });
+  await nav.getByRole("link", { name: "Services" }).click();
+  await nav.getByRole("link", { name: "Contact" }).click();
+
+  await expect(page).toHaveURL(/\/#contact$/);
+  await expect(page.getByRole("heading", { level: 2, name: "Contact" })).toBeVisible();
+
+  // Outlast the fallback window and confirm nothing drags the page back.
+  await page.waitForTimeout(1200);
+  await expect(page).toHaveURL(/\/#contact$/);
+});
+
 test("remains readable when reduced motion is requested", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
