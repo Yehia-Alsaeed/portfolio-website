@@ -56,6 +56,16 @@ jobs:
 
       - name: Build production application
         run: pnpm build
+        env:
+          # `next start -p 3100` is what serves this build for both the browser
+          # tests and the Lighthouse gate, so metadataBase has to agree with
+          # that port. Without this, `NEXT_PUBLIC_SITE_URL` is unset, the
+          # validated fallback in src/lib/env/public.ts resolves to port 3000,
+          # and absolute metadata URLs (og:image in particular) point at a port
+          # nothing is listening on. `next dev` masks this by rewriting
+          # metadata image URLs to the live request origin, which is why it
+          # only ever surfaced against a production build.
+          NEXT_PUBLIC_SITE_URL: http://localhost:3100
 
       - name: Install browsers
         # Must cover every engine declared in playwright.config.ts's projects
