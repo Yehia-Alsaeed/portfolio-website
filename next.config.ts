@@ -7,10 +7,6 @@ const cloudinaryCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim(
 
 const nextConfig: NextConfig = {
   experimental: {
-    // Every route measured ~460ms of render-blocking CSS, and the LCP element
-    // on all of them is text, so first paint waits on that CSS directly.
-    // Inlining it removes the blocking round-trip.
-    inlineCss: true,
     serverActions: {
       bodySizeLimit: "16kb",
     },

@@ -320,7 +320,7 @@ Previously, `/cv/*`, `/media/*`, and every OG image route inherited Next's `max-
 
 Verified live against a running `pnpm start` server with direct requests before writing regression coverage: `tests/e2e/og-images.spec.ts` now asserts the exact header value (was a loose `toBeTruthy()`), and `tests/unit/phase-7-admin-security.test.ts` gained a test asserting both the `/cv/:path*` and `/media/:path*` header rules exist with the exact expected value.
 
-### `experimental.inlineCss`: reverted in Stage 6 on a misattribution, re-tested and kept
+### `experimental.inlineCss`: tested twice, wrong both times, finally settled by measuring the right environment
 
 LHR JSON analysis of the render-blocking-resources audit showed two CSS chunks consistently blocking first paint across all 4 routes (~307ms and ~157ms, ~460ms combined — not noise, present in every run inspected). Next's `experimental.inlineCss` flag exists for exactly this. Stage 6 enabled it, observed CLS 0.283 on `/services`, concluded the flag had caused a regression, and reverted it.
 
@@ -335,9 +335,20 @@ Re-tested properly during the CI investigation as a controlled A/B on the same m
 | `/projects/skillbridge-ai-interviewer` | 2774ms | 2717ms | −57ms | **0.28** / 0.00 / **0.28** | 0.00 / 0.00 / 0.00 |
 | `/services` | 2947ms | 2717ms | **−230ms** | **0.28** / **0.28** / **0.28** | 0.00 / 0.00 / 0.00 |
 
-The flag improves LCP on every route and **eliminates** the intermittent CLS rather than causing it — 0.00 across all twelve runs with it on, versus six shifted runs out of twelve with it off. That direction is mechanically coherent: inlining the stylesheet removes the window in which markup can paint before its CSS arrives, which is exactly when that shift occurs. It also means the "inconclusive font-timing-race CLS" chased at length in Stage 6 and again in Checkpoint 4 had a real, fixable cause all along.
+On localhost the flag looked like a decisive win on both metrics. **That conclusion was also wrong**, for a subtler reason: localhost is the one environment where inlining is free. Re-measuring the same commit on the deployed Preview — the environment the design's targets actually refer to — showed the opposite:
 
-Kept. Verified afterward that the inlined `<style>` output raises no CSP violation (the policy already carries `style-src 'self' 'unsafe-inline'`, required independently by `@xyflow/react`'s node positioning): all 8 `csp.spec.ts` checks plus `shell.spec.ts` and `og-images.spec.ts` pass against the production build with the flag on.
+| Route | Preview LCP, flag off | Preview LCP, flag on | Preview CLS, flag off | Preview CLS, flag on |
+|---|---:|---:|---|---|
+| `/` | 2783ms | 2907ms | 0 / 0 / 0 | 0.30 / 0 / 0 |
+| `/projects` | 2490ms | 2643ms | 0.28 (1 of 3) | 0.28 (3 of 3) |
+| `/projects/skillbridge-ai-interviewer` | 2646ms | 2789ms | 0 / 0 / 0 | 0.28 (3 of 3) |
+| `/services` | 2639ms | 2643ms | 0.28 (3 of 3) | 0.28 (3 of 3) |
+
+Neutral to slightly worse on the real deployment, on both metrics. The mechanism is coherent: inlining trades a stylesheet round-trip for a larger HTML document that must download in full before parsing. Over localhost, where latency is ~0, dropping the round-trip is pure profit. Over Lighthouse's simulated slow 4G against a real origin, the extra document bytes cost more than the round-trip saved.
+
+**Reverted, and the CI gate is deliberately not the arbiter here.** The Lighthouse gate runs against `next start` on localhost, so keeping the flag would have improved the *gate* while leaving real visitors no better off — optimizing the measurement instead of the product. The Preview number is the one that reflects users.
+
+Three conclusions were drawn about this one flag across Stage 6 and Checkpoint 4, and the first two were wrong in opposite directions. The common failure was measuring in one environment and generalizing: Stage 6 never ran the flag-off control, and the first re-test never left localhost. Recorded in full rather than presented as a clean result, because the sequence is the useful part.
 
 ### Synthetic INP proxy (explicitly labeled synthetic, per design section 3)
 
@@ -499,6 +510,29 @@ Chasing the `NEXT_PUBLIC_SITE_URL` finding surfaced a second, compounding proble
 Cleaned up with Yehia's explicit approval: the 5 merged branches deleted locally and on the remote (`worktree-phase-4-projects-case-studies`, `worktree-phase-5-services-interactive-proof`, `worktree-phase-6-data-contact-analytics`, `phase-7-auth-admin-operations`, `docs/git-authorship-policy`), their 4 worktrees removed, plus an orphaned `.worktrees/phase-0-readiness` directory that was no longer a registered worktree at all. One branch, `worktree-phase-4-projects-case-studies`, refused a safe (`-d`) delete because it carried commit `f3bd359` that `main` did not; before force-deleting, that commit was verified to be a content-identical duplicate of `main`'s own `0507085` (`git diff origin/main <branch> -- docs/implementation/phase-4-report.md` returned empty), so nothing was lost. Final state: **3 local branches, 2 remote, 2 worktrees** — exactly one Preview deployment per meaningful branch, so this class of confusion cannot recur.
 
 Windows note for any future worktree cleanup here: `git worktree remove` fails with `Filename too long` on this machine because of deep `node_modules` paths, but still deregisters the worktree from git's metadata, leaving the directory orphaned on disk. The leftover directories need `Remove-Item -LiteralPath "\\?\<abs-path>" -Recurse -Force` (the `\\?\` long-path prefix) to actually delete.
+
+### CLS root cause finally identified: font swap in the site header
+
+Stage 6 chased this shift and gave up on it as an "inconclusive font-timing-race artifact of Lighthouse's simulated throttling." Checkpoint 4 then wrongly pinned it on `inlineCss`. Reading the `layout-shifts` audit detail from a Preview run — rather than inferring from the CLS score alone — names it outright:
+
+```
+score: 0.2829 | node: body > div.site-frame > main#main-content
+   cause: Web font loaded | archivo_wide_900-s.…woff2
+   cause: Web font loaded | archivo_latin_variable-s.…woff2
+   cause: Web font loaded | jetbrains_mono_latin_variable-s.…woff2
+```
+
+`<main>` is pushed down when the fonts arrive. `src/app/fonts.ts` explains why: `archivo` (the body face) uses `display: "optional"`, which never swaps and therefore never shifts — but `archivoStatement`, `archivoWide`, and `jetBrainsMono` all use `display: "swap"`. `archivoWide` styles the site-header logo, which renders on **every** route, so its swap changes the header's height and displaces all content below it. That explains the previously-puzzling pattern of the shift appearing site-wide, including on routes with no hero.
+
+`adjustFontFallback: "Arial"` is already set on all four faces (Stage 6's fix) and is not sufficient here: Arial's metrics are a poor match for Archivo Wide 900 at `font-stretch: 125%`, so the fallback box and the real box differ enough to move layout.
+
+**Not fixed here, because every available fix trades against the approved visual system**, which the design reserves to Yehia (section 5) — the same category as the 11px label decision above:
+
+- **`display: "optional"` on the swapping faces** is the standard, reliable fix and is already this codebase's own established pattern for `archivo`. Cost: on a cold load the custom face is dropped entirely for that page view, so the header logo — and, more significantly, the monogram hero, the site's signature Mockup B element — would render in Arial for first-time visitors on slow connections.
+- **Reserving fixed dimensions** for the header logo so a swap cannot change the header's height preserves the typography exactly, but is a layout change to the shell that needs design review.
+- **Hand-authored fallback metrics** (`size-adjust`/`ascent-override` on a custom `@font-face`) can make the swap near-invisible while keeping `swap`. Most faithful to the design, most work, and next/font's `adjustFontFallback` cannot express it — it only accepts `"Arial"`, `"Times New Roman"`, or `false`.
+
+The evidence is now solid enough to act on in Phase 9 without re-deriving it.
 
 ### What's still needed before this checkpoint fully passes
 
