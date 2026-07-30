@@ -16,6 +16,12 @@ export function AdminShell({
 }>) {
   return (
     <div className={styles.shell}>
+      {/* WebKit's default keyboard-access mode only Tab-stops through form
+          controls, not plain links, unless Full Keyboard Access is on - an
+          explicit tabIndex opts this link into the sequence regardless. */}
+      <a className="skip-link" href="#admin-content" tabIndex={0}>
+        Skip to content
+      </a>
       <aside className={styles.sidebar}>
         <Link aria-label="Admin overview" className={styles.logo} href={"/admin" as Route}>
           YA<b>.</b>

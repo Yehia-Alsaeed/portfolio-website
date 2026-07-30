@@ -44,5 +44,8 @@ export default defineConfig([
     "playwright-report/**",
     "reports/lighthouse/**",
     "test-results/**",
+    ".claude/**",
+    ".superpowers/**",
+    ".worktrees/**",
   ]),
 ]);

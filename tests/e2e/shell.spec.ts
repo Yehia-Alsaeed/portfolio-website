@@ -4,15 +4,28 @@ const ROUTES = [
   { heading: "Yehia Alsaeed", path: "/" },
   { heading: "Projects", path: "/projects" },
   { heading: "I build stores & software that ship.", path: "/services" },
-  { heading: "Design system", path: "/design-system" },
 ] as const;
+
+// Vercel injects its own live-feedback/comments toolbar script
+// (vercel.live/_next-live/feedback/feedback.js) only on Preview
+// deployments - never in Production - and this app's CSP correctly blocks
+// it since it's not a first-party script. That's the CSP working as
+// designed, not a real app bug, so it's excluded here rather than making
+// this assertion permanently unpassable on Preview.
+function isKnownPreviewOnlyNoise(message: string): boolean {
+  return message.includes("vercel.live");
+}
 
 function collectBrowserErrors(page: Page): string[] {
   const errors: string[] = [];
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (message.type() === "error" && !isKnownPreviewOnlyNoise(message.text())) {
+      errors.push(message.text());
+    }
   });
-  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("pageerror", (error) => {
+    if (!isKnownPreviewOnlyNoise(error.message)) errors.push(error.message);
+  });
   return errors;
 }
 
@@ -87,13 +100,38 @@ test("primary navigation reaches every route frame", async ({ page }) => {
     .getByRole("link", { name: "Contact" })
     .click();
   await expect(page).toHaveURL(/\/#contact$/);
-  await expect(page.getByRole("contentinfo")).toBeInViewport();
+  // Checks the contact section itself, not the footer below it: on a short
+  // mobile viewport the contact form alone is taller than the viewport, so
+  // the footer legitimately scrolls out of view even on a correct jump.
+  await expect(page.getByRole("heading", { level: 2, name: "Contact" })).toBeInViewport();
 
   await page
     .getByRole("navigation", { name: "Primary" })
     .getByRole("link", { name: "Home" })
     .click();
   await expect(page.getByRole("heading", { level: 1, name: "Yehia Alsaeed" })).toBeVisible();
+});
+
+test("a second nav click is not overridden by the previous one's transition", async ({ page }) => {
+  await page.goto("/");
+
+  // The route transition schedules a fallback that force-navigates if its own
+  // push has not landed yet. Nav links are Next `<Link>`s, so a route change
+  // neither unmounts the transition nor fires `popstate`, and that fallback
+  // used to survive into the next route - clicking a second nav item inside
+  // the fallback window sent the visitor back to the first destination via a
+  // full page load. Clicking straight through without waiting is the case
+  // that reproduced it.
+  const nav = page.getByRole("navigation", { name: "Primary" });
+  await nav.getByRole("link", { name: "Services" }).click();
+  await nav.getByRole("link", { name: "Contact" }).click();
+
+  await expect(page).toHaveURL(/\/#contact$/);
+  await expect(page.getByRole("heading", { level: 2, name: "Contact" })).toBeVisible();
+
+  // Outlast the fallback window and confirm nothing drags the page back.
+  await page.waitForTimeout(1200);
+  await expect(page).toHaveURL(/\/#contact$/);
 });
 
 test("remains readable when reduced motion is requested", async ({ page }) => {

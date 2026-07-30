@@ -19,7 +19,7 @@ export function RecentEvents({ events }: Readonly<{ events: RecentEvent[] }>) {
   return (
     <section className={styles.panel}>
       <div className={styles.panelHead}>
-        <span>Recent events</span>
+        <h2>Recent events</h2>
         <span>Latest 20</span>
       </div>
       {events.length === 0 ? (

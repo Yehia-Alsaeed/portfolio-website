@@ -56,6 +56,23 @@ describe("Phase 7 admin dashboard", () => {
     expect(screen.queryByText("sample data")).not.toBeInTheDocument();
   });
 
+  it("gives every dashboard panel a real, sequential heading", () => {
+    render(<AdminDashboard overview={emptyOverview} />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Portfolio pulse." })).toBeInTheDocument();
+    for (const title of [
+      "Visitors and views",
+      "Top sources",
+      "Top pages",
+      "Countries",
+      "Devices",
+      "Browsers",
+      "Recent events",
+    ]) {
+      expect(screen.getByRole("heading", { level: 2, name: title })).toBeInTheDocument();
+    }
+  });
+
   it("renders range links using only approved range values", () => {
     render(<AdminDashboard overview={emptyOverview} />);
 
@@ -83,5 +100,16 @@ describe("Phase 7 admin dashboard", () => {
     expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
     expect(screen.queryByText("Projects")).not.toBeInTheDocument();
     expect(screen.queryByText("Services")).not.toBeInTheDocument();
+  });
+
+  it("gives keyboard users a skip link straight to the admin content", () => {
+    render(
+      <AdminShell unreadCount={0}>
+        <p>Private content</p>
+      </AdminShell>,
+    );
+
+    const skipLink = screen.getByRole("link", { name: "Skip to content" });
+    expect(skipLink).toHaveAttribute("href", "#admin-content");
   });
 });

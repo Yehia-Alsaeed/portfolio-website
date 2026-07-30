@@ -1,0 +1,54 @@
+{
+  "/": {
+    "runs": 3,
+    "scores": {
+      "performance": 91,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "largestContentfulPaintMs": 3028.0976,
+      "cumulativeLayoutShift": 0
+    }
+  },
+  "/projects": {
+    "runs": 3,
+    "scores": {
+      "performance": 95,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "largestContentfulPaintMs": 2873.0609999999997,
+      "cumulativeLayoutShift": 0
+    }
+  },
+  "/projects/skillbridge-ai-interviewer": {
+    "runs": 3,
+    "scores": {
+      "performance": 94,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "largestContentfulPaintMs": 2880.4472,
+      "cumulativeLayoutShift": 0
+    }
+  },
+  "/services": {
+    "runs": 3,
+    "scores": {
+      "performance": 93,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100
+    },
+    "metrics": {
+      "largestContentfulPaintMs": 2912.1227499999995,
+      "cumulativeLayoutShift": 0
+    }
+  }
+}

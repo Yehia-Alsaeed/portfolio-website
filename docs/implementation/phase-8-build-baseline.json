@@ -1,0 +1,148 @@
+{
+  "fileCount": 28,
+  "gzipBytes": 432066,
+  "scope": ".next/static/chunks/**/*.js",
+  "totalBytes": 1394054,
+  "files": [
+    {
+      "file": "08_yycqhebwa-.js",
+      "gzipBytes": 2389,
+      "rawBytes": 5343
+    },
+    {
+      "file": "08xin7bz6w9f7.js",
+      "gzipBytes": 12873,
+      "rawBytes": 54631
+    },
+    {
+      "file": "0cz1d0mv5g_q7.js",
+      "gzipBytes": 39627,
+      "rawBytes": 112594
+    },
+    {
+      "file": "0x2nnwqngx3y0.js",
+      "gzipBytes": 8814,
+      "rawBytes": 30953
+    },
+    {
+      "file": "1-phmsenwpd8-.js",
+      "gzipBytes": 101007,
+      "rawBytes": 355229
+    },
+    {
+      "file": "11m2muhnllwqf.js",
+      "gzipBytes": 5092,
+      "rawBytes": 12934
+    },
+    {
+      "file": "14zmk8w31lyht.js",
+      "gzipBytes": 2934,
+      "rawBytes": 6899
+    },
+    {
+      "file": "1_6-mj-su7hbt.js",
+      "gzipBytes": 5088,
+      "rawBytes": 12946
+    },
+    {
+      "file": "1d1n6o6mk-q65.js",
+      "gzipBytes": 4060,
+      "rawBytes": 9883
+    },
+    {
+      "file": "1ik8zz-2lvzxu.js",
+      "gzipBytes": 5112,
+      "rawBytes": 12601
+    },
+    {
+      "file": "1j60kudrwlxk_.js",
+      "gzipBytes": 9247,
+      "rawBytes": 44417
+    },
+    {
+      "file": "1opa8zpibnwx4.js",
+      "gzipBytes": 4525,
+      "rawBytes": 11147
+    },
+    {
+      "file": "1qs3zc7ovg0jh.js",
+      "gzipBytes": 29346,
+      "rawBytes": 110490
+    },
+    {
+      "file": "1tee6qpojh7oa.js",
+      "gzipBytes": 620,
+      "rawBytes": 1639
+    },
+    {
+      "file": "1xhd_2m7402dt.js",
+      "gzipBytes": 1250,
+      "rawBytes": 2747
+    },
+    {
+      "file": "21_0vi4pw318-.js",
+      "gzipBytes": 70975,
+      "rawBytes": 227315
+    },
+    {
+      "file": "29lf4boiqdzor.js",
+      "gzipBytes": 8321,
+      "rawBytes": 22729
+    },
+    {
+      "file": "2_p2jz6a1695l.js",
+      "gzipBytes": 11038,
+      "rawBytes": 32078
+    },
+    {
+      "file": "2a5vqq89pmry3.js",
+      "gzipBytes": 1451,
+      "rawBytes": 3377
+    },
+    {
+      "file": "2qhpw1q-y42-4.js",
+      "gzipBytes": 6478,
+      "rawBytes": 17199
+    },
+    {
+      "file": "2sxvhv_80xgwj.js",
+      "gzipBytes": 8500,
+      "rawBytes": 27070
+    },
+    {
+      "file": "2vhyhdbelv2c0.js",
+      "gzipBytes": 52289,
+      "rawBytes": 166243
+    },
+    {
+      "file": "2ynef3lyvdyvx.js",
+      "gzipBytes": 8795,
+      "rawBytes": 27779
+    },
+    {
+      "file": "3xx0eizu1a0gt.js",
+      "gzipBytes": 6957,
+      "rawBytes": 18093
+    },
+    {
+      "file": "3z55i79w15zea.js",
+      "gzipBytes": 2017,
+      "rawBytes": 5587
+    },
+    {
+      "file": "43lc_virt18o8.js",
+      "gzipBytes": 8906,
+      "rawBytes": 23079
+    },
+    {
+      "file": "44pos6fn679a8.js",
+      "gzipBytes": 10178,
+      "rawBytes": 28407
+    },
+    {
+      "file": "turbopack-33-l-upkhf6pn.js",
+      "gzipBytes": 4177,
+      "rawBytes": 10645
+    }
+  ]
+}

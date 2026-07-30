@@ -12,4 +12,9 @@ describe("robots.txt", () => {
     const result = robots();
     expect(result.host).toBe("http://localhost:3000");
   });
+
+  it("names the sitemap at the configured site URL", () => {
+    const result = robots();
+    expect(result.sitemap).toBe("http://localhost:3000/sitemap.xml");
+  });
 });

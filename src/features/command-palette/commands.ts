@@ -11,7 +11,6 @@ export type PaletteCommand =
         | "/"
         | "/projects"
         | "/services"
-        | "/design-system"
         | "/#work"
         | "/#experience"
         | "/#services"
@@ -102,14 +101,6 @@ export const SITE_COMMANDS: readonly PaletteCommand[] = [
     keywords: ["services", "freelance", "clients"],
     kind: "navigate",
     label: "Services",
-  },
-  {
-    group: "Navigate",
-    href: "/design-system",
-    id: "navigate-design-system",
-    keywords: ["design", "system", "gallery", "components"],
-    kind: "navigate",
-    label: "Design system",
   },
   {
     group: "Navigate",

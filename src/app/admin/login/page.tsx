@@ -29,7 +29,7 @@ export default async function AdminLoginPage({
   const reasonMessage = messageForReason(params.reason);
 
   return (
-    <section className="site-frame grid min-h-[70svh] place-items-center py-16">
+    <main className="site-frame grid min-h-[70svh] place-items-center py-16">
       <div className="border-line bg-paper grid w-full max-w-[440px] gap-8 border-2 p-6 sm:p-8">
         <header className="grid gap-2">
           <p className="text-dim font-mono text-xs font-bold tracking-[0.16em] uppercase">
@@ -44,6 +44,6 @@ export default async function AdminLoginPage({
         ) : null}
         <LoginForm />
       </div>
-    </section>
+    </main>
   );
 }

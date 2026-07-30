@@ -7,12 +7,28 @@ import type { AuthSessionResult, AuthSignInResult } from "./model";
 
 export const AUTH_SIGNUP_BLOCK_STATUS = 404;
 
+// Every prefix here was confirmed against the installed
+// @neondatabase/auth package's own route surface (its type declarations
+// enumerate every path the underlying handler can proxy to Neon Auth), not
+// guessed - see docs/implementation/phase-8-report.md Stage 5 for the audit
+// that found sign-up/social/magic-link/email-otp/organization already
+// covered, but token/anonymous (creates an unauthenticated session/account
+// without going through the blocked sign-up flow), the entire admin/*
+// plugin namespace (a different, more dangerous RBAC surface than this
+// app's own ADMIN_USER_ID check - includes impersonate-user), and the
+// email-otp/* and magic-link/* sub-paths (distinct prefixes from the
+// already-blocked sign-in/email-otp and sign-in/magic-link entry points)
+// were not.
 const BLOCKED_AUTH_PREFIXES = [
   "/api/auth/sign-up",
   "/api/auth/sign-up/email",
   "/api/auth/sign-in/social",
   "/api/auth/sign-in/magic-link",
   "/api/auth/sign-in/email-otp",
+  "/api/auth/magic-link",
+  "/api/auth/email-otp",
+  "/api/auth/token/anonymous",
+  "/api/auth/admin",
   "/api/auth/request-password-reset",
   "/api/auth/reset-password",
   "/api/auth/organization",

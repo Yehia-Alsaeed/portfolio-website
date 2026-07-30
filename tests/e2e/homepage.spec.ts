@@ -8,12 +8,26 @@ const PROJECTS = [
   ["Prestige Motors Showroom", "/projects/prestige-motors-showroom"],
 ] as const;
 
+// Vercel injects its own live-feedback/comments toolbar script
+// (vercel.live/_next-live/feedback/feedback.js) only on Preview
+// deployments - never in Production - and this app's CSP correctly blocks
+// it since it's not a first-party script. That's the CSP working as
+// designed, not a real app bug, so it's excluded here rather than making
+// this assertion permanently unpassable on Preview.
+function isKnownPreviewOnlyNoise(message: string): boolean {
+  return message.includes("vercel.live");
+}
+
 function collectBrowserErrors(page: Page): string[] {
   const errors: string[] = [];
   page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
+    if (message.type() === "error" && !isKnownPreviewOnlyNoise(message.text())) {
+      errors.push(message.text());
+    }
   });
-  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("pageerror", (error) => {
+    if (!isKnownPreviewOnlyNoise(error.message)) errors.push(error.message);
+  });
   return errors;
 }
 
@@ -27,6 +41,17 @@ test("serves the complete recruiter-first homepage with production metadata", as
   const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
   expect(canonical).not.toBeNull();
   expect(new URL(canonical ?? "http://invalid").pathname).toBe("/");
+
+  const jsonLd = JSON.parse(
+    (await page.locator('script[type="application/ld+json"]').first().textContent()) ?? "{}",
+  );
+  expect(jsonLd["@type"]).toBe("Person");
+  expect(jsonLd.name).toBe("Yehia Alsaeed");
+  expect(jsonLd.sameAs).toEqual([
+    "https://github.com/Yehia-Alsaeed",
+    "https://www.linkedin.com/in/yehia-alsaeed",
+  ]);
+
   await expect(page.getByRole("heading", { level: 1, name: "Yehia Alsaeed" })).toBeVisible();
   expect(await page.locator("h1").count()).toBe(1);
 

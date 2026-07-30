@@ -1,9 +1,9 @@
 # Phase 7 Implementation Report
 
-**Status:** Local implementation complete on branch `phase-7-auth-admin-operations`. Draft PR #8 is open. Live app-level Preview verification is pending because the Preview is currently behind Vercel SSO protection from this shell.
+**Status:** Implementation complete on branch `phase-7-auth-admin-operations`. PR #8 merged into `main` on 2026-07-26 at merge commit `bcf97b9`. The GitHub Actions `Quality` check and the Vercel deployment check both completed with `SUCCESS` before merge. Live app-level Preview verification (the items below under Pending Gate Items) was never performed against a Vercel bypass secret and admin credentials and remains outstanding; it is carried forward as a Phase 8 Task 0 carryover per `docs/superpowers/specs/2026-07-27-phase-8-quality-hardening-design.md` section 3.
 
-**PR:** https://github.com/Yehia-Alsaeed/portfolio-website/pull/8 (draft)
-**Preview deployment:** `https://portfolio-website-4ijztcdcr-yehias3eed11-5404s-projects.vercel.app`
+**PR:** https://github.com/Yehia-Alsaeed/portfolio-website/pull/8 (merged)
+**Preview deployment (pre-merge):** `https://portfolio-website-4ijztcdcr-yehias3eed11-5404s-projects.vercel.app`
 
 ## Scope Delivered
 
@@ -55,6 +55,8 @@ Known provider limitation: the Neon Auth page still shows the public signup warn
 - Query-plan inspection on Preview.
 - Browser checks at 360, 768, 1024, and 1440 CSS pixels, including keyboard, 200% zoom, axe, and console/page errors.
 - Synthetic inbox read/read-toggle/delete verification.
+
+None of these items were verified before merge. Their Phase 8 disposition (evidence obtained, or recorded as an external manual dependency owned by Yehia) is tracked in `docs/implementation/phase-8-report.md`.
 
 ## Preview Access Status
 

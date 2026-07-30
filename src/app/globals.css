@@ -181,16 +181,6 @@
   animation: register-plate 650ms cubic-bezier(0.76, 0, 0.24, 1) both;
 }
 
-.scroll-progress {
-  position: fixed;
-  inset: 0 0 auto;
-  z-index: 190;
-  height: 2px;
-  background: var(--accent);
-  transform-origin: left;
-  will-change: transform;
-}
-
 @keyframes register-plate {
   0% {
     transform: scaleX(0);
@@ -203,6 +193,34 @@
   100% {
     transform: scaleX(0);
   }
+}
+
+/*
+ * WebKit's native mobile `<select>` rendering discards the authored `color`
+ * and `background-color` outright. Probed on the same page and stylesheet:
+ * desktop WebKit resolved them correctly (#f1efe9 on #111114), while WebKit
+ * under mobile emulation reported black on transparent, which lands as black
+ * text on the Night background - a 1.11:1 contrast failure that axe flags as
+ * serious. Forcing `appearance: none` restored both values immediately.
+ *
+ * The arrow is drawn with gradients rather than an SVG `background-image`,
+ * because `img-src` in the CSP (next.config.ts) does not allow `data:` and a
+ * data-URI arrow would be blocked. `currentColor` keeps it correct in Paper,
+ * Night, and Mono without per-mode rules.
+ */
+.select-control {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-position:
+    calc(100% - 1.125rem) calc(50% - 0.125rem),
+    calc(100% - 0.8125rem) calc(50% - 0.125rem);
+  background-size:
+    0.3125rem 0.3125rem,
+    0.3125rem 0.3125rem;
+  padding-right: 2.25rem;
 }
 
 @media (max-width: 639px) {
@@ -225,8 +243,7 @@
     animation-iteration-count: 1 !important;
   }
 
-  .page-transition,
-  .scroll-progress {
+  .page-transition {
     display: none;
   }
 }

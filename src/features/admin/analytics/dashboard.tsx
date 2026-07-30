@@ -46,7 +46,7 @@ export function AdminDashboard({ overview }: Readonly<{ overview: AdminOverview 
       <div className={styles.grid}>
         <section className={styles.panel}>
           <div className={styles.panelHead}>
-            <span>Visitors and views</span>
+            <h2>Visitors and views</h2>
             <span>{overview.range}</span>
           </div>
           <TrendChart data={overview.trend} />

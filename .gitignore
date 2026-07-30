@@ -5,6 +5,10 @@ out/
 .netlify/
 .worktrees/
 
+# Local AI-tool-generated directories and nested phase worktrees; never tracked
+.claude/
+.superpowers/
+
 # Local environment and provider state
 .env
 .env.local

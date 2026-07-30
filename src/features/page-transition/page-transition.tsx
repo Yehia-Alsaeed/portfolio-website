@@ -49,12 +49,23 @@ export function PageTransition() {
       }
 
       const destination = new URL(anchor.href, window.location.href);
+
+      // This click is going to navigate, so any transition still pending from
+      // an earlier click is now stale. Every nav link is a Next `<Link>`, so a
+      // route change neither unmounts this component nor fires `popstate` -
+      // an earlier click's fallback timer therefore survives into the next
+      // route, where it sees a location that no longer matches its own
+      // destination and forces a full-page `assign` back to it. Clicking two
+      // nav items inside FALLBACK_DELAY_MS was enough to get yanked backwards.
+      clearPendingNavigation();
+
       if (
         destination.origin !== window.location.origin ||
         destination.hash ||
         (destination.pathname === window.location.pathname &&
           destination.search === window.location.search)
       ) {
+        setActive(false);
         return;
       }
 

@@ -6,6 +6,7 @@ import { getProjectCatalogue } from "@/features/projects/catalogue";
 import { ProjectFilters } from "@/features/projects/project-filters";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/projects" },
   title: "Projects | Yehia Alsaeed",
   description:
     "All 17 GitHub projects by Yehia Alsaeed across AI, machine learning, and full-stack systems, filterable by category.",

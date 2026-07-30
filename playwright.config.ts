@@ -1,5 +1,25 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// The full suite runs on Chromium. Firefox, desktop WebKit, and iPhone-style
+// WebKit run only this focused subset - one representative file per area the
+// design calls out (navigation, metadata, download, contact, proof
+// interaction, responsive, reduced motion, accessibility smoke) - rather than
+// re-running Chromium-specific verification techniques (CSP header parsing,
+// OG image byte content, the Event Timing API, zoom-simulation math) that
+// don't vary by rendering engine.
+const crossBrowserFocusedTests = [
+  "shell.spec.ts",
+  "homepage.spec.ts",
+  "projects.spec.ts",
+  "services.spec.ts",
+  "case-studies.spec.ts",
+  "cv-download.spec.ts",
+  "phase-5-proof.spec.ts",
+  "phase-6.spec.ts",
+  "responsive.spec.ts",
+  "accessibility.spec.ts",
+];
+
 const externalBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
 const localBaseUrl = "http://localhost:3100";
 const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim() || undefined;
@@ -33,6 +53,21 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "firefox",
+      testMatch: crossBrowserFocusedTests,
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "webkit",
+      testMatch: crossBrowserFocusedTests,
+      use: { ...devices["Desktop Safari"] },
+    },
+    {
+      name: "webkit-iphone",
+      testMatch: crossBrowserFocusedTests,
+      use: { ...devices["iPhone 14"] },
     },
   ],
   ...(externalBaseUrl

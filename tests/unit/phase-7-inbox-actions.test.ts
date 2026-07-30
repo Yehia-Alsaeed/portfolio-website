@@ -1,16 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { AdminAuthError } from "@/features/admin/auth/model";
+
 const calls = vi.hoisted(() => ({
   order: [] as string[],
   execute: vi.fn(),
   revalidatePath: vi.fn(),
 }));
 
-vi.mock("@/features/admin/auth/authorize", () => ({
-  requireAdmin: vi.fn(async () => {
+const requireAdminMock = vi.hoisted(() =>
+  vi.fn(async () => {
     calls.order.push("auth");
     return { id: "admin-user-id" };
   }),
+);
+
+vi.mock("@/features/admin/auth/authorize", () => ({
+  requireAdmin: requireAdminMock,
 }));
 
 vi.mock("@/db/client", () => ({
@@ -28,6 +34,7 @@ beforeEach(() => {
   calls.order.length = 0;
   calls.execute.mockReset();
   calls.revalidatePath.mockReset();
+  requireAdminMock.mockClear();
 });
 
 describe("Phase 7 inbox mutations", () => {
@@ -68,5 +75,30 @@ describe("Phase 7 inbox mutations", () => {
       status: "not-found",
       message: "Message was not found.",
     });
+  });
+
+  // Next.js Server Actions are dispatched by an action ID carried in a
+  // request header, not scoped to the page path that imported them - the
+  // /admin/:path* proxy matcher cannot be the only thing standing between
+  // an anonymous request and this mutation. This proves the query-layer
+  // requireAdmin() check fails closed even when called directly, which is
+  // what actually protects these actions regardless of which URL a request
+  // is sent to.
+  it("performs no database write when the caller is not an authorized admin", async () => {
+    requireAdminMock.mockRejectedValueOnce(new AdminAuthError("anonymous"));
+    const { setMessageReadAction, deleteMessageAction } =
+      await import("@/features/admin/inbox/actions");
+
+    await expect(
+      setMessageReadAction("2d6c56f8-11e9-4d88-b98a-57d8d01cf8f3", true),
+    ).resolves.toEqual({ status: "unavailable", message: "Inbox is temporarily unavailable." });
+    expect(calls.execute).not.toHaveBeenCalled();
+
+    requireAdminMock.mockRejectedValueOnce(new AdminAuthError("unauthorized"));
+    await expect(deleteMessageAction("2d6c56f8-11e9-4d88-b98a-57d8d01cf8f3")).resolves.toEqual({
+      status: "unavailable",
+      message: "Inbox is temporarily unavailable.",
+    });
+    expect(calls.execute).not.toHaveBeenCalled();
   });
 });

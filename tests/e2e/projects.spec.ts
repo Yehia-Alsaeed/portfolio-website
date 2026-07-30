@@ -12,6 +12,11 @@ test("serves the complete catalogue with the expected action links", async ({ pa
   const response = await page.goto("/projects");
 
   expect(response?.status()).toBe(200);
+
+  const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
+  expect(canonical).not.toBeNull();
+  expect(new URL(canonical ?? "http://invalid").pathname).toBe("/projects");
+
   await expect(page.getByRole("heading", { level: 1 })).toContainText("17");
   await expect(page.locator("article")).toHaveCount(17);
   await expect(page.getByText("★ Flagship")).toHaveCount(5);

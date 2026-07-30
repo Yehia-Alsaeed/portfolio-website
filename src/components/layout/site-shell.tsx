@@ -1,7 +1,6 @@
 import type * as React from "react";
 
 import { PageTransition } from "@/features/page-transition/page-transition";
-import { ScrollProgress } from "@/features/scroll-rules/scroll-progress";
 
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
@@ -12,8 +11,10 @@ export function SiteShell({ children }: SiteShellProps) {
   return (
     <>
       <PageTransition />
-      <ScrollProgress />
-      <a className="skip-link" href="#main-content">
+      {/* WebKit's default keyboard-access mode only Tab-stops through form
+          controls, not plain links, unless Full Keyboard Access is on - an
+          explicit tabIndex opts this link into the sequence regardless. */}
+      <a className="skip-link" href="#main-content" tabIndex={0}>
         Skip to content
       </a>
       <div className="site-frame">
