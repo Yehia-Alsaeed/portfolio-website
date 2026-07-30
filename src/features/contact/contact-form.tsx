@@ -75,7 +75,7 @@ export function ContactForm() {
         label="Inquiry type"
       >
         <select
-          className={controlClass}
+          className={`${controlClass} select-control`}
           defaultValue={values?.inquiryType ?? ""}
           name="inquiryType"
           required
