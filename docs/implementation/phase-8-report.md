@@ -526,13 +526,36 @@ score: 0.2829 | node: body > div.site-frame > main#main-content
 
 `adjustFontFallback: "Arial"` is already set on all four faces (Stage 6's fix) and is not sufficient here: Arial's metrics are a poor match for Archivo Wide 900 at `font-stretch: 125%`, so the fallback box and the real box differ enough to move layout.
 
-**Not fixed here, because every available fix trades against the approved visual system**, which the design reserves to Yehia (section 5) — the same category as the 11px label decision above:
+Three options were initially written up as trading against the approved visual system, and put to Yehia as his call under the design's section 5:
 
-- **`display: "optional"` on the swapping faces** is the standard, reliable fix and is already this codebase's own established pattern for `archivo`. Cost: on a cold load the custom face is dropped entirely for that page view, so the header logo — and, more significantly, the monogram hero, the site's signature Mockup B element — would render in Arial for first-time visitors on slow connections.
-- **Reserving fixed dimensions** for the header logo so a swap cannot change the header's height preserves the typography exactly, but is a layout change to the shell that needs design review.
-- **Hand-authored fallback metrics** (`size-adjust`/`ascent-override` on a custom `@font-face`) can make the swap near-invisible while keeping `swap`. Most faithful to the design, most work, and next/font's `adjustFontFallback` cannot express it — it only accepts `"Arial"`, `"Times New Roman"`, or `false`.
+- **`display: "optional"` on the swapping faces** — reliable, already this codebase's pattern for `archivo`, but drops the custom face entirely on a cold load, so the header logo and the monogram hero would render in Arial for first-time visitors.
+- **Reserving fixed dimensions** for the header logo so a swap cannot change the header's height — preserves typography exactly, but changes the shell's layout.
+- **Hand-authored fallback metrics** (`size-adjust`/`ascent-override`) — most faithful, most work, and not expressible through next/font's `adjustFontFallback`.
 
-The evidence is now solid enough to act on in Phase 9 without re-deriving it.
+Yehia rejected the premise of all three, on the grounds that he wants the typefaces he chose to actually render rather than any variation on falling back to Arial. That reframing was correct and led directly to the real fix below: every one of those options accepted "the fonts are expensive, ration them" as a given, and none of them checked whether it was true.
+
+### Fixed: preloading every face, which also revealed the body font was never rendering
+
+The three options above all assumed the font bytes were expensive and had to be rationed. Checking the actual files disproved the premise: the entire set is **43KB** (Archivo 23.7KB, Archivo Wide 6.0KB, Archivo Statement 6.2KB, JetBrains Mono 7.2KB). That is small enough to preload outright.
+
+Inspecting the configuration against that number surfaced a more serious problem than the layout shift. `archivo`, the body face, combined `preload: false` with `display: "optional"`. Unprioritised, it routinely missed `optional`'s ~100ms window — and `optional` never swaps afterwards. **The selected body typeface therefore did not render at all on a cold visit.** Visitors saw the Arial fallback for the entire page view, and only ever saw Archivo on a later visit once it was cached. The configuration was purchasing an LCP number by silently not displaying the chosen typeface, which is not a trade the design ever asked for.
+
+Fixed by setting `preload: true` and `display: "swap"` on all four faces. Preloading lands them before or during first paint, so the real face is what renders and there is no fallback period to swap out of; `swap` additionally guarantees the real face always arrives eventually, which `optional` did not.
+
+Verified on the deployed Preview rather than localhost. The served HTML carries four `rel="preload" as="font"` links (previously two) and all four `@font-face` rules use `font-display: swap` (previously one was `optional`). In-browser, after `document.fonts.ready`, all four real faces report `loaded` while every generated `… Fallback` face reports `unloaded`, and measuring rendered text against the same node forced to Arial confirms the real metrics are in use (header logo 56px vs 47px forced-Arial; statement text 4288px vs 4343px).
+
+Measured effect on the Preview, 3 runs per route:
+
+| Route | CLS before | CLS after | Performance before | Performance after |
+|---|---|---|---:|---:|
+| `/` | 0.30 / 0 / 0 | **0 / 0 / 0** | 81 / 88 / 93 | **93 / 93 / 96** |
+| `/projects` | 0.28 (3 of 3) | **0 / 0 / 0** | 79 / 81 / 77 | **96 / 95 / 96** |
+| `/projects/skillbridge-ai-interviewer` | 0.28 (3 of 3) | **0 / 0 / 0** | 77 / 79 / 77 | **98 / 92 / 96** |
+| `/services` | 0.28 (3 of 3) | **0 / 0 / 0** | 79 / 78 / 79 | **96 / 96 / 91** |
+
+Zero layout shift across all twelve runs, and the Performance category moves from the high-70s/low-80s to 91–98, meeting the ≥95 target on three of the four routes' medians. Putting 43KB of fonts on the critical path was expected to cost something; it paid for itself several times over, because the shift it removed was itself suppressing the score. This also closes out the CLS thread that Stage 6 abandoned as an unexplained throttling artifact and that Checkpoint 4 twice misattributed to `inlineCss`.
+
+LCP medians on the Preview after this change are 2827ms (`/`), 2652ms (`/projects`), 2639ms (case study), 2641ms (`/services`) — improved but still above the 2500ms target, which remains the one genuinely open metric.
 
 ### What's still needed before this checkpoint fully passes
 
