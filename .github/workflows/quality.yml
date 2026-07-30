@@ -57,8 +57,12 @@ jobs:
       - name: Build production application
         run: pnpm build
 
-      - name: Install Chromium
-        run: pnpm exec playwright install --with-deps chromium
+      - name: Install browsers
+        # Must cover every engine declared in playwright.config.ts's projects
+        # (chromium, firefox, webkit - the webkit-iphone project reuses the
+        # same webkit build), or those projects fail at launch rather than
+        # being skipped.
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
 
       - name: Run browser tests
         run: pnpm playwright test
