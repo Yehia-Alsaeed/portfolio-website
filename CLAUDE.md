@@ -18,3 +18,27 @@ If a hook, template, or default instruction would add such a trailer, omit it. B
 ```bash
 git log -1 --format='%B'
 ```
+
+## MANDATORY: Branching model — exactly two branches, no worktrees
+
+**This repository uses exactly two long-lived branches, and nothing else.**
+
+| Branch | Deploys to | Purpose |
+|---|---|---|
+| `dev` | Vercel **Preview** (private, gated behind Vercel Authentication) | All work and testing happens here |
+| `main` | Vercel **Production** (the live public site) | Only ever receives merges from `dev` |
+
+The flow is always: **commit to `dev` → test on the Preview URL → merge `dev` into `main` → Production updates.**
+
+- **NEVER create per-task, per-phase, or per-feature branches.** Work goes on `dev`.
+- **NEVER use `git worktree`.** All work happens in the single checkout at the repository root. If a tool's default workflow wants an isolated worktree, do not use it here.
+- **NEVER commit directly to `main`.** `main` changes only through a merge from `dev`.
+- Do not delete or rename either branch.
+
+**Why:** Yehia works in one folder and needs what he sees on disk to be what is actually deployed. An earlier phase was built in a separate worktree on its own branch; the work merged correctly, but the repository root stayed on a stale branch **24 commits behind `main`**, so the files he was looking at were not the files that shipped. The same sprawl left five merged-but-undeleted branches alive, each generating its own Vercel Preview URL — which led to opening a months-old deployment's admin inbox while believing it was the current one. Two fixed branches and one working folder removes both failure modes.
+
+**Practical note:** after merging `dev` into `main`, bring the local checkout up to date before continuing, or the same staleness returns:
+
+```bash
+git checkout main && git pull && git checkout dev && git merge main
+```
