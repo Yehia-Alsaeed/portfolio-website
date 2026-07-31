@@ -473,7 +473,7 @@ This is a Vercel project-settings gap, not application code, so the fix was Yehi
 
 **Verified after the fix:** Production now serves `rel="canonical" href="https://portfolio-website-azure-pi.vercel.app"` and a matching `robots.txt` `Host` line. Preview picks the value up on its next build (`NEXT_PUBLIC_*` variables are inlined at build time, not read at runtime, so the deployment that existed when the variable was added still carried the old value until rebuilt).
 
-### Real design-vs-metric tension found: Lighthouse's legibility heuristic vs. the approved 11px label system
+### Real design-vs-metric tension found: Lighthouse's legibility heuristic vs. the approved 11px label system (resolved — labels kept)
 
 Lighthouse's `font-size` audit reported only 32% "legible" (≥12px) text on `/projects`, driven substantially by `.text-\[0.6875rem\]` (11px) — this project's small-caps, letter-spaced, mono-uppercase "eyebrow"/label typography, used in **25 separate files** across the entire site (headers, footers, forms, project cards, case-study proof components, and more). This is not an oversight: it is the defining, approved Swiss-editorial typographic signature chosen in Phase 2's mockup selection, not something Claude Code will unilaterally change, per the design's explicit boundary to preserve the approved visual system. It is recorded here as a genuine trade-off for Yehia's own judgment — accept the Lighthouse legibility penalty as a deliberate design cost, or reconsider the label size — not as something silently fixed or silently hidden. (This same 11px pattern is presumably present in every prior phase's Lighthouse runs too; it's unclear why this specific audit wasn't flagged in earlier local runs — Lighthouse's per-run audit sampling has already shown significant non-determinism all through this project, e.g. the CLS/performance swings documented in Stages 2, 4, 5, and 6.)
 
@@ -555,13 +555,13 @@ Measured effect on the Preview, 3 runs per route:
 
 Zero layout shift across all twelve runs, and the Performance category moves from the high-70s/low-80s to 91–98, meeting the ≥95 target on three of the four routes' medians. Putting 43KB of fonts on the critical path was expected to cost something; it paid for itself several times over, because the shift it removed was itself suppressing the score. This also closes out the CLS thread that Stage 6 abandoned as an unexplained throttling artifact and that Checkpoint 4 twice misattributed to `inlineCss`.
 
-LCP medians on the Preview after this change are 2827ms (`/`), 2652ms (`/projects`), 2639ms (case study), 2641ms (`/services`) — improved but still above the 2500ms target, which remains the one genuinely open metric.
+LCP medians on the Preview after this change are 2827ms (`/`), 2652ms (`/projects`), 2639ms (case study), 2641ms (`/services`) — improved, but still above the 2500ms target in that environment. See the post-merge Production verification at the end of this report: on real Production infrastructure the same build measures 2072–2317ms, under target on every route.
 
 ### What's still needed before this checkpoint fully passes
 
 1. ~~`NEXT_PUBLIC_SITE_URL`~~ — **done.** Added to Production and Preview scopes; Production redeployed and verified serving the correct canonical/`robots.txt`. Preview verified on its next build.
 2. Yehia: delete the "Ada Lovelace" contact entries from the real inbox — **still open**, deliberately deprioritized as non-blocking test data.
-3. Yehia: a decision on the 11px label legibility trade-off (keep as designed, or reconsider) — **still open**, not a blocker, a judgment call.
+3. ~~Yehia: a decision on the 11px label legibility trade-off~~ — **decided: keep the labels as designed.** See the post-merge section for the resolution.
 4. Yehia: run `scripts/verify-neon-admin-login.ts` and the manual authenticated `/admin` click-around — **still open**, non-blocking.
 5. The SEO category cannot be truthfully measured on a protected Preview at all — both failing audits are Vercel-protection artifacts (see the correction above) — so SEO is deferred to a Production reading after merge. In CI, where neither the SSO wall nor the Preview `noindex` exists, SEO passes.
 6. **LCP: the CI gate was recalibrated from 2500ms to 3000ms, on Yehia's explicit decision.** After the font fix, every other assertion passes on every route — Performance, CLS, SEO, Accessibility, and Best Practices — and LCP alone sat at 2606ms (`/`), 2856ms (case study), and 2932ms (`/services`), with `/projects` passing outright. The run-to-run spread also tightened sharply, from 2126–4062ms before the font work to roughly 2570–2970ms after, which is further confirmation that font loading had been the dominant source of instability all along.
@@ -580,3 +580,50 @@ Per the design's explicit boundary (section 10), a draft PR opens only once Chec
 - `pnpm exec lhci collect` + `assert` against the live Preview (4 routes, 3 runs each): does not pass — see the table above; root-caused, not hidden.
 - Security headers, CSP, framing policy, and route-level access control: confirmed live via direct `curl` checks against the real deployment.
 - `git diff --check`: clean.
+
+## Post-merge: Production verification
+
+PR #9 merged to `main` as `bc53176` once CI passed in full, and Production redeployed from that merge. Everything below was measured against the real Production alias `https://portfolio-website-azure-pi.vercel.app` with **no bypass token** — exactly what a visitor or a crawler receives.
+
+### Every roadmap target is met on Production
+
+| Metric | Required | `/` | `/projects` | case study | `/services` |
+|---|---|---:|---:|---:|---:|
+| Largest Contentful Paint | ≤ 2500ms | **2317ms** | **2072ms** | **2308ms** | **2161ms** |
+| Cumulative Layout Shift | ≤ 0.1 | **0.000** | **0.000** | **0.000** | **0.000** |
+| Lighthouse Performance | ≥ 95 | **96** | **98** | **97** | **99** |
+| Lighthouse Accessibility | ≥ 95 | **100** | **100** | **100** | **100** |
+| Lighthouse Best Practices | ≥ 90 | **100** | **96** | **100** | **100** |
+| Lighthouse SEO | 100 | **100** | **100** | **100** | **100** |
+
+Three runs per route, medians reported.
+
+### The LCP gap was a measurement-environment artifact, not a property of the site
+
+This is the correction that matters most in this report. LCP was treated as the one unresolved metric across Stage 6, Checkpoint 4, and four CI cycles, and prompted a threshold recalibration. On Production it comes in at **2072–2317ms — under the original 2500ms target on every route**, with no code change between the failing measurements and this one.
+
+The environments that reported failure were both unrepresentative in ways that were understood individually but never combined into the obvious conclusion:
+
+- **CI** runs Lighthouse's simulated mobile profile against `next start` on a shared 2-core GitHub runner — no CDN, no HTTP/2 edge, contended CPU.
+- **Preview** sits behind Vercel's SSO wall, which adds an interception layer to every request and made SEO unmeasurable for the same reason.
+
+Neither resembles the production edge that actually serves visitors. The recalibration of the CI gate from 2500ms to 3000ms therefore stands as correct — but for a better reason than the one recorded when it was made: it is not a concession on an unmet target, it is the CI gate being fitted to the environment CI measures, while the release target is met where it counts.
+
+The same applies to SEO. The 0.58–0.61 scores were entirely Vercel's Preview-only `noindex` plus its login wall answering Lighthouse's unauthenticated `robots.txt` fetch with an HTML page. Production reads **100** on all four routes, and `X-Robots-Tag` is correctly absent site-wide while `/admin` retains its own `noindex, nofollow, noarchive`.
+
+**The lesson worth carrying into Phase 9:** when a metric fails only in instrumented environments, question the instrument before changing the product. Nearly every wrong turn in this checkpoint — the three contradictory `inlineCss` conclusions, the misattributed CLS, the near-miss of reverting the font preload to buy back LCP — traces to generalising from one environment. Reverting the fonts would have degraded the real site to satisfy a measurement that was wrong.
+
+### Confirmed on Production by direct request
+
+- Canonical is `https://portfolio-website-azure-pi.vercel.app` on every route, and `/robots.txt` and `/sitemap.xml` carry the same origin. The `localhost:3000` leak documented earlier — which had been live since the site's first deploy — is closed.
+- `og:image` resolves to the Production origin. Flagged earlier as needing post-merge confirmation because Preview deliberately serves its own branch-alias image; resolved.
+- All four font faces preload (`rel="preload" as="font"`), matching the fix.
+- Full security-header set present: CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-Frame-Options: DENY`.
+- `/admin` returns 307 with `Cache-Control: private, no-store` and `X-Robots-Tag: noindex, nofollow, noarchive`; `/api/auth/sign-up` returns 404; `/api/health` returns `{"status":"ok"}`.
+- `/design-system` returns 404, confirming the Stage 3 route removal shipped.
+
+### Still genuinely open
+
+- **INP** is a field metric and remains unverified; only the synthetic proxy has run. Real-user p75 for INP — and for LCP and CLS — needs traffic, and belongs to Phase 9 / post-launch operations. Everything above is Lighthouse lab data against Production, which is the strongest pre-launch evidence available but is not field data.
+- ~~The **11px label legibility** trade-off~~ — **resolved: the labels stay as designed.** Yehia's decision, made against the Production numbers rather than the Preview ones. The 11px mono-uppercase eyebrow/label type is the approved Swiss-editorial signature from the Phase 2 mockup and is used in 25 files site-wide; changing it to satisfy the audit would alter the visual system the design explicitly protects. The cost is bounded and known: Lighthouse's `font-size` audit is a Best Practices heuristic, not an accessibility rule — Production Accessibility scores **100** on every route with zero axe violations, and Best Practices reads 96 on `/projects` against a ≥90 target, comfortably passing. No further action; this is a closed decision, not a deferred one.
+- The **synthetic contact entries** created in error during Checkpoint 4 are still in the Preview-branch inbox and want deleting.
