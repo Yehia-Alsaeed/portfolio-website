@@ -73,21 +73,3 @@ test("pointer: switching a project category filter stays under the synthetic INP
 
   expect(await readMaxEventDuration(page)).toBeLessThan(INP_SYNTHETIC_BUDGET_MS);
 });
-
-test("pointer: activating the Architecture X-Ray stays under the synthetic INP budget", async ({
-  page,
-}) => {
-  await page.goto("/projects/skillbridge-ai-interviewer");
-  await startEventTimingCapture(page);
-
-  await page.getByRole("button", { name: "Explore interactive architecture" }).click();
-  await expect(page.getByRole("button", { name: "Zoom in" })).toBeVisible();
-  await page.waitForTimeout(150);
-
-  // This one is allowed more headroom: it is the single interaction on the
-  // site that synchronously mounts a whole lazy-loaded canvas library
-  // (@xyflow/react) rather than toggling existing DOM, so its first
-  // activation is a deliberately different, heavier case than the others
-  // above - still checked, just not held to the same tight budget.
-  expect(await readMaxEventDuration(page)).toBeLessThan(INP_SYNTHETIC_BUDGET_MS * 2.5);
-});

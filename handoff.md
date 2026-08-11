@@ -131,14 +131,12 @@ Also explicitly declined together with #2–6, #9: `/uses` page, public visitor-
 
 ### Signature interactive proof features approved July 15, 2026
 
-After auditing the demo, Yehia asked for more ideas with the same quality as the live iframe window: unusual interactions that materially improve proof instead of adding novelty alone. Four were selected and added to PRD §5.7:
+After auditing the demo, Yehia asked for more ideas with the same quality as the live iframe window: unusual interactions that materially improve proof instead of adding novelty alone. Two remain selected in PRD §5.7:
 
-1. **Architecture X-Ray** for all five flagship case studies — reusable interactive component/data-flow diagram built with the MIT-licensed React Flow core (`@xyflow/react`, no Pro subscription); selected nodes explain responsibility, contracts, decisions, and exact repository evidence; an optional request replay animates the end-to-end path.
-2. **Model Comparison Microscope** for Oxford Pet Segmentation — curated images compare source, ground truth, FCN, SegNet, and HRNet outputs with metrics and failure regions. Launch with precomputed predictions, not browser/server inference.
-3. **Agent Run Replay** for AI Study Planner Agents — deterministic profiler → generator → critic → optimizer execution with inspectable inputs, prompt summaries, tool calls, outputs, timing, and revision reasons. No paid API request on ordinary page visits.
-4. **Responsive Viewport Scrubber** for deployed client work — evolves the existing desktop/phone iframe toggle into continuous breakpoint proof, with phone/tablet/desktop presets and the existing click-to-load and screenshot-fallback rules preserved.
+1. **Model Comparison Microscope** for Oxford Pet Segmentation — curated images compare source, ground truth, FCN, SegNet, and HRNet outputs with metrics and failure regions. Launch with precomputed predictions, not browser/server inference.
+2. **Responsive Viewport Scrubber** for deployed client work — evolves the existing desktop/phone iframe toggle into continuous breakpoint proof, with phone/tablet/desktop presets and the existing click-to-load and screenshot-fallback rules preserved.
 
-These are approved portfolio features, but they do not come before the core case-study evidence. Build the static content, screenshots, metrics, and accessible fallback first; progressively enhance afterward. They must be route-level lazy loaded, keyboard usable, reduced-motion aware, mobile safe, and visually integrated into Mockup B. The Architecture X-Ray should be built as the reusable foundation; the other three are project-specific modules using the same interaction and styling primitives.
+These are approved portfolio features, but they do not come before the core case-study evidence. Build the static content, screenshots, metrics, and accessible fallback first; progressively enhance afterward. They must be route-level lazy loaded, keyboard usable, reduced-motion aware, mobile safe, and visually integrated into Mockup B.
 
 ### Visual/cosmetic interaction direction approved July 16, 2026
 
@@ -223,6 +221,6 @@ Per PRD §13 and §11, Phase 1 is limited to the real Next.js/TypeScript/Tailwin
 
 The static demo was brought up to date before the production rebuild. Added routes are `case-study-oxford.html`, `case-study-agents.html`, and `admin.html`; SkillBridge and Prestige were expanded with their approved proof modules. The homepage now prototypes the kinetic monogram, material modes, print-registration transitions, Poster Mode, and the disposable scroll-rules experiment (off by default).
 
-Verification was rerun with Playwright at 1440x1000 and 390x844 across all nine routes. Every route returned HTTP 200 with no console errors, broken images, or horizontal overflow. Command-palette Poster Mode, Architecture X-Ray selection/replay, viewport scrubbing, model switching, agent-step selection, admin inbox state, contact success state, and reduced-motion behavior were exercised. Desktop and mobile full-page captures were visually inspected against `mockups/mockup-b-monogram.html`; the mobile title and browser-grid overflow found during QA were fixed before completion.
+Verification was rerun with Playwright at 1440x1000 and 390x844 across all nine routes. Every route returned HTTP 200 with no console errors, broken images, or horizontal overflow. Command-palette Poster Mode, viewport scrubbing, model switching, admin inbox state, contact success state, and reduced-motion behavior were exercised. Desktop and mobile full-page captures were visually inspected against `mockups/mockup-b-monogram.html`; the mobile title and browser-grid overflow found during QA were fixed before completion.
 
-The demo uses deterministic sample data and local project assets. It does not implement the production Neon/Drizzle/Auth/Cloudinary/Recharts/React Flow stack and must not be mistaken for a deployed backend.
+The demo uses deterministic sample data and local project assets. It does not implement the production Neon/Drizzle/Auth/Cloudinary/Recharts stack and must not be mistaken for a deployed backend.

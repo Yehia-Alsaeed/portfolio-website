@@ -62,32 +62,7 @@
     <p>React front-end for session capture and feedback display; FastAPI backend orchestrating the ML pipeline; PyTorch models plus OpenAI APIs for content scoring. Everything modular — each modality is a swappable pipeline stage.</p>
     <div class="shot"><img src="assets/skillbridge-results.jpeg" alt="SkillBridge five-trait interview feedback report"></div>
 
-    <h2><span class="num">04</span>Architecture X-Ray</h2>
-    <p>Select a system component to inspect its responsibility and interface, or replay one representative interview request through the pipeline.</p>
-  
-  </article>
-
-  <section class="proof-module architecture-xray" aria-label="SkillBridge architecture diagram">
-    <div class="proof-head"><span>Architecture X-Ray / SkillBridge</span><button class="flow-play" type="button">Play request</button></div>
-    <div class="proof-body">
-      <div class="proof-canvas">
-        <span class="flow-line" style="left:176px;top:92px;width:100px"></span>
-        <span class="flow-line" style="left:426px;top:92px;width:92px"></span>
-        <span class="flow-line" style="left:346px;top:126px;width:2px;height:92px"></span>
-        <button class="flow-node" style="left:26px;top:58px" type="button" aria-pressed="true" data-name="Interview UI" data-copy="Captures webcam, microphone, question state, and the live transcript without coupling the browser to model internals." data-input="Camera + microphone" data-output="Session media + answers">Interview UI<small>React client</small></button>
-        <button class="flow-node" style="left:276px;top:58px" type="button" aria-pressed="false" data-name="Session API" data-copy="Validates the session contract and orchestrates independent audio, vision, and content-scoring work." data-input="Multipart session" data-output="Pipeline job">Session API<small>FastAPI</small></button>
-        <button class="flow-node" style="left:518px;top:58px" type="button" aria-pressed="false" data-name="Feedback Composer" data-copy="Normalizes modality outputs into five explainable trait scores and actionable feedback." data-input="Model outputs" data-output="Feedback report">Feedback<small>Scoring layer</small></button>
-        <button class="flow-node" style="left:270px;top:218px" type="button" aria-pressed="false" data-name="Multimodal Workers" data-copy="Runs transcription, eye-contact estimation, prosody features, and rubric-based answer scoring as replaceable stages." data-input="Audio + video + text" data-output="Typed features">ML workers<small>PyTorch · MediaPipe</small></button>
-      </div>
-      <aside class="proof-inspector">
-        <span class="lab">Selected component</span><h3>Interview UI</h3><p>Captures webcam, microphone, question state, and the live transcript without coupling the browser to model internals.</p>
-        <dl><dt>Input</dt><dd>Camera + microphone</dd><dt>Output</dt><dd>Session media + answers</dd><dt>Evidence</dt><dd>frontend/session capture</dd></dl>
-      </aside>
-    </div>
-  </section>
-
-  <article class="prose prose-cont">
-    <h2><span class="num">05</span>What I'd tell an interviewer about it</h2>
+    <h2><span class="num">04</span>What I'd tell an interviewer about it</h2>
     <p>This project is the intersection of everything I do: a research-grade model comparison, a multimodal ML system that actually runs end-to-end, and a shippable product with a real UI — not a notebook that dies after the last cell.</p>
   </article>
 

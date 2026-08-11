@@ -21,20 +21,9 @@ describe("Phase 5 architecture proof data", () => {
     }
   });
 
-  it("has unique node and edge ids per proof", () => {
+  it("has unique node ids per proof", () => {
     for (const proof of ARCHITECTURE_PROOFS) {
       expect(new Set(proof.nodes.map((node) => node.id)).size).toBe(proof.nodes.length);
-      expect(new Set(proof.edges.map((edge) => edge.id)).size).toBe(proof.edges.length);
-    }
-  });
-
-  it("only references existing nodes from edges", () => {
-    for (const proof of ARCHITECTURE_PROOFS) {
-      const ids = new Set(proof.nodes.map((node) => node.id));
-      for (const edge of proof.edges) {
-        expect(ids.has(edge.source), `${proof.slug}: ${edge.id} source`).toBe(true);
-        expect(ids.has(edge.target), `${proof.slug}: ${edge.id} target`).toBe(true);
-      }
     }
   });
 
@@ -64,9 +53,8 @@ describe("Phase 5 architecture proof data", () => {
     expect(serializedFlows.size).toBe(ARCHITECTURE_PROOFS.length);
   });
 
-  it("has non-empty text for every node field and every proof title", () => {
+  it("has non-empty text for every node field", () => {
     for (const proof of ARCHITECTURE_PROOFS) {
-      expect(proof.title.length, proof.slug).toBeGreaterThan(0);
       for (const node of proof.nodes) {
         for (const field of ["label", "technology", "responsibility", "input", "output"] as const) {
           expect(node[field].length, `${proof.slug}.${node.id}.${field}`).toBeGreaterThan(0);

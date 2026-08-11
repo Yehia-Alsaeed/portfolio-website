@@ -10,6 +10,7 @@ import { TrackedAnchor } from "@/features/analytics/tracked-anchor";
 import { isProjectSlug } from "@/features/analytics/validation";
 import { CaseStudyProof } from "@/features/case-study/proof/case-study-proof";
 import { ProjectImage } from "@/features/media/project-image";
+import { cn } from "@/lib/utils";
 
 export type CaseStudyPageProps = {
   study: CaseStudy;
@@ -72,10 +73,16 @@ export function CaseStudyPage({ next, previous, study }: CaseStudyPageProps) {
       </RuledSection>
 
       <RuledSection title="04 - Results">
-        <div className="border-line grid grid-cols-1 border-t border-l min-[560px]:grid-cols-2 min-[900px]:grid-cols-4">
+        <div
+          className={cn(
+            "border-line grid grid-cols-2 border-t border-l",
+            study.results.length >= 4 && "min-[1200px]:grid-cols-4",
+          )}
+        >
           {study.results.map((result) => (
-            <div className="border-line border-r border-b" key={result.label}>
+            <div className="border-line min-w-0 border-r border-b" key={result.label}>
               <StatCell
+                adaptiveValue
                 label={result.label}
                 value={result.value}
                 {...(result.detail ? { detail: result.detail } : {})}

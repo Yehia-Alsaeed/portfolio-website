@@ -23,6 +23,13 @@ const CASE_STUDY_LAYOUTS = [
   { height: 1000, layout: "split", name: "desktop", width: 1440 },
 ] as const;
 
+const RESULTS_LAYOUTS = [
+  { columns: 2, height: 844, name: "mobile", width: 390 },
+  { columns: 2, height: 1024, name: "tablet portrait", width: 768 },
+  { columns: 2, height: 768, name: "tablet landscape", width: 1024 },
+  { columns: 4, height: 1000, name: "desktop", width: 1440 },
+] as const;
+
 for (const { hasEvidence, slug, title } of CASE_STUDIES) {
   test(`serves ${slug} with correct HTTP status, metadata, heading, and actions`, async ({
     page,
@@ -135,6 +142,84 @@ for (const viewport of CASE_STUDY_LAYOUTS) {
         scroll: document.documentElement.scrollWidth,
       }));
       expect(pageWidth.scroll, `${slug} horizontal containment`).toBeLessThanOrEqual(
+        pageWidth.client,
+      );
+    }
+  });
+}
+
+for (const viewport of RESULTS_LAYOUTS) {
+  test(`lays out every case-study result grid at ${viewport.name} width`, async ({ page }) => {
+    await page.setViewportSize({ height: viewport.height, width: viewport.width });
+
+    for (const { slug } of CASE_STUDIES) {
+      await page.goto(`/projects/${slug}`);
+
+      const section = page
+        .getByRole("heading", { exact: true, name: "04 - Results" })
+        .locator("xpath=ancestor::section");
+      const grid = section.locator("div.grid");
+      const cards = grid.locator(":scope > div");
+      const cardCount = await cards.count();
+
+      expect(cardCount, `${slug} result count`).toBeGreaterThanOrEqual(2);
+
+      const firstBox = await cards.nth(0).boundingBox();
+      const secondBox = await cards.nth(1).boundingBox();
+      const lastBox = await cards.nth(cardCount - 1).boundingBox();
+      const gridBox = await grid.boundingBox();
+      expect(firstBox, `${slug} first result box`).not.toBeNull();
+      expect(secondBox, `${slug} second result box`).not.toBeNull();
+      expect(lastBox, `${slug} last result box`).not.toBeNull();
+      expect(gridBox, `${slug} result grid box`).not.toBeNull();
+
+      if (lastBox && gridBox) {
+        expect(
+          Math.abs(lastBox.x + lastBox.width - (gridBox.x + gridBox.width)),
+          `${slug} result cards should fill the row`,
+        ).toBeLessThanOrEqual(2);
+      }
+
+      if (firstBox && secondBox) {
+        expect(
+          Math.abs(secondBox.y - firstBox.y),
+          `${slug} first two results should share a row`,
+        ).toBeLessThanOrEqual(2);
+        expect(secondBox.x, `${slug} second result should be in column two`).toBeGreaterThan(
+          firstBox.x + firstBox.width - 2,
+        );
+      }
+
+      if (viewport.columns === 2 && cardCount > 2) {
+        const thirdBox = await cards.nth(2).boundingBox();
+        expect(thirdBox, `${slug} third result box`).not.toBeNull();
+        if (firstBox && thirdBox) {
+          expect(
+            Math.abs(thirdBox.x - firstBox.x),
+            `${slug} third result should start the next row`,
+          ).toBeLessThanOrEqual(2);
+          expect(thirdBox.y, `${slug} third result should be below row one`).toBeGreaterThan(
+            firstBox.y + firstBox.height - 2,
+          );
+        }
+      }
+
+      if (viewport.columns === 4 && cardCount > 3) {
+        const fourthBox = await cards.nth(3).boundingBox();
+        expect(fourthBox, `${slug} fourth result box`).not.toBeNull();
+        if (firstBox && fourthBox) {
+          expect(
+            Math.abs(fourthBox.y - firstBox.y),
+            `${slug} all four results should share a desktop row`,
+          ).toBeLessThanOrEqual(2);
+        }
+      }
+
+      const pageWidth = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      expect(pageWidth.scroll, `${slug} result-grid containment`).toBeLessThanOrEqual(
         pageWidth.client,
       );
     }

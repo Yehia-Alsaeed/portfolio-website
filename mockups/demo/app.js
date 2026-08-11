@@ -31,7 +31,7 @@
     { label: "Case study — SkillBridge AI Interviewer", hint: "page", href: "case-study.html" },
     { label: "Case study — Prestige Motors (live embed)", hint: "page", href: "case-study-prestige.html" },
     { label: "Case study — Oxford model microscope", hint: "page", href: "case-study-oxford.html" },
-    { label: "Case study — Agent run replay", hint: "page", href: "case-study-agents.html" },
+    { label: "Case study — AI Study Planner", hint: "page", href: "case-study-agents.html" },
     { label: "Admin analytics demo", hint: "private page", href: "admin.html" },
     { label: "Services", hint: "page", href: "services.html" },
     { label: "404 demo", hint: "page", href: "404.html" },
@@ -288,37 +288,6 @@
     });
   }
 
-  /* ---------- architecture x-ray ---------- */
-  document.addEventListener("click", function (e) {
-    var node = e.target.closest(".flow-node");
-    if (node) {
-      var module = node.closest(".architecture-xray");
-      module.querySelectorAll(".flow-node").forEach(function (other) { other.setAttribute("aria-pressed", String(other === node)); });
-      var inspector = module.querySelector(".proof-inspector");
-      inspector.querySelector("h3").textContent = node.dataset.name;
-      inspector.querySelector("p").textContent = node.dataset.copy;
-      var values = inspector.querySelectorAll("dd");
-      values[0].textContent = node.dataset.input;
-      values[1].textContent = node.dataset.output;
-    }
-    var play = e.target.closest(".flow-play");
-    if (play) replayFlow(play.closest(".architecture-xray"), play);
-  });
-  function replayFlow(module, button) {
-    var nodes = Array.from(module.querySelectorAll(".flow-node"));
-    var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    button.disabled = true;
-    button.textContent = "Request running";
-    nodes.forEach(function (node) { node.classList.remove("request-active"); });
-    nodes.forEach(function (node, index) {
-      setTimeout(function () {
-        nodes.forEach(function (item) { item.classList.remove("request-active"); });
-        node.classList.add("request-active");
-        if (index === nodes.length - 1) setTimeout(function () { node.classList.remove("request-active"); button.disabled = false; button.textContent = "Play request"; }, reduced ? 0 : 550);
-      }, reduced ? 0 : index * 600);
-    });
-  }
-
   /* ---------- model comparison microscope ---------- */
   var MODEL_DATA = {
     fcn: { image: "assets/pets-fcn.webp", label: "FCN-ResNet18 prediction set", miou: "0.88", time: "0.04s", note: "Fast" },
@@ -337,35 +306,6 @@
     module.querySelector(".model-miou").textContent = data.miou;
     module.querySelector(".model-time").textContent = data.time;
     module.querySelector(".model-note").textContent = data.note;
-  });
-
-  /* ---------- deterministic agent replay ---------- */
-  var AGENT_DATA = [
-    { name: "Profiler", copy: "Turns subjects, deadlines, available hours, and learning preferences into a constrained student profile.", log: "INPUT  calculus, databases, 3h/day<br>TOOL   difficulty_classifier<br>OUTPUT weighted priorities + available blocks<br>TIME   1.2s · ACCEPTED" },
-    { name: "Generator", copy: "Drafts the first complete weekly plan from the profile while preserving every hard time constraint.", log: "INPUT  profile.json<br>TOOL   safe_calculator<br>OUTPUT draft_plan_v1<br>TIME   2.8s · SENT TO CRITIC" },
-    { name: "Critic", copy: "Checks workload balance, coverage, recovery time, and deadline risk before accepting the draft.", log: "INPUT  draft_plan_v1<br>CHECK  overload on Thursday<br>OUTPUT revision_request<br>TIME   1.7s · REVISE" },
-    { name: "Optimizer", copy: "Moves two study blocks, resolves the critic finding, and emits the final plan plus a machine-readable run record.", log: "INPUT  revision_request<br>ACTION rebalance Thursday<br>OUTPUT plan.txt + run.json<br>TIME   1.4s · ACCEPTED" }
-  ];
-  function selectAgentStep(module, index) {
-    var data = AGENT_DATA[index];
-    module.querySelectorAll(".agent-step").forEach(function (button, i) { button.setAttribute("aria-pressed", String(i === index)); });
-    module.querySelector(".agent-detail h3").textContent = data.name;
-    module.querySelector(".agent-detail p").textContent = data.copy;
-    module.querySelector(".agent-log").innerHTML = data.log;
-    module.querySelector(".agent-status").textContent = "Step " + (index + 1) + " of 4";
-  }
-  document.addEventListener("click", function (e) {
-    var step = e.target.closest(".agent-step");
-    if (step) selectAgentStep(step.closest(".agent-run"), Number(step.dataset.step));
-    var reset = e.target.closest(".agent-reset");
-    if (reset) selectAgentStep(reset.closest(".agent-run"), 0);
-    var play = e.target.closest(".agent-play");
-    if (play) {
-      var module = play.closest(".agent-run");
-      var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-      play.disabled = true;
-      AGENT_DATA.forEach(function (_, index) { setTimeout(function () { selectAgentStep(module, index); if (index === AGENT_DATA.length - 1) play.disabled = false; }, reduced ? 0 : index * 850); });
-    }
   });
 
   /* ---------- admin dashboard prototype ---------- */

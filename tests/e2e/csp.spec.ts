@@ -45,16 +45,6 @@ for (const route of ROUTES) {
   });
 }
 
-test("reports no CSP violations once the Architecture X-Ray is activated", async ({ page }) => {
-  const violations = collectCspViolations(page);
-  await page.goto("/projects/skillbridge-ai-interviewer");
-
-  await page.getByRole("button", { name: "Explore interactive architecture" }).click();
-  await expect(page.getByRole("button", { name: "Zoom in" })).toBeVisible();
-
-  expect(violations).toEqual([]);
-});
-
 test("reports no CSP violations with the command palette open", async ({ page }) => {
   const violations = collectCspViolations(page);
   await page.goto("/");

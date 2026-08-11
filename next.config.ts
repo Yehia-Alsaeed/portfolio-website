@@ -31,10 +31,8 @@ const nextConfig: NextConfig = {
     // actual production build supports without one. 'unsafe-inline' remains
     // on script-src and style-src because Next's own RSC hydration payload
     // (`self.__next_f.push(...)`, unique per render, so it cannot be
-    // pre-hashed) and @xyflow/react's node-positioning styles (confirmed by
-    // rendering the Architecture X-Ray proof and inspecting the live DOM:
-    // 20+ elements get real `style="..."` attributes once activated) both
-    // require it. Every other directive is still meaningfully restrictive:
+    // pre-hashed) and responsive media components use controlled inline
+    // dimensions. Every other directive is still meaningfully restrictive:
     // no remote script/style host, no third-party image/font/connect
     // origin beyond the one configured Cloudinary cloud, no plugin objects,
     // and no framing in or out. See docs/implementation/phase-8-report.md

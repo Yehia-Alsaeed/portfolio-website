@@ -66,7 +66,6 @@ The site serves both audiences under **one professional identity**, not two sepa
 | ORM | Drizzle | Type-safe, lightweight, good with Neon serverless driver |
 | Auth (admin only) | Neon Auth (Better Auth foundation) | Single admin account; auth data in Neon's managed `neon_auth` schema; middleware-protected `/admin` routes |
 | Charts (admin) | Recharts (via shadcn/ui charts) | Dashboard visualizations |
-| Interactive diagrams | React Flow (`@xyflow/react`, MIT-licensed core only) | Architecture X-Ray diagrams on flagship case studies; no Pro subscription |
 | Media delivery | Cloudinary Free (Image & Video API) | Project screenshots, thumbnails, profile imagery, and short demo media; store public IDs/metadata in content files, never image binaries in the database |
 | Email notifications | Resend | Notify Yehia on new contact message (nice-to-have) |
 | Source control | GitHub (`Yehia-Alsaeed`) | Public repo |
@@ -135,12 +134,10 @@ Structure per page: problem → approach → architecture/stack → results with
 
 ### 5.7 Signature interactive proof features
 
-Approved July 15, 2026. These four interactions are part of the portfolio's differentiation strategy. Each one must expose real project evidence rather than act as decoration. Implement the underlying case-study content and static fallback first, then progressively enhance it with interaction.
+Approved July 15, 2026. These two interactions are part of the portfolio's differentiation strategy. Each one must expose real project evidence rather than act as decoration. Implement the underlying case-study content and static fallback first, then progressively enhance it with interaction.
 
-1. **Architecture X-Ray — all flagship case studies.** A reusable interactive system diagram shows components and data flow. Selecting a node reveals its responsibility, technology, input/output contract, important engineering decision, and links to relevant repository files. A "Play request" action animates one representative request through the system. On small screens or with reduced motion, provide an ordered, fully readable static flow instead of requiring canvas interaction.
-2. **Model Comparison Microscope — Oxford Pet Segmentation.** Visitors select curated sample images and compare the original, ground-truth mask, and FCN / SegNet / HRNet predictions. Controls switch models or reveal a before/after split, while adjacent evidence shows mIoU, inference time, and notable failure regions. Use precomputed outputs at launch so the experience is fast, deterministic, and has no inference-server dependency.
-3. **Agent Run Replay — AI Study Planner Agents.** A deterministic prerecorded execution animates the profiler → generator → critic → optimizer workflow. Selecting a step reveals the input, instruction/prompt summary, tool call, output, elapsed time, and why the result was accepted or revised. The replay must not call paid model APIs during an ordinary portfolio visit; include a complete text transcript for accessibility and fallback.
-4. **Responsive Viewport Scrubber — deployed client websites.** Extend the approved live iframe window with a width control from approximately 320px to 1440px so visitors can watch the embedded site reflow continuously across breakpoints. Keep labeled phone/tablet/desktop presets for keyboard and mobile use. Preserve click-to-load behavior, iframe header checks, screenshot fallback, and the simple phone-first presentation on narrow visitor screens.
+1. **Model Comparison Microscope — Oxford Pet Segmentation.** Visitors select curated sample images and compare the original, ground-truth mask, and FCN / SegNet / HRNet predictions. Controls switch models or reveal a before/after split, while adjacent evidence shows mIoU, inference time, and notable failure regions. Use precomputed outputs at launch so the experience is fast, deterministic, and has no inference-server dependency.
+2. **Responsive Viewport Scrubber — deployed client websites.** Extend the approved live iframe window with a width control from approximately 320px to 1440px so visitors can watch the embedded site reflow continuously across breakpoints. Keep labeled phone/tablet/desktop presets for keyboard and mobile use. Preserve click-to-load behavior, iframe header checks, screenshot fallback, and the simple phone-first presentation on narrow visitor screens.
 
 **Shared constraints:** lazy-load each enhancement; do not add its JavaScript to unrelated routes; respect `prefers-reduced-motion`; make every control keyboard-operable and labeled; provide static screenshots/text when interaction or framing is unavailable; and keep the public-page Lighthouse targets from §2. These features should share the Mockup B tokens and ruled-grid visual language rather than look like third-party widgets.
 
@@ -290,10 +287,8 @@ The refreshed demo now implements the approved interaction direction as working 
 
 - Kinetic YA monogram, mode-specific material treatments, print-registration navigation transitions, and command-palette Swiss Poster Mode.
 - Scroll-responsive rules remain isolated behind one feature flag and are off by default. They can be removed without affecting layout or content.
-- SkillBridge Architecture X-Ray with selectable components and deterministic request replay.
 - Oxford Pet Model Comparison Microscope using real repository output images.
-- AI Study Planner deterministic Agent Run Replay using a real repository architecture image.
 - Prestige Motors continuous 320–1440px Responsive Viewport Scrubber with phone, tablet, and desktop presets.
 - Dense sample-data admin dashboard and contact inbox, plus the broadened job/freelance/collaboration contact form.
 
-This remains a static HTML/CSS/JavaScript prototype. Neon Postgres, Drizzle, Neon Auth, Cloudinary uploads, Recharts, React Flow, real analytics, real contact persistence, email delivery, and Vercel deployment remain production implementation work for the future Next.js build.
+This remains a static HTML/CSS/JavaScript prototype. Neon Postgres, Drizzle, Neon Auth, Cloudinary uploads, Recharts, real analytics, real contact persistence, email delivery, and Vercel deployment remain production implementation work for the future Next.js build.

@@ -9,7 +9,7 @@ const CASE_STUDIES = [
 ] as const;
 
 for (const slug of CASE_STUDIES) {
-  test(`${slug} shows static architecture proof and loads the interactive canvas only after activation`, async ({
+  test(`${slug} shows static architecture proof without an interactive architecture control`, async ({
     page,
   }) => {
     await page.goto(`/projects/${slug}`);
@@ -17,17 +17,10 @@ for (const slug of CASE_STUDIES) {
     await expect(page.getByRole("heading", { name: "Architecture proof" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "System flow" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Relationships" })).toHaveCount(0);
-    expect(await page.locator("[aria-label*='Interactive architecture']").count()).toBe(0);
-
-    const launchButton = page.getByRole("button", { name: "Explore interactive architecture" });
-    await launchButton.click();
-
-    const region = page.getByRole("region", { name: /Interactive architecture/ });
-    await expect(region).toBeVisible();
-    await expect(region.getByRole("button", { name: "Fit View" })).toBeVisible();
-
-    // Static proof must never be hidden by the interactive enhancement.
-    await expect(page.getByRole("heading", { name: "Architecture proof" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Explore interactive architecture" }),
+    ).toHaveCount(0);
+    await expect(page.getByRole("region", { name: /Interactive architecture/ })).toHaveCount(0);
   });
 }
 
@@ -53,42 +46,12 @@ test("Oxford: selecting each model updates the approved metrics and image label"
   await expect(microscope.getByText("Not published")).toBeVisible();
 });
 
-test("Study Planner: selects stages, plays, and resets deterministically", async ({ page }) => {
+test("Study Planner omits the project-specific Agent run replay", async ({ page }) => {
   await page.goto("/projects/ai-study-planner-agents");
 
-  await page.getByRole("button", { name: "Critic", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Critic", exact: true })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await expect(page.getByRole("status").filter({ hasText: "Stage" })).toContainText(
-    "Stage 3 of 4: Plan Critic",
-  );
-
-  await page.getByRole("button", { name: "Reset", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Profiler", exact: true })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-
-  await page.getByRole("button", { name: "Play", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Generator", exact: true })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-    { timeout: 5000 },
-  );
-
-  await page.getByRole("button", { name: "Reset", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Profiler", exact: true })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  // Give any (incorrectly) surviving timer a chance to fire before asserting it didn't.
-  await page.waitForTimeout(2500);
-  await expect(page.getByRole("button", { name: "Profiler", exact: true })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
+  await expect(page.getByRole("heading", { name: "Agent run replay" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Play", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Reset", exact: true })).toHaveCount(0);
 });
 
 test.describe("without JavaScript", () => {
@@ -112,25 +75,6 @@ test.describe("without JavaScript", () => {
       await expect(section.getByRole("heading", { name: label })).toBeVisible();
     }
     await expect(section.getByText("0.9306")).toBeVisible();
-  });
-
-  test("Study Planner keeps the complete four-stage transcript readable", async ({ page }) => {
-    await page.goto("/projects/ai-study-planner-agents");
-    // Scope to the static transcript's own <ol>: the architecture proof
-    // above reuses these same four stage names as pipeline node labels, and
-    // the live replay's own status line also echoes the current stage name.
-    const section = page
-      .getByRole("heading", { name: "Agent run replay" })
-      .locator("..")
-      .locator("ol");
-    for (const label of [
-      "Student Profiler",
-      "Study Plan Generator",
-      "Plan Critic",
-      "Plan Optimizer",
-    ]) {
-      await expect(section.getByText(label)).toBeVisible();
-    }
   });
 });
 
