@@ -4,7 +4,7 @@ export type AgentReplayStaticProps = { steps: readonly AgentReplayStep[] };
 
 export function AgentReplayStatic({ steps }: AgentReplayStaticProps) {
   return (
-    <ol className="border-line grid grid-cols-1 border-t border-l min-[700px]:grid-cols-2">
+    <ol className="border-line grid grid-cols-1 border-t border-l @min-[700px]:grid-cols-2">
       {steps.map((step, index) => (
         <li className="border-line border-r border-b p-6" key={step.id}>
           <p className="text-accent-text font-mono text-[0.625rem] font-bold tracking-[0.14em] uppercase">

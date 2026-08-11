@@ -6,7 +6,7 @@ export type ModelComparisonStaticProps = { models: readonly ModelComparison[] };
 export function ModelComparisonStatic({ models }: ModelComparisonStaticProps) {
   return (
     <div className="flex flex-col gap-8">
-      <div className="grid grid-cols-1 gap-4 min-[700px]:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 @min-[700px]:grid-cols-3">
         {models.map((model) => (
           <div key={model.id}>
             <ProjectImage

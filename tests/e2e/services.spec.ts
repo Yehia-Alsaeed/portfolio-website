@@ -40,7 +40,7 @@ test("shows the exact availability line, two offers, and four process steps", as
   }
 });
 
-test("renders exactly three client-work entries with captured media only for Madar/La Glosse and text-only Nexo", async ({
+test("renders exactly three client-work cards, captured only for Madar/La Glosse and text-only Nexo", async ({
   page,
 }) => {
   await page.goto("/services");
@@ -52,16 +52,19 @@ test("renders exactly three client-work entries with captured media only for Mad
   const laGlosse = page.getByRole("article").filter({ hasText: "La Glosse" });
   const nexo = page.getByRole("article").filter({ hasText: "Nexo" });
 
-  await expect(madar.getByRole("img")).toBeVisible();
-  await expect(laGlosse.getByRole("img")).toBeVisible();
-  await expect(nexo.getByRole("img")).toHaveCount(0);
+  await expect(madar.locator("video")).toHaveCount(1);
+  await expect(laGlosse.locator("video")).toHaveCount(1);
+  await expect(nexo.locator("video")).toHaveCount(0);
 
-  const madarLink = madar.getByRole("link", { name: "Open Madar Wears ↗" });
+  await expect(madar.getByText("Apparel")).toBeVisible();
+  await expect(madar.getByRole("heading", { name: "Madar Wears" })).toBeVisible();
+
+  const madarLink = madar.getByRole("link", { name: "Open Madar Wears" });
   await expect(madarLink).toHaveAttribute("href", "https://www.madarwears.com/");
   await expect(madarLink).toHaveAttribute("target", "_blank");
   await expect(madarLink).toHaveAttribute("rel", "noopener noreferrer");
 
-  const nexoLink = nexo.getByRole("link", { name: "Open Nexo ↗" });
+  const nexoLink = nexo.getByRole("link", { name: "Open Nexo" });
   await expect(nexoLink).toHaveAttribute("href", "https://bh9d1w-16.myshopify.com/");
   await expect(nexoLink).toHaveAttribute("rel", "noopener noreferrer");
 
@@ -69,38 +72,34 @@ test("renders exactly three client-work entries with captured media only for Mad
   expect(await page.locator("video[autoplay]").count()).toBe(0);
 });
 
-test("keyboard-switches Madar Wears between Desktop and Mobile, and opens the recording without autoplay", async ({
-  page,
-}) => {
+test("plays each capture inline and silently, with no controls to operate", async ({ page }) => {
   await page.goto("/services");
   const madar = page.getByRole("article").filter({ hasText: "Madar Wears" });
-
-  const desktopButton = madar.getByRole("button", { name: "Desktop" });
-  const mobileButton = madar.getByRole("button", { name: "Mobile" });
-
-  await expect(desktopButton).toHaveAttribute("aria-pressed", "true");
-  const desktopAlt = await madar.getByRole("img").getAttribute("alt");
-
-  await mobileButton.focus();
-  await page.keyboard.press("Enter");
-  await expect(mobileButton).toHaveAttribute("aria-pressed", "true");
-  await expect(desktopButton).toHaveAttribute("aria-pressed", "false");
-  const mobileAlt = await madar.getByRole("img").getAttribute("alt");
-  expect(mobileAlt).not.toBe(desktopAlt);
-
-  await expect(madar.locator("video")).toHaveCount(0);
-  await madar.getByText("Watch short recording").click();
   const video = madar.locator("video");
+
   await expect(video).toBeVisible();
   expect(await video.getAttribute("autoplay")).toBeNull();
+  expect(await video.getAttribute("controls")).toBeNull();
+  expect(await video.getAttribute("loop")).not.toBeNull();
   expect(await video.evaluate((element: HTMLVideoElement) => element.muted)).toBe(true);
   expect(await video.getAttribute("poster")).toBeTruthy();
 
-  // A failed/aborted recording must leave the screenshot in place, not a broken frame.
-  await video.evaluate((element: HTMLVideoElement) => {
+  // The capture carries meaning, so it must stay described for assistive tech.
+  const describedBy = await video.getAttribute("aria-describedby");
+  expect(describedBy).toBeTruthy();
+  await expect(madar.locator(`#${describedBy}`)).toHaveText(/Madar Wears/);
+});
+
+test("falls back to the still frame when a recording fails to load", async ({ page }) => {
+  await page.goto("/services");
+  const madar = page.getByRole("article").filter({ hasText: "Madar Wears" });
+
+  await madar.locator("video").evaluate((element: HTMLVideoElement) => {
     element.dispatchEvent(new Event("error"));
   });
+
   await expect(madar.getByRole("img")).toBeVisible();
+  await expect(madar.locator("video")).toHaveCount(0);
 });
 
 test("links to the contact section and a mailto action", async ({ page }) => {
@@ -119,7 +118,9 @@ test("links to the contact section and a mailto action", async ({ page }) => {
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
-  test("/services stays fully readable, including both client screenshots", async ({ page }) => {
+  test("/services stays fully readable, with a still frame standing in for each capture", async ({
+    page,
+  }) => {
     const response = await page.goto("/services");
     expect(response?.status()).toBe(200);
 
@@ -127,10 +128,13 @@ test.describe("without JavaScript", () => {
     await expect(page.getByText("Available for select freelance projects.")).toBeVisible();
     await expect(page.getByRole("article")).toHaveCount(3);
 
-    const madar = page.getByRole("article").filter({ hasText: "Madar Wears" });
-    const laGlosse = page.getByRole("article").filter({ hasText: "La Glosse" });
-    await expect(madar.getByRole("img")).toBeVisible();
-    await expect(laGlosse.getByRole("img")).toBeVisible();
+    // Playback is driven by an IntersectionObserver, so with scripting off the
+    // `poster` still is what a visitor actually sees - it has to be there.
+    for (const name of ["Madar Wears", "La Glosse"]) {
+      const video = page.getByRole("article").filter({ hasText: name }).locator("video");
+      await expect(video).toHaveCount(1);
+      expect(await video.getAttribute("poster")).toBeTruthy();
+    }
 
     await expect(page.getByRole("link", { name: "Start a conversation" })).toBeVisible();
   });

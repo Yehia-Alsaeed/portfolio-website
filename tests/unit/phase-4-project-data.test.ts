@@ -267,11 +267,10 @@ describe("Phase 4 flagship case study content", () => {
         "problem",
         "approach",
         "architecture",
-        "reproducibility",
       ] as const) {
         expect(study[field].length, `${study.slug}.${field}`).toBeGreaterThan(0);
       }
-      for (const field of ["stack", "constraints", "results", "limitations"] as const) {
+      for (const field of ["stack", "constraints", "results"] as const) {
         expect(study[field].length, `${study.slug}.${field}`).toBeGreaterThan(0);
       }
       // `period` is optional: Yehia supplies real build dates during final

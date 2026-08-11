@@ -23,10 +23,10 @@ git log -1 --format='%B'
 
 **This repository uses exactly two long-lived branches, and nothing else.**
 
-| Branch | Deploys to | Purpose |
-|---|---|---|
-| `dev` | Vercel **Preview** (private, gated behind Vercel Authentication) | All work and testing happens here |
-| `main` | Vercel **Production** (the live public site) | Only ever receives merges from `dev` |
+| Branch | Deploys to                                                       | Purpose                              |
+| ------ | ---------------------------------------------------------------- | ------------------------------------ |
+| `dev`  | Vercel **Preview** (private, gated behind Vercel Authentication) | All work and testing happens here    |
+| `main` | Vercel **Production** (the live public site)                     | Only ever receives merges from `dev` |
 
 The flow is always: **commit to `dev` → test on the Preview URL → merge `dev` into `main` → Production updates.**
 

@@ -15,7 +15,8 @@ for (const slug of CASE_STUDIES) {
     await page.goto(`/projects/${slug}`);
 
     await expect(page.getByRole("heading", { name: "Architecture proof" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Relationships" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "System flow" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Relationships" })).toHaveCount(0);
     expect(await page.locator("[aria-label*='Interactive architecture']").count()).toBe(0);
 
     const launchButton = page.getByRole("button", { name: "Explore interactive architecture" });
@@ -97,7 +98,8 @@ test.describe("without JavaScript", () => {
     test(`${slug} keeps its complete static architecture proof readable`, async ({ page }) => {
       await page.goto(`/projects/${slug}`);
       await expect(page.getByRole("heading", { name: "Architecture proof" })).toBeVisible();
-      await expect(page.getByRole("heading", { name: "Relationships" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "System flow" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Relationships" })).toHaveCount(0);
     });
   }
 
@@ -143,6 +145,48 @@ const RESPONSIVE_ROUTES = [
   "/projects/oxford-pet-binary-segmentation",
   "/projects/ai-study-planner-agents",
 ] as const;
+
+for (const viewport of RESPONSIVE_WIDTHS) {
+  test(`adapts every case-study system flow at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+
+    for (const slug of CASE_STUDIES) {
+      await page.goto(`/projects/${slug}`);
+
+      const flow = page.getByRole("heading", { name: "System flow" }).locator("..");
+      const stages = flow.getByRole("listitem");
+      expect(await stages.count(), `${slug} flow stage count`).toBeGreaterThanOrEqual(4);
+
+      const firstStageBox = await stages.nth(0).boundingBox();
+      const secondStageBox = await stages.nth(1).boundingBox();
+      expect(firstStageBox, `${slug} first flow stage box`).not.toBeNull();
+      expect(secondStageBox, `${slug} second flow stage box`).not.toBeNull();
+
+      if (firstStageBox && secondStageBox && viewport.width < 768) {
+        expect(secondStageBox.y, `${slug} mobile flow should progress vertically`).toBeGreaterThan(
+          firstStageBox.y + firstStageBox.height,
+        );
+      }
+
+      if (firstStageBox && secondStageBox && viewport.width >= 768) {
+        expect(
+          Math.abs(secondStageBox.y - firstStageBox.y),
+          `${slug} tablet/desktop flow should progress horizontally`,
+        ).toBeLessThanOrEqual(2);
+        expect(
+          secondStageBox.x,
+          `${slug} second flow stage should sit to the right`,
+        ).toBeGreaterThan(firstStageBox.x + firstStageBox.width);
+      }
+
+      const widths = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      expect(widths.scroll, `${slug} horizontal containment`).toBeLessThanOrEqual(widths.client);
+    }
+  });
+}
 
 for (const route of RESPONSIVE_ROUTES) {
   for (const viewport of RESPONSIVE_WIDTHS) {

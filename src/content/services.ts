@@ -21,7 +21,10 @@ export type ProcessStep = {
 
 type ClientWorkBase = {
   name: "Madar Wears" | "La Glosse" | "Nexo";
+  /** Small mono eyebrow above the client name. */
+  sector: string;
   kind: "Shopify storefront";
+  /** One paragraph: what they needed, what I built, what it does now. */
   contribution: string;
   url: `https://${string}`;
   trackingId: "madar-wears" | "la-glosse" | "nexo";
@@ -92,29 +95,33 @@ export const SERVICE_PROCESS = [
 export const CLIENT_WORK = [
   {
     contribution:
-      "Designed and built the Shopify theme, product and collection templates, and a checkout-ready storefront experience.",
+      "Madar Wears needed a storefront that could carry a growing catalogue without slowing down. I built a custom Shopify theme with responsive product and collection templates, tuned image delivery, and a checkout-ready path from first tap to order.",
     kind: "Shopify storefront",
     mediaKey: "madar-wears",
     name: "Madar Wears",
     presentation: "captured",
+    sector: "Apparel",
     trackingId: "madar-wears",
     url: "https://www.madarwears.com/",
   },
   {
     contribution:
-      "Designed and built the Shopify theme, responsive product pages, and a checkout-ready storefront experience.",
+      "La Glosse wanted a storefront that felt as considered as the products in it. I built a custom Shopify theme with responsive product pages, deliberate typography, and a checkout-ready path that holds up on a phone.",
     kind: "Shopify storefront",
     mediaKey: "la-glosse",
     name: "La Glosse",
     presentation: "captured",
+    sector: "Beauty",
     trackingId: "la-glosse",
     url: "https://la-glosse.com/",
   },
   {
-    contribution: "Designed and built the Shopify theme and storefront experience.",
+    contribution:
+      "Nexo needed a storefront built from a blank slate. I designed and built the Shopify theme end to end, from the layout system and section structure through to a checkout-ready storefront experience.",
     kind: "Shopify storefront",
     name: "Nexo",
     presentation: "text-only",
+    sector: "Retail",
     trackingId: "nexo",
     url: "https://bh9d1w-16.myshopify.com/",
   },

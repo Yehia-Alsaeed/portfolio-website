@@ -17,7 +17,7 @@ export function CaseStudyProof({ slug }: CaseStudyProofProps) {
   if (!proof) return null;
 
   return (
-    <div className="border-line mt-10 border-t pt-10">
+    <div className="border-line @container mt-10 border-t pt-10">
       <h3 className="text-dim font-mono text-[0.6875rem] font-bold tracking-[0.1em] uppercase">
         Architecture proof
       </h3>

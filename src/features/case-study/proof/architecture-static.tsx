@@ -1,4 +1,5 @@
 import type { ArchitectureProof } from "@/content/projects/proof";
+import { SystemFlow } from "@/features/case-study/proof/system-flow";
 
 export type ArchitectureStaticProps = { proof: ArchitectureProof };
 
@@ -7,7 +8,7 @@ export function ArchitectureStatic({ proof }: ArchitectureStaticProps) {
 
   return (
     <div className="flex flex-col gap-8">
-      <ol className="border-line grid grid-cols-1 border-t border-l min-[700px]:grid-cols-2">
+      <ol className="border-line grid grid-cols-1 border-t border-l @min-[700px]:grid-cols-2">
         {proof.readingOrder.map((id, index) => {
           const node = nodesById.get(id);
           if (!node) return null;
@@ -34,25 +35,7 @@ export function ArchitectureStatic({ proof }: ArchitectureStaticProps) {
         })}
       </ol>
 
-      <div>
-        <h4 className="text-dim font-mono text-[0.6875rem] font-bold tracking-[0.1em] uppercase">
-          Relationships
-        </h4>
-        <ul className="text-dim mt-3 flex flex-col gap-2 text-sm leading-relaxed">
-          {proof.edges.map((edge) => {
-            const source = nodesById.get(edge.source);
-            const target = nodesById.get(edge.target);
-            if (!source || !target) return null;
-
-            return (
-              <li key={edge.id}>
-                {source.label} → {target.label}
-                {edge.label ? ` (${edge.label})` : ""}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      <SystemFlow stages={proof.flow} />
     </div>
   );
 }

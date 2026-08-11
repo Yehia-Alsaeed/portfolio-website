@@ -15,8 +15,6 @@ export type CaseStudy = {
   approach: string;
   architecture: string;
   results: readonly CaseStudyResult[];
-  limitations: readonly string[];
-  reproducibility: string;
   media: readonly CaseStudyMedia[];
   repoUrl: `https://github.com/${string}`;
   liveUrl?: string;
@@ -39,10 +37,6 @@ export const CASE_STUDIES: readonly CaseStudy[] = [
       "Supports three predefined target roles: Software Engineer, AI Engineer, and Data Scientist.",
       "Ships as a local FastAPI + React demo with SQLite session storage, not a hosted multi-user product.",
     ],
-    limitations: [
-      "The reported accuracy is an offline evaluation on First Impressions V2 clips, not a measurement of real interview outcomes.",
-      "Interview footage can show an identifiable person, so only the two approved evidence images are used in production; the rest of the dataset and any other candidate footage stay unpublished.",
-    ],
     media: [
       {
         alt: "Candidate interview session with webcam and question interface",
@@ -60,8 +54,6 @@ export const CASE_STUDIES: readonly CaseStudy[] = [
     previousSlug: "prestige-motors-showroom",
     problem:
       "Interview practice is expensive and hard to get honest, structured feedback on outside a handful of paid coaching sessions. SkillBridge asks whether a machine can watch a practice interview and return repeatable, trait-level feedback instead: a candidate uploads a CV and target role, answers five webcam questions, and receives a scored report across communication, confidence, domain knowledge, professionalism, and employability.",
-    reproducibility:
-      "The training methodology and curated metrics are published in the repository's docs/results.md, with the full write-up in docs/SkillBridge-Technical-Report.pdf and training-script notes in training/README.md. The dataset, trained model artifacts, transcripts, and embeddings are intentionally excluded because the source dataset is large and license-restricted; the active backend loads local multimodal fusion-head artifacts at runtime.",
     repoUrl: "https://github.com/Yehia-Alsaeed/skillbridge-ai-interviewer",
     results: [
       {
@@ -105,17 +97,11 @@ export const CASE_STUDIES: readonly CaseStudy[] = [
       "Evaluated on a specific higher-education short-answer QA dataset subset, not a general-purpose QA benchmark.",
       "QLoRA with 4-bit quantization was chosen specifically to fit fine-tuning on limited GPU hardware.",
     ],
-    limitations: [
-      "Exact Match is a strict metric - it can undercount answers that are semantically correct but phrased differently from the target.",
-      "The fine-tuned ROUGE scores are generated at runtime when the evaluation script executes rather than published as fixed numbers; only the baseline ROUGE-1/2/L values are fixed in the repository's results notes. Not measured as a static figure here.",
-    ],
     media: [],
     nextSlug: "ai-study-planner-agents",
     previousSlug: "skillbridge-ai-interviewer",
     problem:
       "General-purpose instruction-tuned language models rarely answer short-form educational questions in the exact target format graders expect. This project measures that gap directly and asks how far parameter-efficient fine-tuning (QLoRA) can close it on limited hardware, without full-parameter retraining.",
-    reproducibility:
-      "The full pipeline is one script, llama_qlora_education_qa.py, covering data prep, baseline inference, QLoRA fine-tuning, and evaluation. Exact Match and baseline ROUGE figures are recorded in docs/results.md; safe illustrative prompts are published in sample_prompts.md so the input/output format can be inspected without the full dataset.",
     repoUrl: "https://github.com/Yehia-Alsaeed/llama-qlora-education-qa",
     results: [
       {
@@ -163,10 +149,6 @@ export const CASE_STUDIES: readonly CaseStudy[] = [
       "Requires an OpenAI API key (planning/critique) and a Serper API key (tool-augmented search) to run.",
       "Schedules are produced by an LLM-in-the-loop pipeline with a rule-based critic, not a formally verified constraint solver.",
     ],
-    limitations: [
-      "No aggregate benchmark across many runs is published in the repository; the quality score below is from one illustrative sample run, not a dataset-wide average. Not measured beyond that example.",
-      "The Critic's checks (overload, buffers, exam handling) catch a specific, defined set of plan quality issues - it is not a general guarantee of an optimal schedule.",
-    ],
     media: [
       {
         alt: "Profiler-to-optimizer multi-agent workflow",
@@ -178,8 +160,6 @@ export const CASE_STUDIES: readonly CaseStudy[] = [
     previousSlug: "llama-qlora-education-qa",
     problem:
       "Turning a list of subjects and exam dates into a realistic day-by-day study schedule is a constraint-satisfaction problem most students solve badly by hand - overloading early days, forgetting buffer time before exams, or under-weighting harder subjects. This project asks whether a coordinated set of LLM agents, each with one job, can draft and self-correct a schedule that respects those constraints.",
-    reproducibility:
-      "The reusable src/study_planner package (agents, difficulty classifier, evaluation, CrewAI task/tool definitions) can be run natively or through the included Jupyter demo notebook. A full example input profile and its optimized output schedule are published under examples/, so the input/output contract is inspectable without an API key.",
     repoUrl: "https://github.com/Yehia-Alsaeed/ai-study-planner-agents",
     results: [
       {
@@ -212,10 +192,6 @@ export const CASE_STUDIES: readonly CaseStudy[] = [
       "Binary segmentation only (pet vs. background) - not multi-class or instance segmentation.",
       "Metrics are reported on the fixed Oxford-IIIT Pet test split used throughout the experiment, not a held-out external dataset.",
     ],
-    limitations: [
-      "Reported inference time is a per-image benchmark from the experiment environment, not a measurement of a deployed, load-tested service. Not measured in production.",
-      "Only HRNet's prediction grid is used as production evidence today; FCN and SegNet prediction images are approved as repository output but not yet wired into every production surface.",
-    ],
     media: [
       {
         alt: "FCN predictions beside source and ground truth",
@@ -237,8 +213,6 @@ export const CASE_STUDIES: readonly CaseStudy[] = [
     previousSlug: "ai-study-planner-agents",
     problem:
       "Picking a segmentation model for a real product is rarely just about accuracy - inference speed and parameter count decide whether it can actually run where it's needed. This project asks which of three well-known architectures wins once accuracy, size, and speed are all measured on the same task and the same split.",
-    reproducibility:
-      "The full pipeline lives in one notebook, pet_segmentation_models.ipynb, covering preprocessing, training, evaluation, and comparison. The fixed train/validation/test split CSVs are published under preprocessing_artifacts/, and the final saved comparison metrics are in results_artifacts/model_results.csv.",
     repoUrl: "https://github.com/Yehia-Alsaeed/oxford-pet-binary-segmentation",
     results: [
       {
@@ -280,10 +254,6 @@ export const CASE_STUDIES: readonly CaseStudy[] = [
       "Built and maintained solo, end to end (frontend, backend, deployment).",
       "The admin workflow assumes a single showroom operator, not a multi-tenant dealership platform.",
     ],
-    limitations: [
-      "No independent business-outcome metrics (traffic, conversion, completed sales) are published for the live deployment. Not measured.",
-      "JWT secrets, the database URL, and Cloudinary credentials are required environment configuration and are intentionally not committed - only .env.example placeholders ship in the repository.",
-    ],
     liveUrl: "https://prestige-motor.vercel.app/",
     media: [
       {
@@ -301,8 +271,6 @@ export const CASE_STUDIES: readonly CaseStudy[] = [
     previousSlug: "oxford-pet-binary-segmentation",
     problem:
       "A premium car showroom needs more than a brochure site: customers want to browse inventory, reserve new vehicles, negotiate offers on used cars, and list their own vehicles for sale, while staff need to manage all of that without touching code. Prestige Motors is that platform, designed, built, and deployed end to end.",
-    reproducibility:
-      "The repository splits cleanly into backend/ (Express API, MongoDB models, controllers, routes, auth, uploads) and frontend/ (React/Vite/TypeScript UI for customers and admins), with vercel.json documenting the production build and rewrite configuration and .env.example documenting every required environment variable. The product itself is reproducible by visiting the live deployment directly.",
     repoUrl: "https://github.com/Yehia-Alsaeed/prestige-motors-showroom",
     results: [
       {

@@ -17,8 +17,13 @@ export type CaseStudyPageProps = {
   next: CaseStudy;
 };
 
-const proseClassName = "text-dim max-w-[62ch] text-base leading-relaxed";
-const listClassName = "text-dim mt-4 flex max-w-[62ch] flex-col gap-2 text-base leading-relaxed";
+const proseClassName = "text-dim max-w-[74ch] text-base leading-relaxed";
+const fullWidthProseClassName =
+  "text-dim max-w-[74ch] text-base leading-relaxed min-[768px]:max-w-none";
+const problemGridClassName =
+  "grid grid-cols-1 gap-8 min-[768px]:grid-cols-[minmax(0,3fr)_minmax(16rem,2fr)] min-[1024px]:gap-12 min-[1280px]:gap-16";
+const listClassName =
+  "text-dim mt-4 flex flex-col gap-2 text-base leading-relaxed min-[768px]:mt-0";
 
 export function CaseStudyPage({ next, previous, study }: CaseStudyPageProps) {
   const metadataItems: MetadataItem[] = [
@@ -33,24 +38,36 @@ export function CaseStudyPage({ next, previous, study }: CaseStudyPageProps) {
       <PageTitle eyebrow={study.type} subtitle={study.summary} title={study.title} />
       <MetadataRow ariaLabel={`${study.title} details`} items={metadataItems} />
 
-      <RuledSection title="01 - The problem">
-        <p className={proseClassName}>{study.problem}</p>
-        <h3 className="text-dim mt-6 font-mono text-[0.6875rem] font-bold tracking-[0.1em] uppercase">
-          Constraints
-        </h3>
-        <ul className={listClassName}>
-          {study.constraints.map((constraint) => (
-            <li key={constraint}>{constraint}</li>
-          ))}
-        </ul>
-      </RuledSection>
+      <section className="border-line border-b">
+        <div className={`${problemGridClassName} border-line border-t-2 pt-10 pb-5`}>
+          <h2 className="text-dim font-mono text-[0.6875rem] font-bold tracking-[0.14em] uppercase">
+            01 - The problem
+          </h2>
+          <h3 className="text-dim hidden font-mono text-[0.6875rem] font-bold tracking-[0.1em] uppercase min-[768px]:block">
+            Constraints
+          </h3>
+        </div>
+        <div className={`${problemGridClassName} pb-10`}>
+          <p className={proseClassName}>{study.problem}</p>
+          <div className="min-w-0">
+            <h3 className="text-dim font-mono text-[0.6875rem] font-bold tracking-[0.1em] uppercase min-[768px]:hidden">
+              Constraints
+            </h3>
+            <ul className={listClassName}>
+              {study.constraints.map((constraint) => (
+                <li key={constraint}>{constraint}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
 
       <RuledSection title="02 - Approach">
-        <p className={proseClassName}>{study.approach}</p>
+        <p className={fullWidthProseClassName}>{study.approach}</p>
       </RuledSection>
 
       <RuledSection title="03 - Architecture and stack">
-        <p className={proseClassName}>{study.architecture}</p>
+        <p className={fullWidthProseClassName}>{study.architecture}</p>
         <CaseStudyProof slug={study.slug} />
       </RuledSection>
 
@@ -68,20 +85,8 @@ export function CaseStudyPage({ next, previous, study }: CaseStudyPageProps) {
         </div>
       </RuledSection>
 
-      <RuledSection title="05 - Limitations">
-        <ul className={listClassName}>
-          {study.limitations.map((limitation) => (
-            <li key={limitation}>{limitation}</li>
-          ))}
-        </ul>
-      </RuledSection>
-
-      <RuledSection title="06 - Reproducibility">
-        <p className={proseClassName}>{study.reproducibility}</p>
-      </RuledSection>
-
       {study.media.length > 0 ? (
-        <RuledSection title="07 - Evidence">
+        <RuledSection title="05 - Evidence">
           <div className="grid grid-cols-1 gap-4 min-[700px]:grid-cols-2">
             {study.media.map((media) => (
               <ProjectImage

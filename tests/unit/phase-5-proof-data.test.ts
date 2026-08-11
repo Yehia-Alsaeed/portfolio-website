@@ -46,6 +46,24 @@ describe("Phase 5 architecture proof data", () => {
     }
   });
 
+  it("has a concise, project-specific system flow for every proof", () => {
+    const serializedFlows = new Set<string>();
+
+    for (const proof of ARCHITECTURE_PROOFS) {
+      const flow = (proof as { flow?: readonly string[] }).flow;
+      expect(flow, `${proof.slug} flow`).toBeDefined();
+      expect(flow?.length, `${proof.slug} flow stage count`).toBeGreaterThanOrEqual(4);
+      expect(flow?.length, `${proof.slug} flow stage count`).toBeLessThanOrEqual(5);
+      expect(
+        flow?.every((stage) => stage.trim().length > 0),
+        `${proof.slug} flow text`,
+      ).toBe(true);
+      serializedFlows.add(flow?.join(" -> ") ?? "");
+    }
+
+    expect(serializedFlows.size).toBe(ARCHITECTURE_PROOFS.length);
+  });
+
   it("has non-empty text for every node field and every proof title", () => {
     for (const proof of ARCHITECTURE_PROOFS) {
       expect(proof.title.length, proof.slug).toBeGreaterThan(0);

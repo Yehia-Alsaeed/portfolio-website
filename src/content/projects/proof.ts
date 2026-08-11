@@ -17,6 +17,7 @@ export type ArchitectureProof = {
   title: string;
   nodes: readonly ProofNode[];
   edges: readonly ProofEdge[];
+  flow: readonly string[];
   readingOrder: readonly string[];
 };
 
@@ -64,6 +65,13 @@ export const ARCHITECTURE_PROOFS = [
         source: "multimodal-scoring",
         target: "report-output",
       },
+    ],
+    flow: [
+      "Interview session",
+      "FastAPI orchestration",
+      "CV/role analysis + transcription",
+      "Multimodal scoring",
+      "Feedback report",
     ],
     nodes: [
       {
@@ -150,6 +158,13 @@ export const ARCHITECTURE_PROOFS = [
       { id: "qlora-fine-tuning__evaluation", source: "qlora-fine-tuning", target: "evaluation" },
       { id: "evaluation__result-artifacts", source: "evaluation", target: "result-artifacts" },
     ],
+    flow: [
+      "Education QA data",
+      "Baseline evaluation",
+      "QLoRA fine-tuning",
+      "Held-out evaluation",
+      "Result artifacts",
+    ],
     nodes: [
       {
         id: "dataset-prep",
@@ -219,6 +234,7 @@ export const ARCHITECTURE_PROOFS = [
       { id: "critic__optimizer", source: "critic", target: "optimizer" },
       { id: "optimizer__evaluation-output", source: "optimizer", target: "evaluation-output" },
     ],
+    flow: ["Student profile", "Draft study plan", "Critique", "Optimization", "Scored output"],
     nodes: [
       {
         id: "profiler",
@@ -296,6 +312,12 @@ export const ARCHITECTURE_PROOFS = [
         source: "shared-evaluation",
         target: "comparison-output",
       },
+    ],
+    flow: [
+      "Pet masks + fixed splits",
+      "FCN + SegNet + HRNet",
+      "Shared evaluation",
+      "Model comparison",
     ],
     nodes: [
       {
@@ -378,6 +400,13 @@ export const ARCHITECTURE_PROOFS = [
       { id: "guarded-routes__cloudinary", source: "guarded-routes", target: "cloudinary" },
       { id: "mongodb__vercel-deployment", source: "mongodb", target: "vercel-deployment" },
       { id: "cloudinary__vercel-deployment", source: "cloudinary", target: "vercel-deployment" },
+    ],
+    flow: [
+      "Customer/admin UI",
+      "Express API",
+      "Guarded routes",
+      "MongoDB + Cloudinary",
+      "Vercel deployment",
     ],
     nodes: [
       {
@@ -482,6 +511,10 @@ export function validateArchitectureProof(proof: ArchitectureProof): readonly st
     ![...readingOrderSet].every((id) => nodeIdSet.has(id))
   ) {
     errors.push(`${proof.slug}: readingOrder must list every node exactly once`);
+  }
+
+  if (proof.flow.length < 2 || proof.flow.some((stage) => stage.trim().length === 0)) {
+    errors.push(`${proof.slug}: flow must contain at least two non-empty stages`);
   }
 
   for (const node of proof.nodes) {

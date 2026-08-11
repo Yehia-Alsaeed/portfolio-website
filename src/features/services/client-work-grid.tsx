@@ -1,30 +1,59 @@
 import { CLIENT_WORK_MEDIA, type ClientWork } from "@/content/services";
 import { TrackedAnchor } from "@/features/analytics/tracked-anchor";
-import { ClientWorkMedia } from "@/features/services/client-work-media";
+import { ClientWorkMedia, MACBOOK_PRO_16 } from "@/features/services/client-work-media";
 
-export type ClientWorkGridProps = { entries: readonly ClientWork[] };
+export type ClientWorkGridProps = {
+  entries: readonly ClientWork[];
+  /**
+   * Wrap each capture in the MacBook PNG. Off until
+   * `public/media/devices/macbook-pro-16.png` exists - turning it on without
+   * the asset ships a broken image over every card. Flip the default here once
+   * the file lands, and re-measure `MACBOOK_PRO_16` against that exact PNG.
+   */
+  framed?: boolean;
+};
 
-export function ClientWorkGrid({ entries }: ClientWorkGridProps) {
+export function ClientWorkGrid({ entries, framed = false }: ClientWorkGridProps) {
   return (
-    <div className="border-line grid grid-cols-1 border-t border-l min-[820px]:grid-cols-3">
+    <div className="grid grid-cols-1 items-start gap-6 min-[860px]:grid-cols-2">
       {entries.map((entry) => (
-        <article className="border-line border-r border-b p-6" key={entry.name}>
-          <h3 className="text-lg font-bold">{entry.name}</h3>
-          <p className="text-dim mt-2 text-sm leading-relaxed">{entry.contribution}</p>
+        <article className="border-line border p-6 md:p-8" key={entry.name}>
+          <header className="mb-6 flex items-start justify-between gap-4">
+            <div>
+              <p className="text-dim font-mono text-[0.6875rem] font-bold tracking-[0.14em] uppercase">
+                {entry.sector}
+              </p>
+              <h3 className="mt-2 text-[clamp(2rem,5vw,3.25rem)] leading-[0.95] font-extrabold tracking-tight font-stretch-[110%]">
+                {entry.name}
+              </h3>
+            </div>
+
+            <TrackedAnchor
+              aria-label={`Open ${entry.name}`}
+              className="border-line hover:bg-ink hover:text-paper inline-flex h-11 w-11 flex-none items-center justify-center border text-lg transition-colors"
+              href={entry.url}
+              rel="noopener noreferrer"
+              target="_blank"
+              tracking={{ type: "outbound_click", destination: entry.trackingId }}
+            >
+              <span aria-hidden="true">↗</span>
+            </TrackedAnchor>
+          </header>
 
           {entry.presentation === "captured" ? (
-            <ClientWorkMedia media={CLIENT_WORK_MEDIA[entry.mediaKey]} name={entry.name} />
+            <div className="mb-6">
+              <ClientWorkMedia
+                frame={framed ? MACBOOK_PRO_16 : undefined}
+                media={CLIENT_WORK_MEDIA[entry.mediaKey]}
+                name={entry.name}
+              />
+            </div>
           ) : null}
 
-          <TrackedAnchor
-            className="text-accent-text mt-4 inline-block min-h-11 font-mono text-xs font-bold tracking-[0.1em] uppercase"
-            href={entry.url}
-            rel="noopener noreferrer"
-            target="_blank"
-            tracking={{ type: "outbound_click", destination: entry.trackingId }}
-          >
-            Open {entry.name} ↗
-          </TrackedAnchor>
+          <p className="text-dim font-mono text-[0.6875rem] font-bold tracking-[0.14em] uppercase">
+            {entry.kind}
+          </p>
+          <p className="mt-2 text-[0.9375rem] leading-relaxed">{entry.contribution}</p>
         </article>
       ))}
     </div>
