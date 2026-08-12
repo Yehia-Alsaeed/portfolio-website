@@ -304,6 +304,11 @@ describe("Phase 4 flagship case study content", () => {
     expect(llama?.media).toEqual([]);
   });
 
+  it("omits redundant Evidence media from Oxford Pet Segmentation", () => {
+    const oxford = CASE_STUDIES.find((study) => study.slug === "oxford-pet-binary-segmentation");
+    expect(oxford?.media).toEqual([]);
+  });
+
   it("matches known, source-verified metric values", () => {
     const bySlug = new Map(CASE_STUDIES.map((study) => [study.slug, study]));
     const resultValue = (slug: string, label: string) =>

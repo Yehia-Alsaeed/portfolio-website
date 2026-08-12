@@ -17,6 +17,24 @@ const ROUTES = [
   "/missing-phase-2-route",
 ] as const;
 
+const SITE_FRAME_GUTTERS = [
+  { gutter: 12, height: 844, name: "mobile", width: 390 },
+  { gutter: 35, height: 1024, name: "tablet", width: 768 },
+  { gutter: 35, height: 1000, name: "desktop", width: 1440 },
+] as const;
+
+for (const viewport of SITE_FRAME_GUTTERS) {
+  test(`uses a ${viewport.gutter}px site gutter at ${viewport.name} width`, async ({ page }) => {
+    await page.setViewportSize({ height: viewport.height, width: viewport.width });
+    await page.goto("/");
+
+    const frameBox = await page.locator(".site-frame").boundingBox();
+    expect(frameBox).not.toBeNull();
+    expect(frameBox?.x).toBe(viewport.gutter);
+    expect(viewport.width - (frameBox?.x ?? 0) - (frameBox?.width ?? 0)).toBe(viewport.gutter);
+  });
+}
+
 for (const viewport of VIEWPORTS) {
   for (const route of ROUTES) {
     test(`stays inside the ${viewport.name} viewport at ${route}`, async ({ page }) => {

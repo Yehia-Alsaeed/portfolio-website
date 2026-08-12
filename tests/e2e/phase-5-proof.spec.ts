@@ -46,6 +46,40 @@ test("Oxford: selecting each model updates the approved metrics and image label"
   await expect(microscope.getByText("Not published")).toBeVisible();
 });
 
+test("Oxford: matches the microscope image to the static comparison tiles at larger widths", async ({
+  page,
+}) => {
+  const viewports = [
+    {
+      height: 1024,
+      maxImageWidth: 330,
+      minImageWidth: 280,
+      name: "tablet portrait",
+      width: 768,
+    },
+    {
+      height: 768,
+      maxImageWidth: 340,
+      minImageWidth: 290,
+      name: "tablet landscape",
+      width: 1024,
+    },
+    { height: 1000, maxImageWidth: 460, minImageWidth: 420, name: "desktop", width: 1440 },
+  ] as const;
+
+  for (const viewport of viewports) {
+    await page.setViewportSize({ height: viewport.height, width: viewport.width });
+    await page.goto("/projects/oxford-pet-binary-segmentation");
+
+    const microscope = page.locator('[aria-label="Select a model"]').locator("..");
+    const imageBox = await microscope.getByRole("img").boundingBox();
+    expect(imageBox, `${viewport.name} microscope image`).not.toBeNull();
+
+    expect(imageBox?.width).toBeGreaterThanOrEqual(viewport.minImageWidth);
+    expect(imageBox?.width).toBeLessThanOrEqual(viewport.maxImageWidth);
+  }
+});
+
 test("Study Planner omits the project-specific Agent run replay", async ({ page }) => {
   await page.goto("/projects/ai-study-planner-agents");
 

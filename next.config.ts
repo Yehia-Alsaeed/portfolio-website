@@ -6,6 +6,7 @@ import type { NextConfig } from "next";
 const cloudinaryCloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["*.trycloudflare.com"],
   experimental: {
     serverActions: {
       bodySizeLimit: "16kb",

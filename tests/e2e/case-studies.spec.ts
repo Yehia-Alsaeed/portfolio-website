@@ -9,7 +9,7 @@ const CASE_STUDIES = [
   { hasEvidence: false, slug: "llama-qlora-education-qa", title: "Llama QLoRA Education QA" },
   { hasEvidence: true, slug: "ai-study-planner-agents", title: "AI Study Planner Agents" },
   {
-    hasEvidence: true,
+    hasEvidence: false,
     slug: "oxford-pet-binary-segmentation",
     title: "Oxford Pet Segmentation",
   },

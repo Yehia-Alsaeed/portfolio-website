@@ -34,7 +34,7 @@ export function ModelMicroscope({ models }: ModelMicroscopeProps) {
         ))}
       </div>
 
-      <div className="border-line mt-4 grid grid-cols-1 border p-4 @min-[700px]:grid-cols-[minmax(0,1fr)_260px]">
+      <div className="border-line mt-4 grid grid-cols-1 border p-4 @min-[680px]:mx-auto @min-[680px]:max-w-[37rem] @min-[680px]:grid-cols-[minmax(0,1fr)_260px] @min-[900px]:max-w-[38rem] @min-[1200px]:max-w-[46rem]">
         <ProjectImage
           alt={`${active.label} predictions beside source and ground truth`}
           publicId={active.imagePublicId}
@@ -42,7 +42,7 @@ export function ModelMicroscope({ models }: ModelMicroscopeProps) {
         />
         <dl
           aria-live="polite"
-          className="mt-4 flex flex-col gap-3 font-mono text-[0.8125rem] @min-[700px]:mt-0 @min-[700px]:pl-4"
+          className="mt-4 flex flex-col gap-3 font-mono text-[0.8125rem] @min-[680px]:mt-0 @min-[680px]:pl-4"
         >
           <div>
             <dt className="text-dim text-[0.625rem] tracking-[0.1em] uppercase">mIoU</dt>

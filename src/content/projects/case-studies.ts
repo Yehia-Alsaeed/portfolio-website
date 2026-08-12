@@ -192,23 +192,7 @@ export const CASE_STUDIES: readonly CaseStudy[] = [
       "Binary segmentation only (pet vs. background) - not multi-class or instance segmentation.",
       "Metrics are reported on the fixed Oxford-IIIT Pet test split used throughout the experiment, not a held-out external dataset.",
     ],
-    media: [
-      {
-        alt: "FCN predictions beside source and ground truth",
-        fallbackSrc: "mockups/demo/assets/pets-fcn.webp",
-        publicId: "pets-fcn",
-      },
-      {
-        alt: "SegNet predictions beside source and ground truth",
-        fallbackSrc: "mockups/demo/assets/pets-segnet.webp",
-        publicId: "pets-segnet",
-      },
-      {
-        alt: "HRNet predictions beside source and ground truth",
-        fallbackSrc: "mockups/demo/assets/pets-hrnet.webp",
-        publicId: "pets-hrnet",
-      },
-    ],
+    media: [],
     nextSlug: "prestige-motors-showroom",
     previousSlug: "ai-study-planner-agents",
     problem:

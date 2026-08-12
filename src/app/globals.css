@@ -27,8 +27,6 @@
   --accent-ink: #ffffff;
   --accent-text: #2b3cff;
   --focus-ring: #2b3cff;
-  --frame-width: 1360px;
-  --frame-gutter: 28px;
   color-scheme: light;
 }
 
@@ -123,7 +121,7 @@
 }
 
 .site-frame {
-  width: min(var(--frame-width), calc(100% - (var(--frame-gutter) * 2)));
+  width: calc(100% - 70px);
   margin-inline: auto;
 }
 
@@ -224,8 +222,8 @@
 }
 
 @media (max-width: 639px) {
-  :root {
-    --frame-gutter: 16px;
+  .site-frame {
+    width: calc(100% - 24px);
   }
 }
 
