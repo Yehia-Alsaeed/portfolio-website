@@ -8,7 +8,6 @@ export type GithubRepo = {
   description: string;
   topics: readonly string[];
   language: string;
-  stars: number;
   updatedAt: string;
   homepageUrl?: string;
 };
@@ -18,7 +17,6 @@ type RawGithubRepo = {
   description: unknown;
   topics: unknown;
   language: unknown;
-  stargazers_count: unknown;
   updated_at: unknown;
   homepage: unknown;
   fork: unknown;
@@ -45,7 +43,6 @@ function normalizeRepo(raw: RawGithubRepo): GithubRepo {
     description: typeof raw.description === "string" ? raw.description : "",
     language: typeof raw.language === "string" ? raw.language : "",
     slug: raw.name as string,
-    stars: typeof raw.stargazers_count === "number" ? raw.stargazers_count : 0,
     topics,
     updatedAt: typeof raw.updated_at === "string" ? raw.updated_at : "",
     ...(homepage.length > 0 ? { homepageUrl: homepage } : {}),

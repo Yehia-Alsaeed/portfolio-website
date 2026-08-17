@@ -7,7 +7,6 @@ export const FALLBACK_PROJECTS = [
     language: "Python",
     name: "SkillBridge AI Interviewer",
     slug: "skillbridge-ai-interviewer",
-    stars: 0,
     topics: ["llm", "multimodal", "fastapi", "pytorch", "openai"],
   },
   {
@@ -16,7 +15,6 @@ export const FALLBACK_PROJECTS = [
     language: "Python",
     name: "Llama QLoRA Education QA",
     slug: "llama-qlora-education-qa",
-    stars: 0,
     topics: ["llm", "fine-tuning", "qlora", "transformers", "peft"],
   },
   {
@@ -25,7 +23,6 @@ export const FALLBACK_PROJECTS = [
     language: "Python",
     name: "AI Study Planner Agents",
     slug: "ai-study-planner-agents",
-    stars: 0,
     topics: ["multi-agent", "crewai", "llm", "agents"],
   },
   {
@@ -34,7 +31,6 @@ export const FALLBACK_PROJECTS = [
     language: "Python",
     name: "Oxford Pet Segmentation",
     slug: "oxford-pet-binary-segmentation",
-    stars: 0,
     topics: ["computer-vision", "segmentation", "pytorch", "hrnet"],
   },
   {
@@ -43,7 +39,6 @@ export const FALLBACK_PROJECTS = [
     language: "Python",
     name: "YOLOv8 Digit Detector",
     slug: "yolov8-handwritten-digit-detector",
-    stars: 0,
     topics: ["computer-vision", "yolov8", "object-detection", "opencv"],
   },
   {
@@ -52,7 +47,6 @@ export const FALLBACK_PROJECTS = [
     language: "TypeScript",
     name: "Prestige Motors Showroom",
     slug: "prestige-motors-showroom",
-    stars: 0,
     topics: ["fullstack", "react", "express", "mongodb", "mern"],
   },
   {
@@ -61,7 +55,6 @@ export const FALLBACK_PROJECTS = [
     language: "Dart",
     name: "TripMate Travel Planner",
     slug: "trip-mate-travel-planner-app",
-    stars: 0,
     topics: ["mobile", "flutter", "firebase"],
   },
   {
@@ -70,7 +63,6 @@ export const FALLBACK_PROJECTS = [
     language: "Jupyter Notebook",
     name: "Bank Churn Classification",
     slug: "bank-churn-imbalanced-classification",
-    stars: 0,
     topics: ["machine-learning", "data-science", "scikit-learn", "imbalanced-classification"],
   },
   {
@@ -79,7 +71,6 @@ export const FALLBACK_PROJECTS = [
     language: "Jupyter Notebook",
     name: "Supervised ML Notebooks",
     slug: "supervised-ml-classification-regression",
-    stars: 0,
     topics: ["machine-learning", "data-science", "scikit-learn"],
   },
   {
@@ -88,7 +79,6 @@ export const FALLBACK_PROJECTS = [
     language: "Jupyter Notebook",
     name: "Superstore Sales Analysis",
     slug: "superstore-sales-data-analysis",
-    stars: 0,
     topics: ["data-science", "data-analysis", "eda", "pandas"],
   },
   {
@@ -97,7 +87,6 @@ export const FALLBACK_PROJECTS = [
     language: "Jupyter Notebook",
     name: "RFF Wine Quality Classifier",
     slug: "rff-wine-quality-classifier",
-    stars: 0,
     topics: ["machine-learning", "pytorch", "kernel-methods"],
   },
   {
@@ -106,7 +95,6 @@ export const FALLBACK_PROJECTS = [
     language: "Jupyter Notebook",
     name: "Airport Luggage Robots",
     slug: "airport-luggage-robot-planning",
-    stars: 0,
     topics: ["reinforcement-learning", "q-learning", "machine-learning"],
   },
   {
@@ -115,7 +103,6 @@ export const FALLBACK_PROJECTS = [
     language: "C#",
     name: "Lost in the Woods",
     slug: "lost-in-the-woods-unity-platformer",
-    stars: 0,
     topics: ["unity", "game-development", "csharp"],
   },
   {
@@ -124,7 +111,6 @@ export const FALLBACK_PROJECTS = [
     language: "Python",
     name: "Connect Six AI",
     slug: "connect-six-ai-game",
-    stars: 0,
     topics: ["game-ai", "pygame", "minimax"],
   },
   {
@@ -133,7 +119,6 @@ export const FALLBACK_PROJECTS = [
     language: "C++",
     name: "Game-Tree Board Game",
     slug: "game-tree-alpha-beta-board-game",
-    stars: 0,
     topics: ["game-ai", "cpp", "minimax"],
   },
   {
@@ -142,7 +127,6 @@ export const FALLBACK_PROJECTS = [
     language: "Java",
     name: "Socket Clothing Store",
     slug: "java-socket-clothing-store-system",
-    stars: 0,
     topics: ["distributed-systems", "sockets", "java"],
   },
   {
@@ -151,7 +135,6 @@ export const FALLBACK_PROJECTS = [
     language: "Java",
     name: "RMI Event Notifications",
     slug: "java-rmi-event-notification-system",
-    stars: 0,
     topics: ["distributed-systems", "java-rmi", "pub-sub"],
   },
 ] as const satisfies readonly ProjectFallbackRecord[];

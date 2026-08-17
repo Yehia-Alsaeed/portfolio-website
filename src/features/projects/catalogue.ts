@@ -91,7 +91,6 @@ export function buildCatalogue(liveRepos: readonly GithubRepo[] | null): readonl
         name: display?.name ?? record.name,
         repoUrl: `https://github.com/${GITHUB_OWNER}/${record.slug}`,
         slug: record.slug,
-        stars: live?.stars ?? record.stars,
         topics,
         ...(liveUrl ? { liveUrl } : {}),
         ...(live?.updatedAt ? { updatedAt: live.updatedAt } : {}),

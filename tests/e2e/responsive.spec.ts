@@ -51,11 +51,31 @@ for (const viewport of VIEWPORTS) {
 
       const escapees = await page.evaluate(() => {
         const viewportWidth = document.documentElement.clientWidth;
+
+        // Content inside a deliberate horizontal scroller - the projects
+        // category rail - is supposed to sit past the viewport edge; reaching
+        // it is what the scrolling is for. That is not the leak this guards
+        // against, and it cannot widen the page, which the document-level
+        // assertion above already proves.
+        function insideHorizontalScroller(element: Element): boolean {
+          for (let node = element.parentElement; node; node = node.parentElement) {
+            const overflowX = getComputedStyle(node).overflowX;
+            if (
+              (overflowX === "auto" || overflowX === "scroll") &&
+              node.scrollWidth > node.clientWidth
+            ) {
+              return true;
+            }
+          }
+          return false;
+        }
+
         return Array.from(document.body.querySelectorAll("*"))
           .filter((element) => {
             const rect = element.getBoundingClientRect();
             if (rect.width === 0 || rect.height === 0) return false;
-            return rect.left < -1 || rect.right > viewportWidth + 1;
+            if (rect.left >= -1 && rect.right <= viewportWidth + 1) return false;
+            return !insideHorizontalScroller(element);
           })
           .map((element) => `${element.tagName}.${element.className}`)
           .slice(0, 5);

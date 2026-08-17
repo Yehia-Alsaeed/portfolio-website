@@ -282,6 +282,21 @@
   padding-right: 2.25rem;
 }
 
+/*
+ * The category filter rail scrolls sideways below 1280px. Its scrollbar is
+ * hidden because the gradient masks at either end already carry the signal,
+ * and a native bar sitting under the chips fights the flat rules everywhere
+ * else on the page. Chips stay tab-reachable, so the rail is still traversable
+ * without a horizontal scroll gesture.
+ */
+.filter-rail {
+  scrollbar-width: none;
+}
+
+.filter-rail::-webkit-scrollbar {
+  display: none;
+}
+
 @media (max-width: 639px) {
   .site-frame {
     width: calc(100% - 24px);

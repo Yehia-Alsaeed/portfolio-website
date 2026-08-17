@@ -100,7 +100,6 @@ describe("Phase 4 project catalogue data", () => {
         description: "",
         language: "Python",
         slug: "skillbridge-ai-interviewer",
-        stars: 0,
         topics: ["computer-vision", "fastapi", "llm", "machine-learning", "speech-processing"],
         updatedAt: "2026-01-01T00:00:00Z",
       },
@@ -108,7 +107,6 @@ describe("Phase 4 project catalogue data", () => {
         description: "",
         language: "JavaScript",
         slug: "prestige-motors-showroom",
-        stars: 0,
         topics: ["car-showroom", "cloudinary", "express", "mern", "mongodb", "react"],
         updatedAt: "2026-01-01T00:00:00Z",
       },
@@ -116,7 +114,6 @@ describe("Phase 4 project catalogue data", () => {
         description: "",
         language: "Dart",
         slug: "trip-mate-travel-planner-app",
-        stars: 0,
         topics: ["android", "firebase", "flutter", "mobile-app", "trip-planner"],
         updatedAt: "2026-01-01T00:00:00Z",
       },
@@ -124,7 +121,6 @@ describe("Phase 4 project catalogue data", () => {
         description: "",
         language: "C++",
         slug: "game-tree-alpha-beta-board-game",
-        stars: 0,
         topics: ["algorithms", "artificial-intelligence", "board-game", "game-tree", "minimax"],
         updatedAt: "2026-01-01T00:00:00Z",
       },
@@ -159,7 +155,6 @@ describe("Phase 4 project catalogue data", () => {
           homepage: "",
           language: "Python",
           name: "skillbridge-ai-interviewer",
-          stargazers_count: 42,
           topics: ["llm", "multimodal"],
           updated_at: "2026-07-20T00:00:00Z",
         },
@@ -174,7 +169,6 @@ describe("Phase 4 project catalogue data", () => {
 
     const skillbridge = catalogue.find((project) => project.slug === "skillbridge-ai-interviewer");
     expect(skillbridge?.description).toBe("Live description from GitHub");
-    expect(skillbridge?.stars).toBe(42);
     expect(skillbridge?.updatedAt).toBe("2026-07-20T00:00:00Z");
   });
 

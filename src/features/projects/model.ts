@@ -33,7 +33,6 @@ export type ProjectFallbackRecord = {
   description: string;
   topics: readonly string[];
   language: string;
-  stars: number;
 };
 
 export type Project = {
@@ -43,7 +42,6 @@ export type Project = {
   category: CategorySlug;
   topics: readonly string[];
   language: string;
-  stars: number;
   repoUrl: `https://github.com/${string}`;
   liveUrl?: string;
   updatedAt?: string;

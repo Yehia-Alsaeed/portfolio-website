@@ -11,18 +11,8 @@ const actionClassName =
   "inline-flex min-h-11 items-center gap-1 font-bold no-underline hover:underline focus-visible:underline";
 
 export function ProjectCard({ project }: ProjectCardProps) {
-  const {
-    category,
-    description,
-    isFlagship,
-    language,
-    liveUrl,
-    name,
-    repoUrl,
-    slug,
-    stars,
-    topics,
-  } = project;
+  const { category, description, isFlagship, language, liveUrl, name, repoUrl, slug, topics } =
+    project;
 
   return (
     <article className="border-line flex flex-col gap-4 border p-5" data-category={category}>
@@ -46,64 +36,62 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </p>
       ) : null}
 
-      <div className="border-line flex flex-wrap items-center justify-between gap-3 border-t pt-4 font-mono text-[0.6875rem] tracking-[0.08em] uppercase">
-        <span aria-label={`${stars} GitHub stars`} className="text-dim">
-          ★ {stars}
-        </span>
-        <div className="flex flex-wrap items-center gap-4">
-          {isFlagship ? (
-            <Link
-              aria-label={`Read the ${name} case study`}
-              className={`${actionClassName} text-accent-text`}
-              href={`/projects/${slug}`}
-            >
-              Case study →
-            </Link>
-          ) : isProjectSlug(slug) ? (
-            <TrackedAnchor
-              aria-label={`View ${name} on GitHub`}
-              className={actionClassName}
-              href={repoUrl}
-              rel="noopener noreferrer"
-              target="_blank"
-              tracking={{ type: "project_click", projectSlug: slug, destination: "github" }}
-            >
-              GitHub <ExternalLink aria-hidden="true" className="size-3" />
-            </TrackedAnchor>
-          ) : (
-            <a
-              aria-label={`View ${name} on GitHub`}
-              className={actionClassName}
-              href={repoUrl}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              GitHub <ExternalLink aria-hidden="true" className="size-3" />
-            </a>
-          )}
-          {liveUrl && isProjectSlug(slug) ? (
-            <TrackedAnchor
-              aria-label={`Open the ${name} live site`}
-              className={actionClassName}
-              href={liveUrl}
-              rel="noopener noreferrer"
-              target="_blank"
-              tracking={{ type: "project_click", projectSlug: slug, destination: "live-demo" }}
-            >
-              Live <ExternalLink aria-hidden="true" className="size-3" />
-            </TrackedAnchor>
-          ) : liveUrl ? (
-            <a
-              aria-label={`Open the ${name} live site`}
-              className={actionClassName}
-              href={liveUrl}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Live <ExternalLink aria-hidden="true" className="size-3" />
-            </a>
-          ) : null}
-        </div>
+      {/* The star count used to sit opposite these links, which is what the
+          `justify-between` was for; with it gone the actions read from the
+          left like the rest of the card. */}
+      <div className="border-line flex flex-wrap items-center gap-4 border-t pt-4 font-mono text-[0.6875rem] tracking-[0.08em] uppercase">
+        {isFlagship ? (
+          <Link
+            aria-label={`Read the ${name} case study`}
+            className={`${actionClassName} text-accent-text`}
+            href={`/projects/${slug}`}
+          >
+            Case study →
+          </Link>
+        ) : isProjectSlug(slug) ? (
+          <TrackedAnchor
+            aria-label={`View ${name} on GitHub`}
+            className={actionClassName}
+            href={repoUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+            tracking={{ type: "project_click", projectSlug: slug, destination: "github" }}
+          >
+            GitHub <ExternalLink aria-hidden="true" className="size-3" />
+          </TrackedAnchor>
+        ) : (
+          <a
+            aria-label={`View ${name} on GitHub`}
+            className={actionClassName}
+            href={repoUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            GitHub <ExternalLink aria-hidden="true" className="size-3" />
+          </a>
+        )}
+        {liveUrl && isProjectSlug(slug) ? (
+          <TrackedAnchor
+            aria-label={`Open the ${name} live site`}
+            className={actionClassName}
+            href={liveUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+            tracking={{ type: "project_click", projectSlug: slug, destination: "live-demo" }}
+          >
+            Live <ExternalLink aria-hidden="true" className="size-3" />
+          </TrackedAnchor>
+        ) : liveUrl ? (
+          <a
+            aria-label={`Open the ${name} live site`}
+            className={actionClassName}
+            href={liveUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Live <ExternalLink aria-hidden="true" className="size-3" />
+          </a>
+        ) : null}
       </div>
     </article>
   );
