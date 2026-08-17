@@ -94,7 +94,7 @@ const TRACK_EVENT_SHAPES: readonly Record<string, unknown>[] = [
     destination: "github",
     screen: "large",
   },
-  { type: "cv_download", path: "/", placement: "footer", screen: "large" },
+  { type: "cv_download", path: "/", placement: "command-palette", screen: "large" },
   { type: "outbound_click", path: "/", destination: "github-profile", screen: "large" },
 ];
 

@@ -194,6 +194,41 @@
 }
 
 /*
+ * Mobile menu links, dealt in one at a time. Scoped to `[data-state="open"]`
+ * on purpose: Radix waits for a running animation before unmounting, so an
+ * unscoped rule here would still be matching on close and strand the panel
+ * on screen. With no closed-state animation it tears down immediately.
+ *
+ * `--i` is the link's index, set inline in mobile-nav.tsx. The global
+ * reduced-motion block below collapses `animation-duration`, and `both` keeps
+ * the finished frame applied, so the links stay visible either way.
+ */
+[data-state="open"] .mobile-nav-item {
+  animation: mobile-nav-item 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i) * 55ms);
+}
+
+@keyframes mobile-nav-item {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The global reduce block collapses duration but not delay, which would still
+   hold the last link blank for ~165ms. */
+@media (prefers-reduced-motion: reduce) {
+  [data-state="open"] .mobile-nav-item {
+    animation-delay: 0ms;
+  }
+}
+
+/*
  * WebKit's native mobile `<select>` rendering discards the authored `color`
  * and `background-color` outright. Probed on the same page and stylesheet:
  * desktop WebKit resolved them correctly (#f1efe9 on #111114), while WebKit

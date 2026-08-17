@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { expectPrimaryNavAvailable } from "./primary-nav";
+
 const VIEWPORTS = [
   { height: 800, name: "mobile-360", width: 360 },
   { height: 844, name: "mobile-390", width: 390 },
@@ -62,7 +64,7 @@ for (const viewport of VIEWPORTS) {
 
       await expect(page.getByRole("link", { name: "Yehia Alsaeed home" })).toBeVisible();
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-      await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
+      await expectPrimaryNavAvailable(page);
       await expect(page.getByRole("contentinfo")).toBeVisible();
 
       if (route === "/") {

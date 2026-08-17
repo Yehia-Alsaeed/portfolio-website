@@ -21,13 +21,19 @@ export function MonogramHero() {
         </span>
         <span className="sr-only">{PROFILE.name}</span>
       </h1>
+      {/* Two items on phones (Display is hidden below 768px, see below) and
+          three from 768px up, so the row is full at both sizes and never
+          leaves a stray item on a line of its own. */}
       <MetadataRow
         ariaLabel="Profile summary"
+        columnsClassName="grid-cols-2 md:grid-cols-3"
         items={[
           { label: "Role", value: PROFILE.role },
           { label: "Base", value: PROFILE.location },
-          { label: "Status", value: PROFILE.status },
-          { label: "Display", value: <ModeSwitcher /> },
+          // Below 768px the switcher lives in the mobile menu panel instead
+          // (mobile-nav.tsx), which reaches every route rather than just this
+          // page. Hidden rather than duplicated so only one ever renders.
+          { className: "max-md:hidden", label: "Display", value: <ModeSwitcher /> },
         ]}
       />
     </section>

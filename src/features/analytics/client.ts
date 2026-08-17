@@ -5,7 +5,10 @@ export const ANALYTICS_EXCLUSION_KEY = "ya.analytics.excluded";
 
 export type ClickTrackingIntent =
   | { type: "project_click"; projectSlug: ProjectSlug; destination: "github" | "live-demo" }
-  | { type: "cv_download"; placement: "footer" | "command-palette" }
+  // The footer link was removed, so the palette is the only thing that can
+  // emit this. Historical rows in the database still carry placement "footer";
+  // metadata is free-form there, so reading them is unaffected.
+  | { type: "cv_download"; placement: "command-palette" }
   | { type: "outbound_click"; destination: "github-profile" | "linkedin" | ClientWorkSlug };
 
 export type ClientTrackEvent =

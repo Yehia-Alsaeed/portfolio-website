@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { archivoWide } from "@/app/fonts";
+import { MobileNav } from "@/components/layout/mobile-nav";
 import { CommandPalette } from "@/features/command-palette/command-palette";
 
 const NAVIGATION_LINKS = [
@@ -20,8 +21,10 @@ export function SiteHeader() {
       >
         YA<span className="text-accent-text">.</span>
       </Link>
-      <div className="flex flex-wrap items-center gap-x-4 max-[767px]:w-full max-[767px]:justify-between">
-        <nav aria-label="Primary">
+      <div className="flex flex-wrap items-center gap-x-4">
+        {/* Below 768px this collapses into <MobileNav />; the tablet and
+            desktop nav is unchanged. */}
+        <nav aria-label="Primary" className="max-md:hidden">
           <ul className="flex list-none flex-wrap items-center gap-x-4 p-0">
             {NAVIGATION_LINKS.map((link) => (
               <li key={link.href}>
@@ -36,6 +39,7 @@ export function SiteHeader() {
           </ul>
         </nav>
         <CommandPalette />
+        <MobileNav links={NAVIGATION_LINKS} />
       </div>
     </header>
   );

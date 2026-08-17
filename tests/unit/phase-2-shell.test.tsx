@@ -51,7 +51,7 @@ describe("SiteShell", () => {
     );
   });
 
-  it("keeps the approved email and tracked CV link in the footer", () => {
+  it("keeps the approved email and profile links in the footer", () => {
     renderShell();
 
     const footer = screen.getByRole("contentinfo");
@@ -67,9 +67,9 @@ describe("SiteShell", () => {
       "href",
       "https://www.linkedin.com/in/yehia-alsaeed",
     );
-    const cvLink = within(footer).getByRole("link", { name: "Download CV" });
-    expect(cvLink).toHaveAttribute("href", "/cv/Yehia_Alsaeed_CV_AI.pdf");
-    expect(cvLink).toHaveAttribute("download");
+    // The CV download lives only in the command palette now; the footer link
+    // was removed. Its download path is covered by cv-download.spec.ts.
+    expect(within(footer).queryByRole("link", { name: "Download CV" })).toBeNull();
     expect(within(footer).getByText("2026 - Yehia Alsaeed")).toBeVisible();
   });
 

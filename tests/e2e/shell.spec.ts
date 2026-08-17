@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { expectPrimaryNavAvailable, openPrimaryNav } from "./primary-nav";
+
 const ROUTES = [
   { heading: "Yehia Alsaeed", path: "/" },
   { heading: "Projects", path: "/projects" },
@@ -39,7 +41,7 @@ for (const route of ROUTES) {
     await expect(page.getByRole("heading", { level: 1, name: route.heading })).toBeVisible();
     expect(await page.locator("h1").count()).toBe(1);
     await expect(page.getByRole("banner")).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
+    await expectPrimaryNavAvailable(page);
     await expect(page.locator("main#main-content")).toBeVisible();
     await expect(page.getByRole("contentinfo")).toBeVisible();
     await expect(page.getByRole("link", { name: "Yehia Alsaeed home" })).toBeVisible();
@@ -79,36 +81,26 @@ test("skip link is the first tab stop and moves focus to main content", async ({
 test("primary navigation reaches every route frame", async ({ page }) => {
   await page.goto("/");
 
-  await page
-    .getByRole("navigation", { name: "Primary" })
-    .getByRole("link", { name: "Projects" })
-    .click();
+  // Reopened before each hop: on mobile the panel closes itself as the route
+  // changes, so every leg of this walk starts from a shut menu.
+  await (await openPrimaryNav(page)).getByRole("link", { name: "Projects" }).click();
   await expect(page).toHaveURL(/\/projects$/);
   await expect(page.getByRole("heading", { level: 1, name: "Projects" })).toBeVisible();
 
-  await page
-    .getByRole("navigation", { name: "Primary" })
-    .getByRole("link", { name: "Services" })
-    .click();
+  await (await openPrimaryNav(page)).getByRole("link", { name: "Services" }).click();
   await expect(page).toHaveURL(/\/services$/);
   await expect(
     page.getByRole("heading", { level: 1, name: "I build stores & software that ship." }),
   ).toBeVisible();
 
-  await page
-    .getByRole("navigation", { name: "Primary" })
-    .getByRole("link", { name: "Contact" })
-    .click();
+  await (await openPrimaryNav(page)).getByRole("link", { name: "Contact" }).click();
   await expect(page).toHaveURL(/\/#contact$/);
   // Checks the contact section itself, not the footer below it: on a short
   // mobile viewport the contact form alone is taller than the viewport, so
   // the footer legitimately scrolls out of view even on a correct jump.
   await expect(page.getByRole("heading", { level: 2, name: "Contact" })).toBeInViewport();
 
-  await page
-    .getByRole("navigation", { name: "Primary" })
-    .getByRole("link", { name: "Home" })
-    .click();
+  await (await openPrimaryNav(page)).getByRole("link", { name: "Home" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Yehia Alsaeed" })).toBeVisible();
 });
 
@@ -122,9 +114,13 @@ test("a second nav click is not overridden by the previous one's transition", as
   // the fallback window sent the visitor back to the first destination via a
   // full page load. Clicking straight through without waiting is the case
   // that reproduced it.
-  const nav = page.getByRole("navigation", { name: "Primary" });
-  await nav.getByRole("link", { name: "Services" }).click();
-  await nav.getByRole("link", { name: "Contact" }).click();
+  // On desktop these are two back-to-back clicks on the same inline nav, which
+  // is the sequence that reproduced the regression. On mobile the menu has to
+  // be reopened in between - the panel closes with the route change - so the
+  // mobile run checks that consecutive nav taps land on the right page rather
+  // than the tight fallback-window race itself.
+  await (await openPrimaryNav(page)).getByRole("link", { name: "Services" }).click();
+  await (await openPrimaryNav(page)).getByRole("link", { name: "Contact" }).click();
 
   await expect(page).toHaveURL(/\/#contact$/);
   await expect(page.getByRole("heading", { level: 2, name: "Contact" })).toBeVisible();

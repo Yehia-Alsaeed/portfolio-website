@@ -29,11 +29,17 @@ test("serves the CV as a real PDF, not an HTML fallback", async ({ request }) =>
   }
 });
 
-test("downloads the CV with the expected filename from the footer link", async ({ page }) => {
+// The footer link was removed, so the command palette is the only way to reach
+// this. Opened by clicking the trigger rather than Ctrl+K so the check still
+// runs on the touch profiles, where there is no keyboard shortcut to press.
+test("downloads the CV with the expected filename from the command palette", async ({ page }) => {
   await page.goto("/");
 
+  await page.getByRole("button", { name: "Open command palette" }).click();
+  await page.getByRole("combobox", { name: "Search commands" }).fill("download cv");
+
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("contentinfo").getByRole("link", { name: "Download CV" }).click();
+  await page.getByRole("option", { name: "Download CV" }).click();
   const download = await downloadPromise;
 
   expect(download.suggestedFilename()).toBe(CV_FILENAME);

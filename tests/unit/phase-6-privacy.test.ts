@@ -137,7 +137,7 @@ describe("Phase 6 closed event validation", () => {
       parseTrackPayload({
         type: "cv_download",
         path: "/",
-        placement: "footer",
+        placement: "command-palette",
         screen: 1024,
       }),
     ).toBeUndefined();
@@ -148,7 +148,7 @@ describe("Phase 6 closed event validation", () => {
       parseTrackPayload({
         type: "cv_download",
         path: "/?x=1",
-        placement: "footer",
+        placement: "command-palette",
         screen: "large",
       }),
     ).toBeUndefined();

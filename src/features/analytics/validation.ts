@@ -31,7 +31,7 @@ export type TrackEventInput =
   | {
       type: "cv_download";
       path: string;
-      placement: "footer" | "command-palette";
+      placement: "command-palette";
       screen: ScreenClass;
     }
   | {
@@ -118,11 +118,7 @@ export function parseTrackPayload(value: unknown): TrackEventInput | undefined {
     const path = normalizePath(record.path);
     const { placement, screen } = record;
 
-    if (
-      !path ||
-      (placement !== "footer" && placement !== "command-palette") ||
-      !isScreenClass(screen)
-    ) {
+    if (!path || placement !== "command-palette" || !isScreenClass(screen)) {
       return undefined;
     }
 

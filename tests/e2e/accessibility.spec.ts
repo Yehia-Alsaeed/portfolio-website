@@ -1,4 +1,5 @@
 import { expect, test } from "./fixtures";
+import { openPrimaryNav, usesMobileNav } from "./primary-nav";
 
 const ROUTES = [
   "/",
@@ -63,13 +64,19 @@ test("honors reduced motion while staying fully usable", async ({ page }) => {
     expect(milliseconds).toBeLessThanOrEqual(10);
   }
 
-  await page.getByRole("button", { name: "Night display mode" }).click();
+  // Below 768px the only display switcher is inside the mobile menu, so reach
+  // it the way a phone visitor would rather than from the hero.
+  if (usesMobileNav(page)) {
+    await openPrimaryNav(page);
+    await page.getByRole("button", { name: "Night display mode" }).click();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  } else {
+    await page.getByRole("button", { name: "Night display mode" }).click();
+  }
   await expect(page.locator("html")).toHaveAttribute("data-mode", "night");
 
-  await page
-    .getByRole("navigation", { name: "Primary" })
-    .getByRole("link", { name: "Projects" })
-    .click();
+  await (await openPrimaryNav(page)).getByRole("link", { name: "Projects" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Projects" })).toBeVisible();
 });
 

@@ -100,10 +100,6 @@ test("renders experience, services, contact, and a truthful invalid form state",
   await expect(page.getByLabel("Name", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Email", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Message", { exact: true })).toBeVisible();
-  await expect(
-    page.getByRole("contentinfo").getByRole("link", { name: "Download CV" }),
-  ).toBeVisible();
-
   await page.getByRole("button", { name: "Send message" }).click();
   const alert = page.getByRole("alert").filter({ hasText: "Complete every field" });
   await expect(alert).toContainText("Complete every field");
