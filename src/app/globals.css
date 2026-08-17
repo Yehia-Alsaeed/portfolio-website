@@ -229,6 +229,32 @@
 }
 
 /*
+ * The panel holds still for the first 60% so the close button's X can finish
+ * morphing back into bars against a solid surface, then lifts away. The
+ * timings mirror ICON_MORPH_MS and PANEL_EXIT_MS in mobile-nav.tsx, which
+ * drives the unmount; reduced motion skips the wait there entirely.
+ *
+ * The overlay beneath is transparent, so fading this reveals the page rather
+ * than a second flat surface.
+ */
+.mobile-nav-panel[data-closing="true"] {
+  animation: mobile-nav-panel-out 420ms cubic-bezier(0.76, 0, 0.24, 1) both;
+}
+
+@keyframes mobile-nav-panel-out {
+  0%,
+  60% {
+    opacity: 1;
+    transform: none;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/*
  * WebKit's native mobile `<select>` rendering discards the authored `color`
  * and `background-color` outright. Probed on the same page and stylesheet:
  * desktop WebKit resolved them correctly (#f1efe9 on #111114), while WebKit

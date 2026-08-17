@@ -8,7 +8,12 @@ import { CommandPaletteTrigger } from "./command-palette-trigger";
 
 const CommandPalettePanel = React.lazy(() => import("./command-palette-panel"));
 
-export function CommandPalette() {
+/**
+ * `withShortcut` exists so a second instance can be rendered inside the mobile
+ * menu panel without two Ctrl+K listeners racing to open both palettes at once
+ * (the header's instance stays mounted and inert behind the open panel).
+ */
+export function CommandPalette({ withShortcut = true }: { withShortcut?: boolean }) {
   const [open, setOpen] = React.useState(false);
   const [hasOpened, setHasOpened] = React.useState(false);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
@@ -20,6 +25,9 @@ export function CommandPalette() {
   }, []);
 
   React.useEffect(() => {
+    if (!withShortcut) {
+      return;
+    }
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key.toLowerCase() !== "k" || (!event.ctrlKey && !event.metaKey)) {
         return;
@@ -34,7 +42,7 @@ export function CommandPalette() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [openPalette]);
+  }, [openPalette, withShortcut]);
 
   return (
     <>
