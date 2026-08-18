@@ -14,14 +14,17 @@ export function isFlagshipSlug(slug: string): slug is FlagshipSlug {
   return (FLAGSHIP_SLUGS as readonly string[]).includes(slug);
 }
 
-/** Curated display order matching the approved mockups/demo/projects.html grid. */
+/**
+ * Tiebreaker order within each flagship tier - the catalogue sorts the five
+ * flagships ahead of everything else first, then falls back to this list.
+ */
 export const PROJECT_ORDER = [
   "skillbridge-ai-interviewer",
   "llama-qlora-education-qa",
   "ai-study-planner-agents",
   "oxford-pet-binary-segmentation",
-  "yolov8-handwritten-digit-detector",
   "prestige-motors-showroom",
+  "yolov8-handwritten-digit-detector",
   "trip-mate-travel-planner-app",
   "bank-churn-imbalanced-classification",
   "supervised-ml-classification-regression",
@@ -41,21 +44,13 @@ export const LIVE_URLS: Readonly<Record<string, string>> = {
 };
 
 /**
- * Manual category corrections keyed by repository slug, applied before topic
- * mapping. skillbridge-ai-interviewer carries both `computer-vision` and
- * `llm` topics on GitHub (real repo, not the curated fallback); topic mapping
- * picks whichever comes first alphabetically, which resolved to Computer
- * Vision instead of the intended LLM category once live GitHub data was
- * verified against the deployed preview. Forced here to match the approved
- * case-study framing.
+ * Manual category pins, applied before topic mapping. This existed because
+ * live GitHub topics used to drive categorisation and skillbridge carries both
+ * `computer-vision` and `llm` upstream, which resolved to the wrong category.
+ * Categorisation now runs off the reviewed topics in fallback.ts, so this pin
+ * agrees with the topic map rather than correcting it - it stays as an
+ * explicit statement of intent for a project that legitimately spans both.
  */
 export const CATEGORY_OVERRIDES: Readonly<Record<string, ProjectCategorySlug>> = {
   "skillbridge-ai-interviewer": "llm",
 };
-
-/** Manual display-copy corrections keyed by repository slug. Empty today. */
-export const DISPLAY_OVERRIDES: Readonly<Record<string, { name?: string; description?: string }>> =
-  {};
-
-/** Repository slugs excluded from the catalogue regardless of GitHub state. */
-export const HIDDEN_SLUGS: readonly string[] = [];

@@ -17,11 +17,13 @@ test("serves the complete catalogue with the expected action links", async ({ pa
   expect(canonical).not.toBeNull();
   expect(new URL(canonical ?? "http://invalid").pathname).toBe("/projects");
 
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("17");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("All projects");
   await expect(page.locator("article")).toHaveCount(17);
   await expect(page.getByText("★ Flagship")).toHaveCount(5);
   await expect(page.locator('a[href^="/projects/"]')).toHaveCount(5);
-  await expect(page.locator('a[href^="https://github.com/Yehia-Alsaeed/"]')).toHaveCount(12);
+  // Every card links to its repository now, flagships included - they used to
+  // offer only the case study, leaving the strongest five with no route to code.
+  await expect(page.locator('a[href^="https://github.com/Yehia-Alsaeed/"]')).toHaveCount(17);
 
   for (const slug of FLAGSHIP_SLUGS) {
     await expect(page.locator(`a[href="/projects/${slug}"]`)).toHaveCount(1);
@@ -120,6 +122,6 @@ test.describe("without JavaScript", () => {
     expect(response?.status()).toBe(200);
     await expect(page.locator("article")).toHaveCount(17);
     await expect(page.locator('a[href^="/projects/"]')).toHaveCount(5);
-    await expect(page.locator('a[href^="https://github.com/Yehia-Alsaeed/"]')).toHaveCount(12);
+    await expect(page.locator('a[href^="https://github.com/Yehia-Alsaeed/"]')).toHaveCount(17);
   });
 });

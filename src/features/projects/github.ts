@@ -3,22 +3,19 @@ import { GITHUB_OWNER } from "@/features/projects/model";
 const GITHUB_API_URL = `https://api.github.com/users/${GITHUB_OWNER}/repos?type=owner&sort=updated&per_page=100`;
 const REQUEST_TIMEOUT_MS = 8000;
 
+/**
+ * Deliberately narrow. The catalogue takes its display copy from the reviewed
+ * records in fallback.ts, so GitHub's description, topics and Linguist-detected
+ * language are no longer read - only the freshness signal is.
+ */
 export type GithubRepo = {
   slug: string;
-  description: string;
-  topics: readonly string[];
-  language: string;
   updatedAt: string;
-  homepageUrl?: string;
 };
 
 type RawGithubRepo = {
   name: unknown;
-  description: unknown;
-  topics: unknown;
-  language: unknown;
   updated_at: unknown;
-  homepage: unknown;
   fork: unknown;
   archived: unknown;
 };
@@ -34,18 +31,9 @@ function isRawGithubRepo(value: unknown): value is RawGithubRepo {
 }
 
 function normalizeRepo(raw: RawGithubRepo): GithubRepo {
-  const homepage = typeof raw.homepage === "string" ? raw.homepage.trim() : "";
-  const topics = Array.isArray(raw.topics)
-    ? raw.topics.filter((topic): topic is string => typeof topic === "string")
-    : [];
-
   return {
-    description: typeof raw.description === "string" ? raw.description : "",
-    language: typeof raw.language === "string" ? raw.language : "",
     slug: raw.name as string,
-    topics,
     updatedAt: typeof raw.updated_at === "string" ? raw.updated_at : "",
-    ...(homepage.length > 0 ? { homepageUrl: homepage } : {}),
   };
 }
 

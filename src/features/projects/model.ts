@@ -27,12 +27,29 @@ export function getCategoryLabel(slug: CategorySlug): string {
   );
 }
 
+/**
+ * The single headline fact a card leads with. `value` is a measured figure
+ * wherever the repository publishes one, and a concrete capability where it
+ * does not - never an invented number. Every figure used is traceable to
+ * either docs/content/phase-4-claim-ledger.md (the five case studies) or the
+ * repository's own README results table.
+ */
+export type ProjectOutcome = { value: string; label: string };
+
 export type ProjectFallbackRecord = {
   slug: string;
   name: string;
   description: string;
+  /**
+   * Lowercase GitHub-style tokens, used *only* to resolve the category via
+   * TOPIC_CATEGORY_MAP. These are never rendered - `stack` is what the card
+   * shows - so they stay in the vocabulary the category map understands.
+   */
   topics: readonly string[];
+  /** Display technologies, properly cased. Kept to four so cards stay compact. */
+  stack: readonly string[];
   language: string;
+  outcome: ProjectOutcome;
 };
 
 export type Project = {
@@ -41,7 +58,9 @@ export type Project = {
   description: string;
   category: CategorySlug;
   topics: readonly string[];
+  stack: readonly string[];
   language: string;
+  outcome: ProjectOutcome;
   repoUrl: `https://github.com/${string}`;
   liveUrl?: string;
   updatedAt?: string;

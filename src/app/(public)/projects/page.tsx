@@ -9,22 +9,20 @@ export const metadata: Metadata = {
   alternates: { canonical: "/projects" },
   title: "Projects | Yehia Alsaeed",
   description:
-    "All 17 GitHub projects by Yehia Alsaeed across AI, machine learning, and full-stack systems, filterable by category.",
+    "All projects by Yehia Alsaeed across AI, machine learning, and full-stack systems, with the measured result of each project and filters by category.",
 };
 
 export default async function ProjectsPage() {
   const projects = await getProjectCatalogue();
 
-  const count = `${projects.length}`;
-
   return (
     <>
-      <PageTitle
-        accent={count}
-        subtitle="Auto-synced from github.com/Yehia-Alsaeed · categorized by topic · flagships link to case studies"
-        title={`All ${count} projects`}
-      />
-      <RuledSection meta={`${count} total`} title="Project index">
+      {/* The five flagships sort to the front of the grid, so the strongest
+          work leads even though the heading counts everything. The old
+          subtitle described the build pipeline ("auto-synced from
+          github.com...") and told a reader nothing, so it is gone. */}
+      <PageTitle accent="All" title="All projects" />
+      <RuledSection meta={`${projects.length} total`} title="Project index">
         <ProjectFilters projects={projects} />
       </RuledSection>
     </>

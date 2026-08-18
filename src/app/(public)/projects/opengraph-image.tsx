@@ -8,10 +8,10 @@ export const alt = "Projects | Yehia Alsaeed";
 export default async function Image() {
   const projects = await getProjectCatalogue();
 
+  // Mirrors the page heading.
   return renderOgImage({
     eyebrow: "Projects",
-    subtitle:
-      "All GitHub projects by Yehia Alsaeed across AI, machine learning, and full-stack systems, filterable by category.",
-    title: `All ${projects.length} projects`,
+    subtitle: `${projects.length} projects across AI, machine learning, and full-stack systems, each with its measured result.`,
+    title: "All projects",
   });
 }

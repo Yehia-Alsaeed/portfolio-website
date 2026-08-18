@@ -40,7 +40,7 @@ test("navigates with arrow keys and Enter", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   await expect(page).toHaveURL(/\/projects$/);
-  await expect(page.getByRole("heading", { level: 1, name: "Projects" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "All projects" })).toBeVisible();
 });
 
 test("closes with Escape and restores focus to the trigger", async ({ page }) => {

@@ -77,7 +77,7 @@ test("honors reduced motion while staying fully usable", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("data-mode", "night");
 
   await (await openPrimaryNav(page)).getByRole("link", { name: "Projects" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Projects" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "All projects" })).toBeVisible();
 });
 
 test("has no WCAG A or AA violations in the contact form's invalid state", async ({

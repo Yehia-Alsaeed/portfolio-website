@@ -90,61 +90,52 @@ describe("Phase 4 project catalogue data", () => {
     expect(counts.get("dist")).toBe(2);
   });
 
-  it("keeps approved categories stable against real (not curated) live GitHub topics", () => {
-    // Regression: verified against the deployed preview with a real GITHUB_TOKEN.
-    // Real repo topics are more specific/verbose than the curated fallback
-    // topics and don't share its exact vocabulary, so `topics = live ?? fallback`
-    // can silently drift a project's category once live data is merged in.
-    const liveRepos: GithubRepo[] = [
-      {
-        description: "",
-        language: "Python",
-        slug: "skillbridge-ai-interviewer",
-        topics: ["computer-vision", "fastapi", "llm", "machine-learning", "speech-processing"],
-        updatedAt: "2026-01-01T00:00:00Z",
-      },
-      {
-        description: "",
-        language: "JavaScript",
-        slug: "prestige-motors-showroom",
-        topics: ["car-showroom", "cloudinary", "express", "mern", "mongodb", "react"],
-        updatedAt: "2026-01-01T00:00:00Z",
-      },
-      {
-        description: "",
-        language: "Dart",
-        slug: "trip-mate-travel-planner-app",
-        topics: ["android", "firebase", "flutter", "mobile-app", "trip-planner"],
-        updatedAt: "2026-01-01T00:00:00Z",
-      },
-      {
-        description: "",
-        language: "C++",
-        slug: "game-tree-alpha-beta-board-game",
-        topics: ["algorithms", "artificial-intelligence", "board-game", "game-tree", "minimax"],
-        updatedAt: "2026-01-01T00:00:00Z",
-      },
-    ];
-    const catalogue = buildCatalogue(liveRepos);
-    const bySlug = new Map(catalogue.map((project) => [project.slug, project]));
-    expect(bySlug.get("skillbridge-ai-interviewer")?.category).toBe("llm");
-    expect(bySlug.get("prestige-motors-showroom")?.category).toBe("fs");
-    expect(bySlug.get("trip-mate-travel-planner-app")?.category).toBe("fs");
-    expect(bySlug.get("game-tree-alpha-beta-board-game")?.category).toBe("games");
+  it("never lets live GitHub data change a field the card renders", () => {
+    // Regression: the catalogue used to resolve description, topics and
+    // language as `live ?? reviewed`. That replaced measured results with
+    // generic repo blurbs, buried the curated stack under raw topic slugs, and
+    // labelled a Unity C# game "ShaderLab" because Linguist counted the most
+    // bytes there. Live data may now contribute `updatedAt` and nothing else.
+    const liveRepos: GithubRepo[] = FALLBACK_PROJECTS.map((record) => ({
+      slug: record.slug,
+      updatedAt: "2026-01-01T00:00:00Z",
+    }));
 
-    const counts = new Map<string, number>();
-    for (const project of catalogue) {
-      counts.set(project.category, (counts.get(project.category) ?? 0) + 1);
+    const withLive = buildCatalogue(liveRepos);
+    const offline = buildCatalogue(null);
+    const offlineBySlug = new Map(offline.map((project) => [project.slug, project]));
+
+    expect(withLive.map((project) => project.slug)).toEqual(offline.map((project) => project.slug));
+    for (const project of withLive) {
+      const reviewed = offlineBySlug.get(project.slug);
+      expect(project.description).toBe(reviewed?.description);
+      expect(project.language).toBe(reviewed?.language);
+      expect(project.category).toBe(reviewed?.category);
+      expect(project.stack).toEqual(reviewed?.stack);
+      expect(project.outcome).toEqual(reviewed?.outcome);
+      expect(project.updatedAt).toBe("2026-01-01T00:00:00Z");
     }
-    expect(counts.get("llm")).toBe(3);
-    expect(counts.get("cv")).toBe(2);
-    expect(counts.get("ml")).toBe(5);
-    expect(counts.get("fs")).toBe(2);
-    expect(counts.get("games")).toBe(3);
-    expect(counts.get("dist")).toBe(2);
+    expect(offline.every((project) => project.updatedAt === undefined)).toBe(true);
   });
 
-  it("merges live GitHub data over the reviewed fallback for a known repository", async () => {
+  it("sorts the five flagships ahead of everything else", () => {
+    const catalogue = buildCatalogue(null);
+
+    expect(catalogue.filter((project) => project.isFlagship)).toHaveLength(5);
+    expect(catalogue.slice(0, 5).every((project) => project.isFlagship)).toBe(true);
+    expect(catalogue.slice(5).some((project) => project.isFlagship)).toBe(false);
+  });
+
+  it("gives every project a display stack and a headline outcome", () => {
+    for (const project of buildCatalogue(null)) {
+      expect(project.stack.length, `${project.slug} stack`).toBeGreaterThan(0);
+      expect(project.stack.length, `${project.slug} stack`).toBeLessThanOrEqual(4);
+      expect(project.outcome.value.trim(), `${project.slug} outcome value`).not.toBe("");
+      expect(project.outcome.label.trim(), `${project.slug} outcome label`).not.toBe("");
+    }
+  });
+
+  it("keeps the reviewed copy when live GitHub data disagrees", async () => {
     process.env.GITHUB_TOKEN = "test-token";
     const fetchMock = vi.fn().mockResolvedValue({
       json: async () => [
@@ -153,7 +144,7 @@ describe("Phase 4 project catalogue data", () => {
           description: "Live description from GitHub",
           fork: false,
           homepage: "",
-          language: "Python",
+          language: "ShaderLab",
           name: "skillbridge-ai-interviewer",
           topics: ["llm", "multimodal"],
           updated_at: "2026-07-20T00:00:00Z",
@@ -167,8 +158,13 @@ describe("Phase 4 project catalogue data", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(catalogue).toHaveLength(17);
 
+    const reviewed = FALLBACK_PROJECTS.find(
+      (record) => record.slug === "skillbridge-ai-interviewer",
+    );
     const skillbridge = catalogue.find((project) => project.slug === "skillbridge-ai-interviewer");
-    expect(skillbridge?.description).toBe("Live description from GitHub");
+    expect(skillbridge?.description).toBe(reviewed?.description);
+    expect(skillbridge?.language).toBe(reviewed?.language);
+    // Freshness is the one thing GitHub is still trusted for.
     expect(skillbridge?.updatedAt).toBe("2026-07-20T00:00:00Z");
   });
 

@@ -4,7 +4,7 @@ import { expectPrimaryNavAvailable, openPrimaryNav } from "./primary-nav";
 
 const ROUTES = [
   { heading: "Yehia Alsaeed", path: "/" },
-  { heading: "Projects", path: "/projects" },
+  { heading: "All projects", path: "/projects" },
   { heading: "I build stores & software that ship.", path: "/services" },
 ] as const;
 
@@ -85,7 +85,7 @@ test("primary navigation reaches every route frame", async ({ page }) => {
   // changes, so every leg of this walk starts from a shut menu.
   await (await openPrimaryNav(page)).getByRole("link", { name: "Projects" }).click();
   await expect(page).toHaveURL(/\/projects$/);
-  await expect(page.getByRole("heading", { level: 1, name: "Projects" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "All projects" })).toBeVisible();
 
   await (await openPrimaryNav(page)).getByRole("link", { name: "Services" }).click();
   await expect(page).toHaveURL(/\/services$/);

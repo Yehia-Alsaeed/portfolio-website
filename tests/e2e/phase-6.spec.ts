@@ -90,7 +90,7 @@ test.describe("Phase 6 non-blocking analytics", () => {
 
     await page.goto("/");
     await page.getByRole("link", { name: "Projects" }).first().click();
-    await expect(page.getByRole("heading", { level: 1, name: "Projects" })).toBeVisible({
+    await expect(page.getByRole("heading", { level: 1, name: "All projects" })).toBeVisible({
       timeout: 5000,
     });
   });

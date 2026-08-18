@@ -1,8 +1,6 @@
 import { FALLBACK_PROJECTS } from "@/content/projects/fallback";
 import {
   CATEGORY_OVERRIDES,
-  DISPLAY_OVERRIDES,
-  HIDDEN_SLUGS,
   isFlagshipSlug,
   LIVE_URLS,
   PROJECT_ORDER,
@@ -68,37 +66,46 @@ function orderIndex(slug: string): number {
 }
 
 /**
- * Deterministically merges the reviewed fallback catalogue with live GitHub
- * data (when available). Every field falls back to the reviewed record when
- * `liveRepos` is `null` or a given slug is absent from it, so the catalogue
- * always renders the complete, approved 17-project set.
+ * Builds the catalogue from the reviewed records in fallback.ts. Those records
+ * are authoritative for everything the card renders - name, description,
+ * stack, language and outcome - because GitHub's own blurbs, topic slugs and
+ * detected language are written for repo browsers, not for this page. Letting
+ * them win had replaced measured results with generic prose, buried the
+ * curated stack under 11-16 raw tags, and mislabelled a Unity C# game as
+ * ShaderLab because that is what Linguist counted most bytes of.
+ *
+ * Live data therefore contributes `updatedAt` only, which is the one field
+ * where fresh genuinely beats reviewed.
  */
 export function buildCatalogue(liveRepos: readonly GithubRepo[] | null): readonly Project[] {
   const liveBySlug = new Map((liveRepos ?? []).map((repo) => [repo.slug, repo] as const));
 
-  const projects = FALLBACK_PROJECTS.filter((record) => !HIDDEN_SLUGS.includes(record.slug)).map(
-    (record): Project => {
-      const live = liveBySlug.get(record.slug);
-      const topics = live?.topics ?? record.topics;
-      const display = DISPLAY_OVERRIDES[record.slug];
-      const liveUrl = LIVE_URLS[record.slug];
+  const projects = FALLBACK_PROJECTS.map((record): Project => {
+    const live = liveBySlug.get(record.slug);
+    const liveUrl = LIVE_URLS[record.slug];
 
-      return {
-        category: resolveCategory(record.slug, topics),
-        description: display?.description ?? live?.description ?? record.description,
-        isFlagship: isFlagshipSlug(record.slug),
-        language: live?.language ?? record.language,
-        name: display?.name ?? record.name,
-        repoUrl: `https://github.com/${GITHUB_OWNER}/${record.slug}`,
-        slug: record.slug,
-        topics,
-        ...(liveUrl ? { liveUrl } : {}),
-        ...(live?.updatedAt ? { updatedAt: live.updatedAt } : {}),
-      };
-    },
-  );
+    return {
+      category: resolveCategory(record.slug, record.topics),
+      description: record.description,
+      isFlagship: isFlagshipSlug(record.slug),
+      language: record.language,
+      name: record.name,
+      outcome: record.outcome,
+      repoUrl: `https://github.com/${GITHUB_OWNER}/${record.slug}`,
+      slug: record.slug,
+      stack: record.stack,
+      topics: record.topics,
+      ...(liveUrl ? { liveUrl } : {}),
+      ...(live?.updatedAt ? { updatedAt: live.updatedAt } : {}),
+    };
+  });
 
-  return [...projects].sort((a, b) => orderIndex(a.slug) - orderIndex(b.slug));
+  // Flagships lead, so the strongest five are what a reader meets first - in
+  // the unfiltered grid and inside every category that contains one.
+  return [...projects].sort((a, b) => {
+    if (a.isFlagship !== b.isFlagship) return a.isFlagship ? -1 : 1;
+    return orderIndex(a.slug) - orderIndex(b.slug);
+  });
 }
 
 export async function getProjectCatalogue(): Promise<readonly Project[]> {
