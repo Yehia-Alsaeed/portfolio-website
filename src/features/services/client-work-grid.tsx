@@ -5,15 +5,14 @@ import { ClientWorkMedia, MACBOOK_PRO_16 } from "@/features/services/client-work
 export type ClientWorkGridProps = {
   entries: readonly ClientWork[];
   /**
-   * Wrap each capture in the MacBook PNG. Off until
-   * `public/media/devices/macbook-pro-16.png` exists - turning it on without
-   * the asset ships a broken image over every card. Flip the default here once
-   * the file lands, and re-measure `MACBOOK_PRO_16` against that exact PNG.
+   * Wrap each capture in the laptop PNG, with the recording playing through
+   * its transparent screen cut-out. Pass `false` to show captures bare, in a
+   * plain ruled well.
    */
   framed?: boolean;
 };
 
-export function ClientWorkGrid({ entries, framed = false }: ClientWorkGridProps) {
+export function ClientWorkGrid({ entries, framed = true }: ClientWorkGridProps) {
   return (
     <div className="grid grid-cols-1 items-start gap-6 min-[860px]:grid-cols-2">
       {entries.map((entry) => (

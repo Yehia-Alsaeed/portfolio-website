@@ -20,12 +20,19 @@ export type DeviceFrameSpec = {
   screenTop: string;
 };
 
+/**
+ * Measured off the shipped 1600x1022 PNG by flood-filling its alpha channel
+ * from the borders and taking the bounds of the transparent region left
+ * inside: x 190-1409, y 80-869 at that size. The cut-out is centred
+ * horizontally, so the screen is placed from its midpoint at `screenTop`.
+ * Re-measure all four values if that PNG is ever replaced.
+ */
 export const MACBOOK_PRO_16: DeviceFrameSpec = {
   alt: "",
-  frameRatio: "1000 / 568",
-  screenRatio: "16 / 10",
-  screenTop: "45.3%",
-  screenWidth: "79.5%",
+  frameRatio: "1600 / 1022",
+  screenRatio: "1220 / 790",
+  screenTop: "46.48%",
+  screenWidth: "76.25%",
   src: "/media/devices/macbook-pro-16.png",
 };
 
@@ -73,13 +80,17 @@ export function ClientWorkMedia({ frame, media, name }: ClientWorkMediaProps) {
     return () => observer.disconnect();
   }, []);
 
+  // The captures are recorded at 1220x790 - the laptop cut-out's own ratio -
+  // so `cover` is an exact fit: nothing is cropped and no band is left over.
+  // If the device PNG is ever replaced, re-record at the new cut-out size
+  // rather than reaching for `contain`, which letterboxes inside the screen.
   const screen = recordingFailed ? (
     <Image
       alt={media.desktop.alt}
       className="h-full w-full object-cover"
-      height={900}
+      height={790}
       src={media.desktop.src}
-      width={1440}
+      width={1220}
     />
   ) : (
     <video
@@ -102,7 +113,7 @@ export function ClientWorkMedia({ frame, media, name }: ClientWorkMediaProps) {
       {frame ? (
         <div className="relative w-full" style={{ aspectRatio: frame.frameRatio }}>
           <div
-            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-white"
             style={{
               aspectRatio: frame.screenRatio,
               top: frame.screenTop,
@@ -122,7 +133,7 @@ export function ClientWorkMedia({ frame, media, name }: ClientWorkMediaProps) {
         </div>
       ) : (
         <div
-          className="border-line relative w-full overflow-hidden border"
+          className="border-line relative w-full overflow-hidden border bg-white"
           style={{ aspectRatio: "16 / 10" }}
         >
           {screen}

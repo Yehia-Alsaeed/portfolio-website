@@ -133,7 +133,8 @@ export const CLIENT_WORK_MEDIA: Readonly<Record<"madar-wears" | "la-glosse", Cli
       desktop: { alt: "La Glosse desktop storefront", src: laGlosseDesktop },
       mobile: { alt: "La Glosse mobile storefront", src: laGlosseMobile },
       recording: {
-        description: "Short muted walkthrough of the La Glosse storefront, scrolling the homepage.",
+        description:
+          "Muted walkthrough of the La Glosse storefront: the homepage, the catalogue, and a product page with its description and add-to-cart controls.",
         src: "/media/client-work/la-glosse.webm",
       },
     },
@@ -142,7 +143,7 @@ export const CLIENT_WORK_MEDIA: Readonly<Record<"madar-wears" | "la-glosse", Cli
       mobile: { alt: "Madar Wears mobile storefront", src: madarWearsMobile },
       recording: {
         description:
-          "Short muted walkthrough of the Madar Wears storefront, scrolling the homepage.",
+          "Muted walkthrough of the Madar Wears storefront: the homepage, the catalogue, and a product page with its size options and add-to-cart controls.",
         src: "/media/client-work/madar-wears.webm",
       },
     },

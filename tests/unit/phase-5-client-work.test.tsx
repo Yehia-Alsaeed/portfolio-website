@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
+
 import { render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -142,14 +145,28 @@ describe("Phase 5 client-work presentation", () => {
     expect(article.querySelector("video")).toBeNull();
   });
 
-  it("ships unframed by default, so no card can reference a device PNG that is absent", () => {
+  it("ships framed by default, over a device PNG that is actually on disk", () => {
+    // Framing is only safe while the asset exists - referencing a missing PNG
+    // would ship a broken image over every capture, which is why this asserts
+    // the file and not just the markup.
+    expect(existsSync(path.join(process.cwd(), "public/media/devices/macbook-pro-16.png"))).toBe(
+      true,
+    );
+
     const { container } = render(<ClientWorkGrid entries={CLIENT_WORK} />);
+
+    expect(container.querySelectorAll('img[src*="macbook"]')).toHaveLength(2);
+    expect(container.querySelector("video")).not.toBeNull();
+  });
+
+  it("drops back to a bare capture when framing is switched off", () => {
+    const { container } = render(<ClientWorkGrid entries={CLIENT_WORK} framed={false} />);
 
     expect(container.querySelector('img[src*="macbook"]')).toBeNull();
     expect(container.querySelector("video")).not.toBeNull();
   });
 
-  it("lays the device PNG over the capture once framing is switched on", () => {
+  it("lays the device PNG over the capture, hidden from assistive tech", () => {
     const { container } = render(<ClientWorkGrid entries={CLIENT_WORK} framed />);
 
     const frames = container.querySelectorAll('img[src*="macbook"]');
