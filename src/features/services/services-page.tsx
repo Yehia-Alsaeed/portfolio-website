@@ -18,10 +18,7 @@ import { Testimonials } from "@/features/services/testimonials";
 export function ServicesPage() {
   return (
     <>
-      <PageTitle
-        subtitle="Available for select freelance projects."
-        title="I build stores & software that ship."
-      />
+      <PageTitle title="I build stores & software that ship." />
 
       <OfferGrid offers={SERVICE_OFFERS} />
 

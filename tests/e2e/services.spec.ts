@@ -23,10 +23,12 @@ test("serves /services with correct status, metadata, canonical, and one h1", as
   );
 });
 
-test("shows the exact availability line, two offers, and four process steps", async ({ page }) => {
+test("shows two offers and four process steps, with no availability line", async ({ page }) => {
   await page.goto("/services");
 
-  await expect(page.getByText("Available for select freelance projects.")).toBeVisible();
+  // The availability line was deliberately dropped from under the h1. It still
+  // appears in the page description and OG image, which are not rendered here.
+  await expect(page.getByText("Available for select freelance projects.")).toHaveCount(0);
 
   await expect(
     page.getByRole("heading", { name: "Shopify stores, brief to first sale." }),
@@ -134,7 +136,6 @@ test.describe("without JavaScript", () => {
     expect(response?.status()).toBe(200);
 
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByText("Available for select freelance projects.")).toBeVisible();
     await expect(page.getByRole("article")).toHaveCount(3);
 
     // Playback is driven by an IntersectionObserver, so with scripting off the
