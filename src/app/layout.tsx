@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { VercelInsights } from "@/features/analytics/vercel-insights";
 import { DISPLAY_MODE_BOOT_SCRIPT } from "@/features/display-mode/boot-script";
 import { DisplayModeProvider } from "@/features/display-mode/provider";
 import { PosterModeProvider } from "@/features/poster-mode/poster-mode-provider";
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <DisplayModeProvider>
           <PosterModeProvider>{children}</PosterModeProvider>
         </DisplayModeProvider>
+        <VercelInsights />
       </body>
     </html>
   );
