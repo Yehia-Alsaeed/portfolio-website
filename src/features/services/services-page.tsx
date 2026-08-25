@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/ui/page-title";
 import { RuledSection } from "@/components/ui/ruled-section";
 import { PROFILE } from "@/content/profile";
-import { CLIENT_WORK, SERVICE_OFFERS, SERVICE_PROCESS, TESTIMONIALS } from "@/content/services";
+import {
+  SERVICE_OFFERS,
+  SERVICE_PROCESS,
+  TESTIMONIALS,
+  VISIBLE_CLIENT_WORK,
+} from "@/content/services";
 import { ClientWorkGrid } from "@/features/services/client-work-grid";
 import { OfferGrid } from "@/features/services/offer-grid";
 import { ProcessSection } from "@/features/services/process-section";
@@ -22,8 +27,13 @@ export function ServicesPage() {
 
       <ProcessSection steps={SERVICE_PROCESS} />
 
-      <RuledSection meta={`${CLIENT_WORK.length} client builds`} title="Client work">
-        <ClientWorkGrid entries={CLIENT_WORK} />
+      {/*
+        Renders VISIBLE_CLIENT_WORK, not CLIENT_WORK: entries flagged `hidden`
+        are withheld from the page on purpose and stay in the content module
+        awaiting their return. Do not "simplify" this back to CLIENT_WORK.
+      */}
+      <RuledSection meta={`${VISIBLE_CLIENT_WORK.length} client builds`} title="Client work">
+        <ClientWorkGrid entries={VISIBLE_CLIENT_WORK} />
       </RuledSection>
 
       <Testimonials items={TESTIMONIALS} />

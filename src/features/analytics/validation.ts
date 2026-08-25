@@ -9,6 +9,9 @@ export type ClientWorkSlug = (typeof CLIENT_WORK)[number]["trackingId"];
 const PROJECT_SLUGS: ReadonlySet<string> = new Set(
   FALLBACK_PROJECTS.map((project) => project.slug),
 );
+// Deliberately the full roster, not VISIBLE_CLIENT_WORK: a hidden entry's
+// slug stays valid so historical events keep validating and so un-hiding it
+// needs no change here.
 const CLIENT_WORK_SLUGS: ReadonlySet<string> = new Set(
   CLIENT_WORK.map((entry) => entry.trackingId),
 );

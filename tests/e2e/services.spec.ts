@@ -40,9 +40,7 @@ test("shows the exact availability line, two offers, and four process steps", as
   }
 });
 
-test("renders exactly three client-work cards, captured only for Madar/La Glosse and text-only Nexo", async ({
-  page,
-}) => {
+test("renders the three visible client-work cards, all captured", async ({ page }) => {
   await page.goto("/services");
 
   const articles = page.getByRole("article");
@@ -50,11 +48,11 @@ test("renders exactly three client-work cards, captured only for Madar/La Glosse
 
   const madar = page.getByRole("article").filter({ hasText: "Madar Wears" });
   const laGlosse = page.getByRole("article").filter({ hasText: "La Glosse" });
-  const nexo = page.getByRole("article").filter({ hasText: "Nexo" });
+  const loverboy = page.getByRole("article").filter({ hasText: "Loverboy Studio" });
 
   await expect(madar.locator("video")).toHaveCount(1);
   await expect(laGlosse.locator("video")).toHaveCount(1);
-  await expect(nexo.locator("video")).toHaveCount(0);
+  await expect(loverboy.locator("video")).toHaveCount(1);
 
   await expect(madar.getByText("Apparel")).toBeVisible();
   await expect(madar.getByRole("heading", { name: "Madar Wears" })).toBeVisible();
@@ -64,12 +62,23 @@ test("renders exactly three client-work cards, captured only for Madar/La Glosse
   await expect(madarLink).toHaveAttribute("target", "_blank");
   await expect(madarLink).toHaveAttribute("rel", "noopener noreferrer");
 
-  const nexoLink = nexo.getByRole("link", { name: "Open Nexo" });
-  await expect(nexoLink).toHaveAttribute("href", "https://bh9d1w-16.myshopify.com/");
-  await expect(nexoLink).toHaveAttribute("rel", "noopener noreferrer");
+  const loverboyLink = loverboy.getByRole("link", { name: "Open Loverboy Studio" });
+  await expect(loverboyLink).toHaveAttribute("href", "https://www.loverboy-studio.com/");
+  await expect(loverboyLink).toHaveAttribute("rel", "noopener noreferrer");
 
   expect(await page.locator("iframe").count()).toBe(0);
   expect(await page.locator("video[autoplay]").count()).toBe(0);
+});
+
+// Nexo is hidden, not retired - its record is still in `src/content/services.ts`
+// and is due back later. When it returns, this test flips back to asserting the
+// card renders with its external link; it is not a licence to delete the entry.
+test("keeps the hidden Nexo entry off the page", async ({ page }) => {
+  await page.goto("/services");
+
+  await expect(page.getByRole("article").filter({ hasText: "Nexo" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Open Nexo" })).toHaveCount(0);
+  expect(await page.locator('a[href*="bh9d1w-16.myshopify.com"]').count()).toBe(0);
 });
 
 test("plays each capture inline and silently, with no controls to operate", async ({ page }) => {
@@ -130,7 +139,7 @@ test.describe("without JavaScript", () => {
 
     // Playback is driven by an IntersectionObserver, so with scripting off the
     // `poster` still is what a visitor actually sees - it has to be there.
-    for (const name of ["Madar Wears", "La Glosse"]) {
+    for (const name of ["Madar Wears", "La Glosse", "Loverboy Studio"]) {
       const video = page.getByRole("article").filter({ hasText: name }).locator("video");
       await expect(video).toHaveCount(1);
       expect(await video.getAttribute("poster")).toBeTruthy();

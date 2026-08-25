@@ -54,15 +54,19 @@ afterEach(() => {
 });
 
 describe("Phase 5 client-work presentation", () => {
-  it("renders three articles with safe external links and no embedded frames", () => {
+  // These render the full CLIENT_WORK roster rather than VISIBLE_CLIENT_WORK on
+  // purpose: Nexo is the only text-only entry, so rendering the hidden one here
+  // is what keeps that branch covered while it is withheld from the page.
+  it("renders every roster entry with safe external links and no embedded frames", () => {
     const { container } = render(<ClientWorkGrid entries={CLIENT_WORK} />);
 
-    expect(screen.getAllByRole("article")).toHaveLength(3);
+    expect(screen.getAllByRole("article")).toHaveLength(4);
     expect(screen.getByRole("link", { name: "Open Madar Wears" })).toHaveAttribute(
       "rel",
       "noopener noreferrer",
     );
     expect(screen.getByRole("link", { name: "Open La Glosse" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Open Loverboy Studio" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Open Nexo" })).toBeVisible();
     expect(container.querySelector("iframe")).toBeNull();
   });
@@ -155,7 +159,7 @@ describe("Phase 5 client-work presentation", () => {
 
     const { container } = render(<ClientWorkGrid entries={CLIENT_WORK} />);
 
-    expect(container.querySelectorAll('img[src*="macbook"]')).toHaveLength(2);
+    expect(container.querySelectorAll('img[src*="macbook"]')).toHaveLength(3);
     expect(container.querySelector("video")).not.toBeNull();
   });
 
@@ -170,7 +174,7 @@ describe("Phase 5 client-work presentation", () => {
     const { container } = render(<ClientWorkGrid entries={CLIENT_WORK} framed />);
 
     const frames = container.querySelectorAll('img[src*="macbook"]');
-    expect(frames).toHaveLength(2);
+    expect(frames).toHaveLength(3);
     for (const frame of frames) {
       expect(frame).toHaveAttribute("aria-hidden", "true");
       expect(frame).toHaveAttribute("alt", "");
