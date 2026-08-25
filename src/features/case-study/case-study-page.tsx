@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { MetadataRow, type MetadataItem } from "@/components/ui/metadata-row";
+import { EXTERNAL_ARROW } from "@/components/ui/glyphs";
 import { PageTitle } from "@/components/ui/page-title";
 import { RuledSection } from "@/components/ui/ruled-section";
 import { StatCell } from "@/components/ui/stat-cell";
@@ -121,11 +122,11 @@ export function CaseStudyPage({ next, previous, study }: CaseStudyPageProps) {
                   destination: "github",
                 }}
               >
-                View on GitHub ↗
+                View on GitHub {EXTERNAL_ARROW}
               </TrackedAnchor>
             ) : (
               <a href={study.repoUrl} rel="noopener noreferrer" target="_blank">
-                View on GitHub ↗
+                View on GitHub {EXTERNAL_ARROW}
               </a>
             )}
           </Button>
@@ -141,13 +142,13 @@ export function CaseStudyPage({ next, previous, study }: CaseStudyPageProps) {
                   destination: "live-demo",
                 }}
               >
-                Live site ↗
+                Live site {EXTERNAL_ARROW}
               </TrackedAnchor>
             </Button>
           ) : study.liveUrl ? (
             <Button asChild variant="outline">
               <a href={study.liveUrl} rel="noopener noreferrer" target="_blank">
-                Live site ↗
+                Live site {EXTERNAL_ARROW}
               </a>
             </Button>
           ) : null}

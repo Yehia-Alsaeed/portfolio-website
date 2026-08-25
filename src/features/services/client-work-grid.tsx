@@ -1,3 +1,4 @@
+import { EXTERNAL_ARROW } from "@/components/ui/glyphs";
 import { CLIENT_WORK_MEDIA, type ClientWork } from "@/content/services";
 import { TrackedAnchor } from "@/features/analytics/tracked-anchor";
 import { ClientWorkMedia, MACBOOK_PRO_16 } from "@/features/services/client-work-media";
@@ -35,7 +36,7 @@ export function ClientWorkGrid({ entries, framed = true }: ClientWorkGridProps) 
               target="_blank"
               tracking={{ type: "outbound_click", destination: entry.trackingId }}
             >
-              <span aria-hidden="true">↗</span>
+              <span aria-hidden="true">{EXTERNAL_ARROW}</span>
             </TrackedAnchor>
           </header>
 
