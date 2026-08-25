@@ -6,7 +6,7 @@ export type OfferGridProps = { offers: readonly ServiceOffer[] };
 export function OfferGrid({ offers }: OfferGridProps) {
   return (
     <RuledSection title="What I build">
-      <div className="border-line grid border-b-2 min-[821px]:grid-cols-2">
+      <div className="border-line grid min-[821px]:grid-cols-2">
         {offers.map((offer) => (
           <div
             className="border-line border-b p-8 last:border-b-0 min-[821px]:border-r min-[821px]:border-b-0 min-[821px]:last:border-r-0 md:p-10"
