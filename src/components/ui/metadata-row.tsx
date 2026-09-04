@@ -14,6 +14,11 @@ export type MetadataRowProps = {
    *  breakpoints, and appending would leave both sets live - the wider one
    *  simply winning at its own breakpoint. */
   columnsClassName?: string;
+  /** Appended after the root's own classes, for the rare caller that needs to
+   *  override one of them - e.g. an `!`-marked padding utility to win over
+   *  `pb-[18px]` at a specific breakpoint. Merge, not replace, since most
+   *  callers want everything else about the row untouched. */
+  className?: string;
 };
 
 // Case studies pass three or four items (Role, optional Period, Type, Stack)
@@ -22,6 +27,7 @@ const DEFAULT_COLUMNS_CLASS_NAME = "grid-cols-2 min-[821px]:grid-cols-4";
 
 export function MetadataRow({
   ariaLabel,
+  className,
   columnsClassName = DEFAULT_COLUMNS_CLASS_NAME,
   items,
 }: MetadataRowProps) {
@@ -31,6 +37,7 @@ export function MetadataRow({
       className={cn(
         "border-line grid gap-x-5 gap-y-4 border-b pt-3.5 pb-[18px] font-mono text-[0.6875rem] tracking-[0.06em] uppercase",
         columnsClassName,
+        className,
       )}
     >
       {items.map((item) => (

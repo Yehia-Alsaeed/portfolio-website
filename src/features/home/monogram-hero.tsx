@@ -26,6 +26,12 @@ export function MonogramHero() {
           leaves a stray item on a line of its own. */}
       <MetadataRow
         ariaLabel="Profile summary"
+        // Tighter than MetadataRow's own pb-[18px], and only from md up: this
+        // strip's rule sat noticeably lower than the text above it once the
+        // Display column entered the row, and mobile's spacing was never the
+        // complaint. `!` wins over the base utility regardless of Tailwind's
+        // internal ordering of the two pb-[...] utilities.
+        className="md:!pb-[7px]"
         columnsClassName="grid-cols-2 md:grid-cols-3"
         items={[
           { label: "Role", value: PROFILE.role },
@@ -33,7 +39,11 @@ export function MonogramHero() {
           // Below 768px the switcher lives in the mobile menu panel instead
           // (mobile-nav.tsx), which reaches every route rather than just this
           // page. Hidden rather than duplicated so only one ever renders.
-          { className: "max-md:hidden", label: "Display", value: <ModeSwitcher /> },
+          {
+            className: "max-md:hidden",
+            label: "Display",
+            value: <ModeSwitcher align="start" />,
+          },
         ]}
       />
     </section>
