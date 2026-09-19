@@ -14,6 +14,10 @@ import {
 export const ANALYTICS_EVENT_TYPES = [
   "page_view",
   "project_click",
+  // Retired: the site stopped offering a CV on 2026-09-19 and nothing emits or
+  // accepts this event any more. It stays in the list only because it is a
+  // value of the live Postgres enum and historical rows use it; dropping it
+  // would need a type-rebuild migration against production data.
   "cv_download",
   "contact_submit",
   "outbound_click",

@@ -135,9 +135,9 @@ describe("Phase 6 closed event validation", () => {
   it("rejects non-string scalar fields", () => {
     expect(
       parseTrackPayload({
-        type: "cv_download",
+        type: "outbound_click",
         path: "/",
-        placement: "command-palette",
+        destination: "linkedin",
         screen: 1024,
       }),
     ).toBeUndefined();
@@ -146,8 +146,19 @@ describe("Phase 6 closed event validation", () => {
   it("rejects paths containing a query string or fragment", () => {
     expect(
       parseTrackPayload({
-        type: "cv_download",
+        type: "outbound_click",
         path: "/?x=1",
+        destination: "linkedin",
+        screen: "large",
+      }),
+    ).toBeUndefined();
+  });
+
+  it("rejects the retired CV download event", () => {
+    expect(
+      parseTrackPayload({
+        type: "cv_download",
+        path: "/",
         placement: "command-palette",
         screen: "large",
       }),

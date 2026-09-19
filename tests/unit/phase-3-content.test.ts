@@ -21,10 +21,10 @@ describe("Phase 3 homepage content", () => {
     expect(HOME_SECTION_ORDER).toEqual([
       "monogram",
       "positioning",
-      "stats",
+      "client-work",
+      "services",
       "work",
       "experience",
-      "services",
       "contact",
     ]);
   });

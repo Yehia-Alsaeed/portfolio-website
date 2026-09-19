@@ -19,25 +19,25 @@ test("serves /services with correct status, metadata, canonical, and one h1", as
 
   expect(await page.locator("h1").count()).toBe(1);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "I build stores & software that ship.",
+    "Websites that make your business more money.",
   );
 });
 
 test("shows two offers and four process steps, with no availability line", async ({ page }) => {
   await page.goto("/services");
 
-  // The availability line was deliberately dropped from under the h1. It still
-  // appears in the page description and OG image, which are not rendered here.
+  // The availability line was deliberately dropped from the page, and later
+  // from the page description and OG image too.
   await expect(page.getByText("Available for select freelance projects.")).toHaveCount(0);
 
   await expect(
-    page.getByRole("heading", { name: "Shopify stores, brief to first sale." }),
+    page.getByRole("heading", { name: "Shopify stores that bring in more orders." }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Full-stack products, end to end." }),
+    page.getByRole("heading", { name: "Websites that bring you new clients." }),
   ).toBeVisible();
 
-  for (const step of ["Discovery", "Build", "Verification", "Launch and handover"]) {
+  for (const step of ["Call", "Build", "Test", "Launch"]) {
     await expect(page.getByRole("heading", { name: step, exact: true })).toBeVisible();
   }
 });
@@ -103,6 +103,10 @@ test("plays each capture inline and silently, with no controls to operate", asyn
 
 test("falls back to the still frame when a recording fails to load", async ({ page }) => {
   await page.goto("/services");
+  // The fallback is React state behind the video's onError. Fire the fake
+  // error only once the page has hydrated, or on a busy dev server the event
+  // lands before the handler exists and nothing swaps in.
+  await expect(page.getByTestId("page-transition")).toHaveAttribute("data-ready", "true");
   const madar = page.getByRole("article").filter({ hasText: "Madar Wears" });
 
   await madar.locator("video").evaluate((element: HTMLVideoElement) => {
@@ -111,6 +115,29 @@ test("falls back to the still frame when a recording fails to load", async ({ pa
 
   await expect(madar.getByRole("img")).toBeVisible();
   await expect(madar.locator("video")).toHaveCount(0);
+});
+
+test("offers existing store owners a way in and answers questions openly", async ({ page }) => {
+  await page.goto("/services");
+
+  await expect(page.getByRole("link", { name: "Send me the link" })).toHaveAttribute(
+    "href",
+    "/#contact",
+  );
+  const fixSection = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { level: 2, name: "Already have a website?" }) });
+  await expect(
+    fixSection.getByRole("heading", { level: 3, name: "Same website. More customers." }),
+  ).toBeVisible();
+  await expect(fixSection.getByRole("heading", { level: 4 })).toHaveCount(4);
+
+  const questions = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { level: 2, name: "Questions" }) })
+    .getByRole("heading", { level: 3 });
+  await expect(questions).toHaveCount(7);
+  expect(await page.locator("details").count()).toBe(0);
 });
 
 test("links to the contact section and a mailto action", async ({ page }) => {

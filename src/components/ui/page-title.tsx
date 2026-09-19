@@ -1,26 +1,50 @@
+import type * as React from "react";
+
 export type PageTitleProps = {
   eyebrow?: string;
   title: string;
-  accent?: string;
+  /** One phrase, or several; the first occurrence of each is highlighted. */
+  accent?: string | readonly string[];
   subtitle?: string;
   headingLevel?: 1 | 2;
 };
 
-function renderAccentedTitle(title: string, accent?: string) {
-  if (!accent) {
+function renderAccentedTitle(title: string, accent?: string | readonly string[]) {
+  const phrases = typeof accent === "string" ? [accent] : (accent ?? []);
+  const ranges = phrases
+    .filter((phrase) => phrase.length > 0)
+    .map((phrase) => {
+      const start = title.indexOf(phrase);
+      return { end: start + phrase.length, start };
+    })
+    .filter(({ start }) => start !== -1)
+    .sort((left, right) => left.start - right.start);
+
+  if (ranges.length === 0) {
     return title;
   }
-  const start = title.indexOf(accent);
-  if (start === -1) {
-    return title;
+
+  const nodes: React.ReactNode[] = [];
+  let cursor = 0;
+  for (const { end, start } of ranges) {
+    // An overlapping phrase would split an existing highlight; keep the earlier one.
+    if (start < cursor) {
+      continue;
+    }
+    if (start > cursor) {
+      nodes.push(title.slice(cursor, start));
+    }
+    nodes.push(
+      <span className="text-accent-text" key={start}>
+        {title.slice(start, end)}
+      </span>,
+    );
+    cursor = end;
   }
-  return (
-    <>
-      {title.slice(0, start)}
-      <span className="text-accent-text">{accent}</span>
-      {title.slice(start + accent.length)}
-    </>
-  );
+  if (cursor < title.length) {
+    nodes.push(title.slice(cursor));
+  }
+  return nodes;
 }
 
 export function PageTitle({ accent, eyebrow, headingLevel = 1, subtitle, title }: PageTitleProps) {

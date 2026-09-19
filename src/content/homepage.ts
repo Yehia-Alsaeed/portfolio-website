@@ -1,5 +1,5 @@
 export type HomeSectionId =
-  "monogram" | "positioning" | "stats" | "work" | "experience" | "services" | "contact";
+  "monogram" | "positioning" | "client-work" | "services" | "work" | "experience" | "contact";
 
 export type HomeStat = { value: string; label: string; detail?: string };
 export type FeaturedProject = {
@@ -19,16 +19,21 @@ export type ServiceTeaser = {
   capabilities: readonly string[];
 };
 
+// Client-first: statement, proof, offer, then the recruiter half (AI
+// projects, experience, skills).
 export const HOME_SECTION_ORDER = [
   "monogram",
   "positioning",
-  "stats",
+  "client-work",
+  "services",
   "work",
   "experience",
-  "services",
   "contact",
 ] as const satisfies readonly HomeSectionId[];
 
+// No longer shown on the homepage: the stats strip was removed on
+// 2026-09-19 because small counts read as "new" to clients. Poster Mode
+// (poster-mode-dialog.tsx) still reads the first two figures.
 export const HOME_STATS = [
   { label: "Projects on GitHub", value: "17" },
   { detail: "HRNet segmentation", label: "mIoU", value: "0.93" },
@@ -66,7 +71,7 @@ export const FEATURED_PROJECTS = [
     year: "2026",
   },
   {
-    category: "Full-stack - Live on Vercel",
+    category: "Full-stack - Live demo",
     href: "/projects/prestige-motors-showroom",
     index: "05",
     name: "Prestige Motors Showroom",
@@ -76,6 +81,13 @@ export const FEATURED_PROJECTS = [
 
 export const TIMELINE_ENTRIES = [
   {
+    meta: "Shopify - Custom websites - Independent",
+    period: "2025-2026",
+    summary:
+      "Shopify stores and custom websites for brands in Egypt and abroad, built to bring in orders and clients.",
+    title: "Freelance Web Developer",
+  },
+  {
     meta: "Summer Academy Intern - 160+ hours",
     period: "Aug-Sep 2025",
     summary:
@@ -83,18 +95,11 @@ export const TIMELINE_ENTRIES = [
     title: "Dell Technologies",
   },
   {
-    meta: "Shopify - Full-stack - Independent",
-    period: "2025-2026",
-    summary:
-      "Built and launched Shopify stores and full-stack client websites with conversion, performance, SEO, and handover in mind.",
-    title: "Freelance Web Developer",
-  },
-  {
     meta: "AI major - British University in Egypt",
     period: "Graduated 2026",
     summary:
-      "BSc (Hons) Informatics and Computer Science covering artificial intelligence, machine learning, data, algorithms, databases, and software engineering.",
-    title: "BSc (Hons) Informatics and Computer Science",
+      "BSc Informatics and Computer Science covering artificial intelligence, machine learning, data, algorithms, databases, and software engineering.",
+    title: "BSc Informatics and Computer Science",
   },
 ] as const satisfies readonly TimelineEntry[];
 
@@ -128,25 +133,38 @@ export const SKILL_GROUPS = [
   },
 ] as const satisfies readonly SkillGroup[];
 
+/**
+ * Mirrors SERVICE_OFFERS in `@/content/services` exactly, kept as a copy on
+ * purpose. This module is imported by a client component (the poster-mode
+ * dialog), and importing the services module here would pull its client-work
+ * screenshot imports into that browser bundle. A unit test asserts the two
+ * lists are deep-equal, so edit both together.
+ */
 export const SERVICE_TEASERS = [
   {
     capabilities: [
-      "Custom themes and sections",
-      "Speed and SEO optimization",
-      "Launch to first sale",
+      "Looks premium, so people trust you with their card",
+      "Fewer steps to buy, so fewer people leave without paying",
+      "Brings back shoppers who left their cart, so lost sales come back",
+      "Suggests related products, so every order is worth more",
     ],
     index: "01",
-    label: "E-commerce",
+    label: "Ecommerce",
     summary:
-      "Complete Shopify builds with Liquid customization, conversion-focused layouts, and technical SEO baked in.",
-    title: "Shopify, built to convert.",
+      "Getting people to your store is only half the job. The other half is getting them to buy. I build Shopify ecommerce stores that look like a real brand, make ordering effortless, and feel right on a phone, so the visitors you already have turn into orders.",
+    title: "Shopify stores that bring in more orders.",
   },
   {
-    capabilities: ["React / Node / MongoDB", "LLM and CV integrations", "Admin panels and auth"],
+    capabilities: [
+      "Designed around your business, so you stand out from competitors",
+      "Says what you do in seconds, so people don't leave confused",
+      "Shows your work, so the site does the selling for you",
+      "Every page leads to one thing: contacting you",
+    ],
     index: "02",
-    label: "Web and AI",
+    label: "Custom websites",
     summary:
-      "Full-stack platforms and applied-AI features designed, built, and deployed as complete products.",
-    title: "Full-stack, end to end.",
+      "Whatever your business does, people check your website before they call, book, or buy. If it looks cheap or confusing, they move on to a competitor. I design and build custom websites that make you the obvious choice, so more of those visits turn into calls and messages.",
+    title: "Websites that bring you new clients.",
   },
 ] as const satisfies readonly ServiceTeaser[];

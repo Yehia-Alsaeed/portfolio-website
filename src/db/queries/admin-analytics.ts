@@ -15,7 +15,7 @@ export const ADMIN_OVERVIEW_QUERY_SHAPE = {
   ranges: ["24h", "7d", "30d", "90d"],
   breakdownDimensions: ["path", "referrer", "country", "device", "browser"],
   breakdownLimit: 8,
-  recentEventTypes: ["project_click", "cv_download", "contact_submit"],
+  recentEventTypes: ["project_click", "contact_submit"],
   recentEventLimit: 20,
 } as const;
 
@@ -178,7 +178,6 @@ export async function readAdminOverview(input: {
   const [
     pageViewRows,
     visitorRows,
-    cvRows,
     contactRows,
     trendRows,
     pageRows,
@@ -190,14 +189,6 @@ export async function readAdminOverview(input: {
   ] = await Promise.all([
     executeRows(db, pageViewTotalQuery(window)),
     executeRows(db, visitorTotalQuery(window)),
-    executeRows(
-      db,
-      sql`select count(*)::bigint as value
-          from ${analyticsEvents}
-          where ${analyticsEvents.type} = 'cv_download'
-            and ${analyticsEvents.createdAt} >= ${window.start}
-            and ${analyticsEvents.createdAt} <= ${window.end}`,
-    ),
     executeRows(
       db,
       sql`select count(*)::bigint as value
@@ -215,7 +206,7 @@ export async function readAdminOverview(input: {
       db,
       sql`select ${analyticsEvents.id}, ${analyticsEvents.type}, ${analyticsEvents.path}, ${analyticsEvents.createdAt}
           from ${analyticsEvents}
-          where ${analyticsEvents.type} in ('project_click', 'cv_download', 'contact_submit')
+          where ${analyticsEvents.type} in ('project_click', 'contact_submit')
             and ${analyticsEvents.createdAt} >= ${window.start}
             and ${analyticsEvents.createdAt} <= ${window.end}
           order by ${analyticsEvents.createdAt} desc, ${analyticsEvents.id} desc
@@ -231,7 +222,6 @@ export async function readAdminOverview(input: {
       visitors: safeNumber(visitorRows[0]?.value),
       pageViews: safeNumber(pageViewRows[0]?.value),
       contactSubmissions: safeNumber(contactRows[0]?.value),
-      cvDownloads: safeNumber(cvRows[0]?.value),
     },
     trend: window.buckets.map((bucket) => ({
       bucket: bucket.key,

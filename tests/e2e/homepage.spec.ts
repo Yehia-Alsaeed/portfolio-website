@@ -31,13 +31,16 @@ function collectBrowserErrors(page: Page): string[] {
   return errors;
 }
 
-test("serves the complete recruiter-first homepage with production metadata", async ({ page }) => {
+test("serves the complete client-first homepage with production metadata", async ({ page }) => {
   const errors = collectBrowserErrors(page);
   const response = await page.goto("/");
 
   expect(response?.status()).toBe(200);
-  await expect(page).toHaveTitle("Yehia Alsaeed | AI/ML Engineer and Web Developer");
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /AI\/ML/);
+  await expect(page).toHaveTitle("Yehia Alsaeed | Freelance Web Developer in Egypt");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /freelance web developer in Egypt/i,
+  );
   const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
   expect(canonical).not.toBeNull();
   expect(new URL(canonical ?? "http://invalid").pathname).toBe("/");
@@ -61,10 +64,10 @@ test("serves the complete recruiter-first homepage with production metadata", as
   expect(sectionOrder).toEqual([
     "monogram",
     "positioning",
-    "stats",
+    "client-work",
+    "services",
     "work",
     "experience",
-    "services",
     "contact",
   ]);
   expect(await page.locator("[id=contact]").count()).toBe(1);
@@ -74,7 +77,7 @@ test("serves the complete recruiter-first homepage with production metadata", as
 test("exposes both audience paths and all five real flagship destinations", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("link", { name: "View AI/ML work" }).click();
+  await page.getByRole("link", { name: "View AI/ML projects" }).click();
   await expect(page).toHaveURL(/#work$/);
   await expect(page.locator("#work")).toBeInViewport();
 
@@ -82,8 +85,27 @@ test("exposes both audience paths and all five real flagship destinations", asyn
     await expect(page.getByRole("link", { name })).toHaveAttribute("href", href);
   }
 
-  await page.getByRole("link", { name: "Explore client services" }).click();
+  await page.getByRole("link", { name: "See all services" }).first().click();
   await expect(page).toHaveURL(/\/services$/);
+});
+
+test("puts client proof and the offer ahead of the recruiter half", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("link", { name: "See client work" }).click();
+  await expect(page).toHaveURL(/#client-work$/);
+  await expect(page.locator("#client-work")).toBeInViewport();
+  await expect(page.locator("#client-work").getByRole("article")).toHaveCount(3);
+
+  // The stats strip and its "For hiring managers" block were removed on
+  // purpose; small counts read as "new" to clients.
+  expect(await page.locator("#hiring").count()).toBe(0);
+  await expect(page.locator("main").getByText("Projects on GitHub")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Fixes and redesigns" })).toHaveAttribute(
+    "href",
+    "/services#fix",
+  );
+  await expect(page.getByText("reply within two days")).toBeVisible();
 });
 
 test("renders experience, services, contact, and a truthful invalid form state", async ({
@@ -93,8 +115,12 @@ test("renders experience, services, contact, and a truthful invalid form state",
 
   await expect(page.getByRole("heading", { name: /Dell Technologies/ })).toBeVisible();
   await expect(page.getByText("PyTorch", { exact: false })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Shopify, built to convert." })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Full-stack, end to end." })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Shopify stores that bring in more orders." }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Websites that bring you new clients." }),
+  ).toBeVisible();
   await expect(page.getByRole("link", { name: /yehias3eed11@gmail.com/ })).toBeVisible();
   await expect(page.getByLabel("Inquiry type")).toBeVisible();
   await expect(page.getByLabel("Name", { exact: true })).toBeVisible();

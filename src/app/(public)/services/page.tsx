@@ -7,7 +7,7 @@ import { buildServicesJsonLd } from "@/lib/seo/services-json-ld";
 export const metadata: Metadata = {
   alternates: { canonical: "/services" },
   description:
-    "Shopify store builds, full-stack web development, and applied AI services by Yehia Alsaeed. Available for select freelance projects.",
+    "Freelance web developer in Egypt building Shopify stores and custom websites that bring in more orders and new clients. Yehia Alsaeed, Cairo.",
   title: "Services | Yehia Alsaeed",
 };
 

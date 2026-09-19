@@ -34,7 +34,7 @@ export type PaletteCommand =
       group: "Actions";
       label: string;
       keywords: readonly string[];
-      kind: "copy-email" | "download-cv" | "poster-mode";
+      kind: "copy-email" | "poster-mode";
     };
 
 export const SITE_COMMANDS: readonly PaletteCommand[] = [
@@ -164,13 +164,6 @@ export const SITE_COMMANDS: readonly PaletteCommand[] = [
     keywords: ["copy", "email", "contact"],
     kind: "copy-email",
     label: "Copy email address",
-  },
-  {
-    group: "Actions",
-    id: "action-download-cv",
-    keywords: ["cv", "resume", "download"],
-    kind: "download-cv",
-    label: "Download CV",
   },
   {
     group: "Actions",

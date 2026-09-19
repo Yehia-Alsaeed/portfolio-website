@@ -5,7 +5,7 @@ export type ProcessSectionProps = { steps: readonly ProcessStep[] };
 
 export function ProcessSection({ steps }: ProcessSectionProps) {
   return (
-    <RuledSection title="How we work together">
+    <RuledSection title="How I work">
       <ol className="border-line grid grid-cols-1 border-t border-l min-[560px]:grid-cols-2 min-[1024px]:grid-cols-4">
         {steps.map((step) => (
           <li className="border-line border-r border-b p-6" key={step.index}>

@@ -5,7 +5,7 @@ import { expectPrimaryNavAvailable, openPrimaryNav } from "./primary-nav";
 const ROUTES = [
   { heading: "Yehia Alsaeed", path: "/" },
   { heading: "All projects", path: "/projects" },
-  { heading: "I build stores & software that ship.", path: "/services" },
+  { heading: "Websites that make your business more money.", path: "/services" },
 ] as const;
 
 // Vercel injects its own live-feedback/comments toolbar script
@@ -90,7 +90,7 @@ test("primary navigation reaches every route frame", async ({ page }) => {
   await (await openPrimaryNav(page)).getByRole("link", { name: "Services" }).click();
   await expect(page).toHaveURL(/\/services$/);
   await expect(
-    page.getByRole("heading", { level: 1, name: "I build stores & software that ship." }),
+    page.getByRole("heading", { level: 1, name: "Websites that make your business more money." }),
   ).toBeVisible();
 
   await (await openPrimaryNav(page)).getByRole("link", { name: "Contact" }).click();

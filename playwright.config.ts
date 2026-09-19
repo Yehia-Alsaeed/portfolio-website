@@ -13,7 +13,6 @@ const crossBrowserFocusedTests = [
   "projects.spec.ts",
   "services.spec.ts",
   "case-studies.spec.ts",
-  "cv-download.spec.ts",
   "phase-5-proof.spec.ts",
   "phase-6.spec.ts",
   "responsive.spec.ts",

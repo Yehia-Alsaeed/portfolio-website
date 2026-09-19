@@ -3,7 +3,6 @@ import styles from "../admin.module.css";
 
 const EVENT_LABELS: Record<RecentEvent["type"], string> = {
   contact_submit: "Contact submitted",
-  cv_download: "CV downloaded",
   project_click: "Project opened",
 };
 

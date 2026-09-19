@@ -21,7 +21,7 @@ export function OfferGrid({ offers }: OfferGridProps) {
             <p className="text-dim max-w-[460px] text-[0.9375rem]">{offer.summary}</p>
             <ul className="mt-4 list-none p-0 font-mono text-xs leading-7">
               {offer.capabilities.map((capability) => (
-                <li key={capability}>
+                <li className="pl-[3ch] -indent-[3ch]" key={capability}>
                   <span aria-hidden="true" className="text-accent-text">
                     -&gt;{" "}
                   </span>

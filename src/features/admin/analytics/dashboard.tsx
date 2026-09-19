@@ -16,7 +16,6 @@ const RANGE_LABELS = {
 const METRICS = [
   ["visitors", "Unique visitors"],
   ["pageViews", "Page views"],
-  ["cvDownloads", "CV downloads"],
   ["contactSubmissions", "Contact inquiries"],
 ] as const;
 

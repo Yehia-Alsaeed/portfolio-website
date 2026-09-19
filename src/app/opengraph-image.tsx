@@ -7,8 +7,9 @@ export const alt = `${PROFILE.name} - ${PROFILE.role}`;
 
 export default async function Image() {
   return renderOgImage({
-    eyebrow: "Portfolio",
-    subtitle: PROFILE.role,
+    eyebrow: "Freelance web developer in Egypt",
+    subtitle:
+      "Shopify stores and custom websites that bring businesses more customers. Cairo, clients anywhere.",
     title: PROFILE.name,
   });
 }

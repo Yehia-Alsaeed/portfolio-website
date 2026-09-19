@@ -8,7 +8,7 @@ export default async function Image() {
   return renderOgImage({
     eyebrow: "Services",
     subtitle:
-      "Shopify store builds, full-stack web development, and applied AI services by Yehia Alsaeed. Available for select freelance projects.",
-    title: "I build stores & software that ship.",
+      "Freelance web developer in Egypt building Shopify stores and custom websites that bring in more orders and new clients. Yehia Alsaeed, Cairo.",
+    title: "Websites that make your business more money.",
   });
 }

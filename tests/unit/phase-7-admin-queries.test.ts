@@ -43,12 +43,11 @@ describe("Phase 7 admin analytics queries", () => {
     });
 
     expect(calls.order.slice(0, 2)).toEqual(["auth", "db"]);
-    expect(calls.execute).toHaveBeenCalledTimes(11);
+    expect(calls.execute).toHaveBeenCalledTimes(10);
     expect(ADMIN_OVERVIEW_QUERY_SHAPE.breakdownLimit).toBe(8);
     expect(ADMIN_OVERVIEW_QUERY_SHAPE.recentEventLimit).toBe(20);
     expect(ADMIN_OVERVIEW_QUERY_SHAPE.recentEventTypes).toEqual([
       "project_click",
-      "cv_download",
       "contact_submit",
     ]);
     expect(overview.range).toBe("30d");
@@ -57,7 +56,6 @@ describe("Phase 7 admin analytics queries", () => {
       visitors: 0,
       pageViews: 0,
       contactSubmissions: 0,
-      cvDownloads: 0,
     });
     expect(overview.recentEvents).toEqual([]);
   });

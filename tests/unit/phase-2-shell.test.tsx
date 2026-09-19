@@ -67,8 +67,8 @@ describe("SiteShell", () => {
       "href",
       "https://www.linkedin.com/in/yehia-alsaeed",
     );
-    // The CV download lives only in the command palette now; the footer link
-    // was removed. Its download path is covered by cv-download.spec.ts.
+    // The site offers no CV anywhere; the footer link and the palette
+    // command were both removed.
     expect(within(footer).queryByRole("link", { name: "Download CV" })).toBeNull();
     expect(within(footer).getByText("2026 - Yehia Alsaeed")).toBeVisible();
   });

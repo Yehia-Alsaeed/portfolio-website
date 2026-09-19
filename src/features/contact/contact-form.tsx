@@ -145,7 +145,8 @@ export function ContactForm() {
           </a>
         ) : (
           <p className="text-dim font-mono text-[0.6875rem]">
-            Your message is saved directly. Direct email is always available above.
+            I read every message myself and reply within two days. Email works too, it&apos;s right
+            above.
           </p>
         )}
       </div>

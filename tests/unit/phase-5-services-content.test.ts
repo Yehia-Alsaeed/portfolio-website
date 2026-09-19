@@ -3,10 +3,14 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { SERVICE_TEASERS } from "@/content/homepage";
 import {
   CLIENT_WORK,
   CLIENT_WORK_MEDIA,
   type ClientWork,
+  FIX_SECTION,
+  PROJECT_INCLUDES,
+  SERVICE_FAQ,
   SERVICE_OFFERS,
   SERVICE_PROCESS,
   TESTIMONIALS,
@@ -16,18 +20,30 @@ import {
 describe("Phase 5 services content", () => {
   it("orders the two inquiry-only offers as approved", () => {
     expect(SERVICE_OFFERS.map(({ title }) => title)).toEqual([
-      "Shopify stores, brief to first sale.",
-      "Full-stack products, end to end.",
+      "Shopify stores that bring in more orders.",
+      "Websites that bring you new clients.",
     ]);
   });
 
   it("orders the four-step process as approved", () => {
-    expect(SERVICE_PROCESS.map(({ title }) => title)).toEqual([
-      "Discovery",
-      "Build",
-      "Verification",
-      "Launch and handover",
-    ]);
+    expect(SERVICE_PROCESS.map(({ title }) => title)).toEqual(["Call", "Build", "Test", "Launch"]);
+  });
+
+  it("lists six project inclusions and seven FAQ answers, none carrying a figure", () => {
+    expect(PROJECT_INCLUDES).toHaveLength(6);
+    expect(SERVICE_FAQ).toHaveLength(7);
+    expect(FIX_SECTION.problems).toHaveLength(4);
+    expect(FIX_SECTION.headline).toContain(FIX_SECTION.accent);
+
+    const prose = JSON.stringify({ FIX_SECTION, SERVICE_FAQ });
+    expect(prose).not.toContain("$");
+    expect(prose).not.toContain("%");
+  });
+
+  // The homepage teaser is a deliberate copy (see SERVICE_TEASERS in
+  // homepage.ts). This is what keeps the copy from drifting.
+  it("keeps the homepage services teaser identical to the published offers", () => {
+    expect(SERVICE_TEASERS).toEqual(SERVICE_OFFERS);
   });
 
   it("lists the four client-work entries, captured for three and text-only for Nexo", () => {
@@ -85,6 +101,8 @@ describe("Phase 5 services content", () => {
     expect(source).not.toMatch(/shpat_[a-zA-Z0-9]+/);
     expect(source).not.toMatch(/storefront[_-]?access[_-]?token/i);
     expect(source).not.toMatch(/coming soon|placeholder|lorem ipsum|\btbd\b/i);
-    expect(source).not.toMatch(/\d+%|\bconversion\b|\brevenue\b|\btraffic\b|\bcustomer\b/i);
+    // Client-facing words like "customer" and "conversion" are allowed now;
+    // what stays banned is any figure that would read as a promised result.
+    expect(source).not.toMatch(/\d+%/);
   });
 });

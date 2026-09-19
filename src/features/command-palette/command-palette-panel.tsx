@@ -1,7 +1,7 @@
 "use client";
 
 import type { Route } from "next";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import type * as React from "react";
 
 import {
@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { PROFILE } from "@/content/profile";
-import { getScreenClass, trackEvent } from "@/features/analytics/client";
 import { useDisplayMode } from "@/features/display-mode/provider";
 import { usePosterMode } from "@/features/poster-mode/poster-mode-provider";
 
@@ -34,7 +33,6 @@ export default function CommandPalettePanel({
   triggerRef,
 }: CommandPalettePanelProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const { setMode } = useDisplayMode();
   const { openPoster } = usePosterMode();
 
@@ -65,20 +63,6 @@ export default function CommandPalettePanel({
     }
     if (command.kind === "poster-mode") {
       openPoster();
-      return;
-    }
-    if (command.kind === "download-cv") {
-      trackEvent({
-        type: "cv_download",
-        placement: "command-palette",
-        path: pathname,
-        screen: getScreenClass(window.innerWidth),
-      });
-      const anchor = document.createElement("a");
-      anchor.href = PROFILE.cvUrl;
-      anchor.download = "Yehia_Alsaeed_CV_AI.pdf";
-      anchor.click();
-      onStatus("CV download started");
       return;
     }
     void copyEmail();

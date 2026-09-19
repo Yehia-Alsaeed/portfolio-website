@@ -44,10 +44,6 @@ function buildMetadata(payload: TrackEventInput): Record<string, string> {
     return { projectSlug: payload.projectSlug, destination: payload.destination };
   }
 
-  if (payload.type === "cv_download") {
-    return { placement: payload.placement };
-  }
-
   if (payload.type === "outbound_click") {
     return { destination: payload.destination };
   }

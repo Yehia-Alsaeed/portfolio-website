@@ -32,12 +32,6 @@ export type TrackEventInput =
       screen: ScreenClass;
     }
   | {
-      type: "cv_download";
-      path: string;
-      placement: "command-palette";
-      screen: ScreenClass;
-    }
-  | {
       type: "outbound_click";
       path: string;
       destination: "github-profile" | "linkedin" | ClientWorkSlug;
@@ -113,19 +107,6 @@ export function parseTrackPayload(value: unknown): TrackEventInput | undefined {
       destination,
       screen,
     };
-  }
-
-  if (type === "cv_download") {
-    if (!hasExactKeys(record, ["type", "path", "placement", "screen"])) return undefined;
-
-    const path = normalizePath(record.path);
-    const { placement, screen } = record;
-
-    if (!path || placement !== "command-palette" || !isScreenClass(screen)) {
-      return undefined;
-    }
-
-    return { type: "cv_download", path, placement, screen };
   }
 
   if (type === "outbound_click") {

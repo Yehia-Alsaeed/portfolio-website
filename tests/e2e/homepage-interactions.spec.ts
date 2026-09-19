@@ -31,7 +31,10 @@ test("cycles modes with N and ignores N while typing", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("data-mode", "mono");
 });
 
-test("runs section, email, CV, and lazy Poster Mode commands", async ({ context, page }) => {
+test("runs section, email, and lazy Poster Mode commands, and offers no CV", async ({
+  context,
+  page,
+}) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/");
   await expect(page.getByTestId("page-transition")).toHaveAttribute("data-ready", "true");
@@ -48,11 +51,11 @@ test("runs section, email, CV, and lazy Poster Mode commands", async ({ context,
     .poll(() => page.evaluate(() => navigator.clipboard.readText()))
     .toBe("yehias3eed11@gmail.com");
 
+  // The CV was removed from the site on purpose: no palette command offers it.
   await page.keyboard.press("Control+KeyK");
-  await page.getByRole("combobox", { name: "Search commands" }).fill("download cv");
-  const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("option", { name: "Download CV" }).click();
-  expect((await downloadPromise).suggestedFilename()).toBe("Yehia_Alsaeed_CV_AI.pdf");
+  await page.getByRole("combobox", { name: "Search commands" }).fill("cv");
+  await expect(page.getByRole("option", { name: /cv/i })).toHaveCount(0);
+  await page.keyboard.press("Escape");
 
   await expect(page.locator("[data-poster-template]")).toHaveCount(0);
   await page.keyboard.press("Control+KeyK");
@@ -110,7 +113,7 @@ test("does not delay modified, external, hash, or reduced-motion navigation", as
   expect(prevention).toEqual({ external: false, hash: false, modified: false });
 
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.getByRole("link", { name: "Explore client services" }).click({ noWaitAfter: true });
+  await page.getByRole("link", { name: "See all services" }).first().click({ noWaitAfter: true });
   await expect(page.getByTestId("page-transition")).toHaveAttribute("data-active", "false");
   await expect(page).toHaveURL(/\/services$/);
 });

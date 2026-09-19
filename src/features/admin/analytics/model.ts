@@ -11,7 +11,7 @@ export type BreakdownRow = {
 
 export type RecentEvent = {
   id: number;
-  type: Extract<AnalyticsEventType, "project_click" | "cv_download" | "contact_submit">;
+  type: Extract<AnalyticsEventType, "project_click" | "contact_submit">;
   path: string;
   createdAt: string;
 };
@@ -22,7 +22,6 @@ export type AdminOverview = {
     visitors: number;
     pageViews: number;
     contactSubmissions: number;
-    cvDownloads: number;
   };
   trend: Array<{ bucket: string; pageViews: number; visitors: number }>;
   breakdowns: {

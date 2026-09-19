@@ -86,17 +86,13 @@ const nextConfig: NextConfig = {
         source: "/api/auth/:path*",
       },
       {
-        // Both are static files under `public/` that Yehia replaces
-        // manually and infrequently (a new CV, a new client-work
-        // recording) without the filename ever changing, so `immutable`
-        // would risk serving stale content indefinitely. A moderate fresh
-        // window with mandatory revalidation after that is a meaningfully
-        // better default than Next's own `max-age=0` for these paths
-        // without that risk.
-        headers: [{ key: "Cache-Control", value: "public, max-age=3600, must-revalidate" }],
-        source: "/cv/:path*",
-      },
-      {
+        // Client-work recordings under `public/media/` get replaced
+        // manually and infrequently without the filename ever changing, so
+        // `immutable` would risk serving stale content indefinitely. A
+        // moderate fresh window with mandatory revalidation after that is a
+        // meaningfully better default than Next's own `max-age=0` without
+        // that risk. (The CV and its `/cv/` rule were removed on 2026-09-19;
+        // the site no longer offers a CV download.)
         headers: [{ key: "Cache-Control", value: "public, max-age=3600, must-revalidate" }],
         source: "/media/:path*",
       },

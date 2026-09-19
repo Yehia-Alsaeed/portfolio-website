@@ -13,9 +13,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: publicEnv.siteUrl,
-  title: "Yehia Alsaeed | AI/ML Engineer and Web Developer",
+  title: "Yehia Alsaeed | Freelance Web Developer in Egypt",
   description:
-    "Portfolio of Yehia Alsaeed, an AI/ML engineer and web developer in Cairo, Egypt working across machine learning, computer vision, Shopify, and full-stack systems.",
+    "Yehia Alsaeed is a freelance web developer in Egypt building Shopify stores and custom websites that bring businesses more customers. Also an AI/ML engineer. Based in Cairo, working with clients anywhere.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

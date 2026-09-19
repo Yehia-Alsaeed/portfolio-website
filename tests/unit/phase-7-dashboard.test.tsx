@@ -23,7 +23,6 @@ const emptyOverview: AdminOverview = {
     visitors: 0,
     pageViews: 0,
     contactSubmissions: 0,
-    cvDownloads: 0,
   },
   trend: Array.from({ length: 30 }, (_, index) => ({
     bucket: `2026-07-${String(index + 1).padStart(2, "0")}`,
@@ -49,7 +48,7 @@ describe("Phase 7 admin dashboard", () => {
     expect(screen.getByRole("img", { name: "Visitors and page views trend" })).toBeInTheDocument();
     expect(screen.getByText("Unique visitors").previousElementSibling).toHaveTextContent("0");
     expect(screen.getByText("Page views").previousElementSibling).toHaveTextContent("0");
-    expect(screen.getByText("CV downloads").previousElementSibling).toHaveTextContent("0");
+    expect(screen.queryByText("CV downloads")).not.toBeInTheDocument();
     expect(screen.getByText("Contact inquiries").previousElementSibling).toHaveTextContent("0");
     expect(screen.getByText("No activity recorded for this range yet.")).toBeInTheDocument();
     expect(screen.queryByText("1,284")).not.toBeInTheDocument();

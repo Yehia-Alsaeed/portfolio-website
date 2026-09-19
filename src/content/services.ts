@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import type { StaticImageData } from "next/image";
 
 import laGlosseDesktop from "@/assets/client-work/la-glosse-desktop.jpg";
@@ -17,9 +18,27 @@ export type ServiceOffer = {
 
 export type ProcessStep = {
   index: "01" | "02" | "03" | "04";
-  title: "Discovery" | "Build" | "Verification" | "Launch and handover";
+  title: "Call" | "Build" | "Test" | "Launch";
   summary: string;
 };
+
+export type FixSectionProblem = { title: string; body: string };
+
+export type FixSectionContent = {
+  /** Small mono section label (the RuledSection heading). */
+  title: string;
+  /** Small mono line on the right of the section rule. */
+  meta: string;
+  headline: string;
+  /** Phrase inside `headline` rendered in the accent colour. */
+  accent: string;
+  lead: string;
+  problems: readonly FixSectionProblem[];
+  ctaLead: string;
+  cta: { label: string; href: Route };
+};
+
+export type ServiceFaqItem = { question: string; answer: string };
 
 type ClientWorkBase = {
   name: "Madar Wears" | "La Glosse" | "Nexo" | "Loverboy Studio";
@@ -62,50 +81,132 @@ export type ClientWorkMediaSet = {
 export const SERVICE_OFFERS = [
   {
     capabilities: [
-      "Custom themes and sections",
-      "Speed and SEO optimization",
-      "Launch to first sale",
+      "Looks premium, so people trust you with their card",
+      "Fewer steps to buy, so fewer people leave without paying",
+      "Brings back shoppers who left their cart, so lost sales come back",
+      "Suggests related products, so every order is worth more",
     ],
     index: "01",
-    label: "Shopify",
+    label: "Ecommerce",
     summary:
-      "Complete Shopify builds with Liquid customization, checkout-ready layouts, and technical SEO baked in from brief through launch.",
-    title: "Shopify stores, brief to first sale.",
+      "Getting people to your store is only half the job. The other half is getting them to buy. I build Shopify ecommerce stores that look like a real brand, make ordering effortless, and feel right on a phone, so the visitors you already have turn into orders.",
+    title: "Shopify stores that bring in more orders.",
   },
   {
-    capabilities: ["React / Node / MongoDB", "LLM and CV integrations", "Admin panels and auth"],
+    capabilities: [
+      "Designed around your business, so you stand out from competitors",
+      "Says what you do in seconds, so people don't leave confused",
+      "Shows your work, so the site does the selling for you",
+      "Every page leads to one thing: contacting you",
+    ],
     index: "02",
-    label: "Web and AI",
+    label: "Custom websites",
     summary:
-      "Full-stack platforms and applied-AI features designed, built, and deployed as complete products.",
-    title: "Full-stack products, end to end.",
+      "Whatever your business does, people check your website before they call, book, or buy. If it looks cheap or confusing, they move on to a competitor. I design and build custom websites that make you the obvious choice, so more of those visits turn into calls and messages.",
+    title: "Websites that bring you new clients.",
   },
 ] as const satisfies readonly ServiceOffer[];
+
+export const FIX_SECTION = {
+  accent: "More customers",
+  cta: { href: "/#contact", label: "Send me the link" },
+  ctaLead: "I'll look at it and tell you what's costing you money and what it takes to fix it.",
+  headline: "Same website. More customers.",
+  lead: "You don't need to start over. Whether it's a Shopify store or a custom website, if it's slow, looks dated, or gets visits but no orders or messages, something specific is costing you money. I find it, fix it, and leave what works alone.",
+  meta: "Fixes - Redesigns - Speed-ups",
+  problems: [
+    {
+      body: "Every slow second sends people back to Instagram. I speed up your website, so visitors stay long enough to buy.",
+      title: "It's slow",
+    },
+    {
+      body: "A dated site makes people doubt the business. I redesign it to match your brand today, so visitors trust you enough to pay.",
+      title: "It looks dated",
+    },
+    {
+      body: "People come, look, and leave. Usually it's confusing pages, hidden costs, or too many steps. I fix those, and your visitors start turning into customers.",
+      title: "Visitors, but no customers",
+    },
+    {
+      body: "A dead button, a broken page, a form that never sends. Each one is a lost customer. I find them and fix them.",
+      title: "Something's broken",
+    },
+  ],
+  title: "Already have a website?",
+} as const satisfies FixSectionContent;
+
+export const PROJECT_INCLUDES = [
+  "One person, start to finish. No account managers, no handoffs.",
+  "Works on every phone. That's where your customers are.",
+  "Fast, because a slow site is an empty one.",
+  "Your own domain, connected and secure.",
+  "A walkthrough, so you can update it yourself.",
+  "You own everything: the site, the design, every login.",
+] as const satisfies readonly string[];
 
 export const SERVICE_PROCESS = [
   {
     index: "01",
     summary:
-      "Establish audience, scope, constraints, budget range, deadline, and definition of done.",
-    title: "Discovery",
+      "You tell me what you sell, who buys it, and what you want the site to do. I tell you what's realistic, how long it takes, and what it costs.",
+    title: "Call",
   },
   {
     index: "02",
-    summary: "Deliver visible increments through a staging environment.",
+    summary:
+      "I send you a private link and you watch the site take shape. You give feedback along the way, so there are no surprises at the end.",
     title: "Build",
   },
   {
     index: "03",
     summary:
-      "Test critical journeys, responsive behavior, accessibility, performance, and failure states.",
-    title: "Verification",
+      "I test it the way your customers will use it. On a phone, on slow internet, from finding a product to paying for it.",
+    title: "Test",
   },
   {
     index: "04",
-    summary: "Deploy, complete final QA, and hand over documentation and access.",
-    title: "Launch and handover",
+    summary: "Your site goes live. You get every login and full ownership. It's yours to run.",
+    title: "Launch",
   },
 ] as const satisfies readonly ProcessStep[];
+
+export const SERVICE_FAQ = [
+  {
+    answer: "No. I set it up with you, in your name, so it's yours from day one.",
+    question: "Do I need a Shopify account first?",
+  },
+  {
+    answer: "Most stores go live three to five weeks after our first call. Fixes are faster.",
+    question: "How long does it take?",
+  },
+  {
+    answer:
+      "Every project is quoted after the first call, based on what you actually need. One fixed price, no hourly billing, no surprises.",
+    question: "How much does it cost?",
+  },
+  {
+    answer:
+      "Yes. Products, prices, photos and text are all yours to change, and I show you how before I hand it over. For bigger changes or ongoing upkeep, I'm one message away.",
+    question: "Can I update it myself after launch?",
+  },
+  {
+    answer:
+      "You bring the product photos and details. I tell you exactly what I need up front and handle everything else.",
+    question: "Do you write the text and take the photos?",
+  },
+  {
+    answer:
+      "Yes, and often that's the smarter move. Send me the link and I'll tell you what's worth fixing.",
+    question: "I already have a website. Can you fix it instead of rebuilding?",
+  },
+  {
+    answer: "Yes. I'm in Cairo and work with clients anywhere over email and calls.",
+    question: "Do you work with clients outside Egypt?",
+  },
+] as const satisfies readonly ServiceFaqItem[];
+
+export const START_PROJECT_INTRO =
+  "Tell me what you sell and what's not working. I'll tell you if I can help.";
 
 export const CLIENT_WORK = [
   {
