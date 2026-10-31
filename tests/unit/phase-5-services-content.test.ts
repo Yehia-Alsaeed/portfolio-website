@@ -48,10 +48,10 @@ describe("Phase 5 services content", () => {
 
   it("lists the five client-work entries, captured for four and text-only for Nexo", () => {
     expect(CLIENT_WORK.map(({ name }) => name)).toEqual([
-      "Madar Wears",
-      "La Glosse",
       "Loverboy Studio",
       "Almuharrami Legal",
+      "La Glosse",
+      "Madar Wears",
       "Nexo",
     ]);
     expect(CLIENT_WORK.filter(({ presentation }) => presentation === "captured")).toHaveLength(4);
@@ -73,10 +73,10 @@ describe("Phase 5 services content", () => {
     expect(nexo?.url).toBe("https://bh9d1w-16.myshopify.com/");
 
     expect(VISIBLE_CLIENT_WORK.map(({ name }) => name)).toEqual([
-      "Madar Wears",
-      "La Glosse",
       "Loverboy Studio",
       "Almuharrami Legal",
+      "La Glosse",
+      "Madar Wears",
     ]);
     expect(VISIBLE_CLIENT_WORK.every(({ hidden }) => !hidden)).toBe(true);
   });

@@ -216,28 +216,6 @@ export const START_PROJECT_INTRO =
 export const CLIENT_WORK = [
   {
     contribution:
-      "Madar Wears needed a storefront that could carry a growing catalogue without slowing down. I built a custom Shopify theme with responsive product and collection templates, tuned image delivery, and a checkout-ready path from first tap to order.",
-    kind: "Shopify storefront",
-    mediaKey: "madar-wears",
-    name: "Madar Wears",
-    presentation: "captured",
-    sector: "Apparel",
-    trackingId: "madar-wears",
-    url: "https://www.madarwears.com/",
-  },
-  {
-    contribution:
-      "La Glosse wanted a storefront that felt as considered as the products in it. I built a custom Shopify theme with responsive product pages, deliberate typography, and a checkout-ready path that holds up on a phone.",
-    kind: "Shopify storefront",
-    mediaKey: "la-glosse",
-    name: "La Glosse",
-    presentation: "captured",
-    sector: "Beauty",
-    trackingId: "la-glosse",
-    url: "https://la-glosse.com/",
-  },
-  {
-    contribution:
       "Loverboy Studio is a boutique brand and creative-direction studio working between Cairo and New York, so its own site had to hold up against the identity work it sells. I designed and built it end to end: the layout system, the case-study templates, the motion, and the front end that ships them.",
     kind: "Creative studio site",
     mediaKey: "loverboy-studio",
@@ -257,6 +235,28 @@ export const CLIENT_WORK = [
     sector: "Legal",
     trackingId: "almuharrami-legal",
     url: "https://www.almuharramilegal.com/",
+  },
+  {
+    contribution:
+      "La Glosse wanted a storefront that felt as considered as the products in it. I built a custom Shopify theme with responsive product pages, deliberate typography, and a checkout-ready path that holds up on a phone.",
+    kind: "Shopify storefront",
+    mediaKey: "la-glosse",
+    name: "La Glosse",
+    presentation: "captured",
+    sector: "Beauty",
+    trackingId: "la-glosse",
+    url: "https://la-glosse.com/",
+  },
+  {
+    contribution:
+      "Madar Wears needed a storefront that could carry a growing catalogue without slowing down. I built a custom Shopify theme with responsive product and collection templates, tuned image delivery, and a checkout-ready path from first tap to order.",
+    kind: "Shopify storefront",
+    mediaKey: "madar-wears",
+    name: "Madar Wears",
+    presentation: "captured",
+    sector: "Apparel",
+    trackingId: "madar-wears",
+    url: "https://www.madarwears.com/",
   },
   {
     // HIDDEN, NOT RETIRED - withheld from /services for now and due back
