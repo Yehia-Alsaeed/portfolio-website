@@ -46,14 +46,15 @@ describe("Phase 5 services content", () => {
     expect(SERVICE_TEASERS).toEqual(SERVICE_OFFERS);
   });
 
-  it("lists the four client-work entries, captured for three and text-only for Nexo", () => {
+  it("lists the five client-work entries, captured for four and text-only for Nexo", () => {
     expect(CLIENT_WORK.map(({ name }) => name)).toEqual([
       "Madar Wears",
       "La Glosse",
       "Loverboy Studio",
+      "Almuharrami Legal",
       "Nexo",
     ]);
-    expect(CLIENT_WORK.filter(({ presentation }) => presentation === "captured")).toHaveLength(3);
+    expect(CLIENT_WORK.filter(({ presentation }) => presentation === "captured")).toHaveLength(4);
     expect(CLIENT_WORK.find(({ name }) => name === "Nexo")?.presentation).toBe("text-only");
   });
 
@@ -75,6 +76,7 @@ describe("Phase 5 services content", () => {
       "Madar Wears",
       "La Glosse",
       "Loverboy Studio",
+      "Almuharrami Legal",
     ]);
     expect(VISIBLE_CLIENT_WORK.every(({ hidden }) => !hidden)).toBe(true);
   });

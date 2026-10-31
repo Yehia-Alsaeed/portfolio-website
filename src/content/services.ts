@@ -1,6 +1,8 @@
 import type { Route } from "next";
 import type { StaticImageData } from "next/image";
 
+import almuharramiLegalDesktop from "@/assets/client-work/almuharrami-legal-desktop.jpg";
+import almuharramiLegalMobile from "@/assets/client-work/almuharrami-legal-mobile.jpg";
 import laGlosseDesktop from "@/assets/client-work/la-glosse-desktop.jpg";
 import laGlosseMobile from "@/assets/client-work/la-glosse-mobile.jpg";
 import loverboyStudioDesktop from "@/assets/client-work/loverboy-studio-desktop.jpg";
@@ -41,14 +43,14 @@ export type FixSectionContent = {
 export type ServiceFaqItem = { question: string; answer: string };
 
 type ClientWorkBase = {
-  name: "Madar Wears" | "La Glosse" | "Nexo" | "Loverboy Studio";
+  name: "Madar Wears" | "La Glosse" | "Nexo" | "Loverboy Studio" | "Almuharrami Legal";
   /** Small mono eyebrow above the client name. */
   sector: string;
-  kind: "Shopify storefront" | "Creative studio site";
+  kind: "Shopify storefront" | "Creative studio site" | "Law firm website";
   /** One paragraph: what they needed, what I built, what it does now. */
   contribution: string;
   url: `https://${string}`;
-  trackingId: "madar-wears" | "la-glosse" | "nexo" | "loverboy-studio";
+  trackingId: "madar-wears" | "la-glosse" | "nexo" | "loverboy-studio" | "almuharrami-legal";
   /**
    * Withheld from the rendered page while still shipping as typed content.
    *
@@ -66,7 +68,10 @@ type ClientWorkBase = {
 
 export type ClientWork = ClientWorkBase &
   (
-    | { presentation: "captured"; mediaKey: "madar-wears" | "la-glosse" | "loverboy-studio" }
+    | {
+        presentation: "captured";
+        mediaKey: "madar-wears" | "la-glosse" | "loverboy-studio" | "almuharrami-legal";
+      }
     | { presentation: "text-only" }
   );
 
@@ -243,6 +248,17 @@ export const CLIENT_WORK = [
     url: "https://www.loverboy-studio.com/",
   },
   {
+    contribution:
+      "Saeed Almuharrami Advocates & Legal Consultants needed a site that feels as trustworthy as the counsel it sells. I designed and built it end to end: the Dubai skyline hero, the sectors and practice-area pages, an enquiry form sorted by area of law, and consent-first analytics that respect UAE data law.",
+    kind: "Law firm website",
+    mediaKey: "almuharrami-legal",
+    name: "Almuharrami Legal",
+    presentation: "captured",
+    sector: "Legal",
+    trackingId: "almuharrami-legal",
+    url: "https://www.almuharramilegal.com/",
+  },
+  {
     // HIDDEN, NOT RETIRED - withheld from /services for now and due back
     // later. Keep this entry exactly as it is; see `hidden` on ClientWorkBase
     // before touching or removing anything here.
@@ -276,8 +292,17 @@ export const VISIBLE_CLIENT_WORK: readonly ClientWork[] = CLIENT_WORK.filter(
 );
 
 export const CLIENT_WORK_MEDIA: Readonly<
-  Record<"madar-wears" | "la-glosse" | "loverboy-studio", ClientWorkMediaSet>
+  Record<"madar-wears" | "la-glosse" | "loverboy-studio" | "almuharrami-legal", ClientWorkMediaSet>
 > = {
+  "almuharrami-legal": {
+    desktop: { alt: "Almuharrami Legal desktop site", src: almuharramiLegalDesktop },
+    mobile: { alt: "Almuharrami Legal mobile site", src: almuharramiLegalMobile },
+    recording: {
+      description:
+        "Muted walkthrough of the Almuharrami Legal site: the homepage and its practice areas, the Financial Institutions sector opened on the Experience page, then the firm's story and partners.",
+      src: "/media/client-work/almuharrami-legal.webm",
+    },
+  },
   "la-glosse": {
     desktop: { alt: "La Glosse desktop storefront", src: laGlosseDesktop },
     mobile: { alt: "La Glosse mobile storefront", src: laGlosseMobile },

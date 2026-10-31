@@ -60,13 +60,14 @@ describe("Phase 5 client-work presentation", () => {
   it("renders every roster entry with safe external links and no embedded frames", () => {
     const { container } = render(<ClientWorkGrid entries={CLIENT_WORK} />);
 
-    expect(screen.getAllByRole("article")).toHaveLength(4);
+    expect(screen.getAllByRole("article")).toHaveLength(5);
     expect(screen.getByRole("link", { name: "Open Madar Wears" })).toHaveAttribute(
       "rel",
       "noopener noreferrer",
     );
     expect(screen.getByRole("link", { name: "Open La Glosse" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Open Loverboy Studio" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Open Almuharrami Legal" })).toBeVisible();
     expect(screen.getByRole("link", { name: "Open Nexo" })).toBeVisible();
     expect(container.querySelector("iframe")).toBeNull();
   });
@@ -159,7 +160,7 @@ describe("Phase 5 client-work presentation", () => {
 
     const { container } = render(<ClientWorkGrid entries={CLIENT_WORK} />);
 
-    expect(container.querySelectorAll('img[src*="macbook"]')).toHaveLength(3);
+    expect(container.querySelectorAll('img[src*="macbook"]')).toHaveLength(4);
     expect(container.querySelector("video")).not.toBeNull();
   });
 
@@ -174,7 +175,7 @@ describe("Phase 5 client-work presentation", () => {
     const { container } = render(<ClientWorkGrid entries={CLIENT_WORK} framed />);
 
     const frames = container.querySelectorAll('img[src*="macbook"]');
-    expect(frames).toHaveLength(3);
+    expect(frames).toHaveLength(4);
     for (const frame of frames) {
       expect(frame).toHaveAttribute("aria-hidden", "true");
       expect(frame).toHaveAttribute("alt", "");

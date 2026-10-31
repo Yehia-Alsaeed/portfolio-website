@@ -95,7 +95,7 @@ test("puts client proof and the offer ahead of the recruiter half", async ({ pag
   await page.getByRole("link", { name: "See client work" }).click();
   await expect(page).toHaveURL(/#client-work$/);
   await expect(page.locator("#client-work")).toBeInViewport();
-  await expect(page.locator("#client-work").getByRole("article")).toHaveCount(3);
+  await expect(page.locator("#client-work").getByRole("article")).toHaveCount(4);
 
   // The stats strip and its "For hiring managers" block were removed on
   // purpose; small counts read as "new" to clients.
