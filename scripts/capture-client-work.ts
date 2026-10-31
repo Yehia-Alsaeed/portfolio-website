@@ -23,11 +23,16 @@ import { chromium, type Browser, type Locator, type Page } from "@playwright/tes
  * `browsed` captures support it.
  * `endBefore` stops the pass where that element would scroll into view
  * (usually `footer`) instead of at the very bottom of the page.
+ * `hold` brings the pass to rest with that element centred for `seconds`,
+ * then carries on. The hold comes out of the leg's own budget, so the leg
+ * still takes `seconds` overall.
  */
+type ScrollPass = { seconds: number; endBefore?: string; hold?: { at: string; seconds: number } };
+
 type WalkStep =
-  | { kind: "visit"; path: string; seconds: number; endBefore?: string }
-  | { kind: "follow"; link: string; seconds: number; endBefore?: string }
-  | { kind: "press"; control: string; seconds: number; endBefore?: string };
+  | ({ kind: "visit"; path: string } & ScrollPass)
+  | ({ kind: "follow"; link: string } & ScrollPass)
+  | ({ kind: "press"; control: string } & ScrollPass);
 
 /**
  * How the walkthrough is filmed.
@@ -51,6 +56,13 @@ type CaptureTarget = {
    * remembers the choice, so one click covers the whole walkthrough.
    */
   consent?: string;
+  /**
+   * `scripted` only: the clip's length in seconds. Playwright films from the
+   * moment the context opens, so the page's own load time - which varies run
+   * to run - ends up in the clip. Holding on the last frame until this mark
+   * keeps a re-record the same length as the take it replaces.
+   */
+  length?: number;
   walkthrough: readonly WalkStep[];
 };
 
@@ -90,12 +102,18 @@ const CAPTURE_TARGETS: readonly CaptureTarget[] = [
     key: "loverboy-studio",
     url: "https://www.loverboy-studio.com/",
     style: "scripted",
+    length: 32.3,
     // Budgets are wall-clock time for the pass, and pace is derived from each
     // page's height, so these are set for how the motion should read rather
     // than for a distance. The homepage is ~3,100px of scroll, which over 14s
     // lands near the calm pace of the two storefront clips.
+    //
+    // The About stats reset to 0 on every scroll and only count up once the
+    // page has been still for a moment, so an unbroken pass films them as
+    // 0+ / 0+ / 0. The hold lets them count up to their real figures on
+    // camera; once counted they stay put when the pass moves on.
     walkthrough: [
-      { kind: "visit", path: "/", seconds: 14 },
+      { kind: "visit", path: "/", seconds: 14, hold: { at: "#about", seconds: 2.8 } },
       { kind: "follow", link: 'a[href*="/work/dallah-karak-speciality-tea"]', seconds: 9 },
     ],
   },
@@ -279,13 +297,21 @@ async function dismissConsent(page: Page, target: CaptureTarget) {
  * these sites set `scroll-behavior: smooth`, which would otherwise animate
  * every frame's scroll against the next one.
  */
-async function scrollThrough(page: Page, seconds: number, endBefore?: string) {
+async function scrollThrough(page: Page, seconds: number, endBefore?: string, to?: number) {
   // A zero budget means "stay put": the pass would otherwise reach its
   // destination on the very first frame and jump straight there.
   if (seconds <= 0) return;
 
   await page.evaluate(
-    async ({ durationMs, stopSelector }: { durationMs: number; stopSelector: string | null }) => {
+    async ({
+      durationMs,
+      stopSelector,
+      target,
+    }: {
+      durationMs: number;
+      stopSelector: string | null;
+      target: number | null;
+    }) => {
       const startedAt = performance.now();
       const from = window.scrollY;
 
@@ -295,6 +321,7 @@ async function scrollThrough(page: Page, seconds: number, endBefore?: string) {
 
       // Re-read each frame: lazy sections can extend the page mid-pass.
       const destination = () => {
+        if (target !== null) return target;
         const bottom = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
         const stop = stopSelector ? document.querySelector(stopSelector) : null;
         if (!stop) return bottom;
@@ -318,8 +345,47 @@ async function scrollThrough(page: Page, seconds: number, endBefore?: string) {
         requestAnimationFrame(frame);
       });
     },
-    { durationMs: seconds * 1000, stopSelector: endBefore ?? null },
+    { durationMs: seconds * 1000, stopSelector: endBefore ?? null, target: to ?? null },
   );
+}
+
+/**
+ * Runs a leg's scroll pass, pausing on `hold` when the leg has one. The time
+ * left after the hold is split between the two moves by distance, so the
+ * pace either side of the pause matches.
+ */
+async function walkPass(page: Page, pass: ScrollPass) {
+  if (!pass.hold) {
+    await scrollThrough(page, pass.seconds, pass.endBefore);
+    return;
+  }
+
+  const target = page.locator(pass.hold.at).first();
+  const { afterHold, holdAt, toHold } = await target.evaluate((element, stopSelector) => {
+    const holdAt =
+      element.getBoundingClientRect().top +
+      window.scrollY +
+      element.getBoundingClientRect().height / 2 -
+      window.innerHeight / 2;
+    const bottom = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const stop = stopSelector ? document.querySelector(stopSelector) : null;
+    const end = stop
+      ? Math.min(bottom, stop.getBoundingClientRect().top + window.scrollY - window.innerHeight)
+      : bottom;
+    return {
+      afterHold: Math.abs(end - holdAt),
+      holdAt,
+      toHold: Math.abs(holdAt - window.scrollY),
+    };
+  }, pass.endBefore ?? null);
+
+  const moving = pass.seconds - pass.hold.seconds;
+  const first = moving * (toHold / (toHold + afterHold || 1));
+  // Centres the whole element, not just its top edge as `scrollToElement`
+  // does, so a tall section is on screen in full while the pass rests on it.
+  await scrollThrough(page, first, undefined, holdAt);
+  await page.waitForTimeout(pass.hold.seconds * 1000);
+  await scrollThrough(page, moving - first, pass.endBefore);
 }
 
 /**
@@ -383,6 +449,16 @@ async function newCapturePage(browser: Browser, options: Parameters<Browser["new
   return { context, page };
 }
 
+async function runFfmpeg(args: readonly string[]) {
+  const ffmpeg = spawn(FFMPEG, ["-loglevel", "error", ...args], { stdio: "inherit" });
+  await new Promise<void>((resolve, reject) => {
+    ffmpeg.on("error", reject);
+    ffmpeg.on("close", (code) =>
+      code === 0 ? resolve() : reject(new Error(`ffmpeg exited with code ${code}`)),
+    );
+  });
+}
+
 // Playwright only finalizes a recording once its context closes, so the whole
 // walkthrough runs inside one context and the file is collected afterwards.
 async function captureScriptedRecording(browser: Browser, target: CaptureTarget, dirs: OutputDirs) {
@@ -391,6 +467,7 @@ async function captureScriptedRecording(browser: Browser, target: CaptureTarget,
     recordVideo: { dir: tempDir, size: RECORDING_VIEWPORT },
     viewport: RECORDING_VIEWPORT,
   });
+  const filmingSince = Date.now();
 
   for (const [index, step] of target.walkthrough.entries()) {
     if (step.kind === "visit") {
@@ -415,7 +492,16 @@ async function captureScriptedRecording(browser: Browser, target: CaptureTarget,
       await page.waitForTimeout(1600);
     }
 
-    await scrollThrough(page, step.seconds, step.endBefore);
+    await walkPass(page, step);
+  }
+
+  if (target.length) {
+    const remaining = target.length * 1000 - (Date.now() - filmingSince);
+    if (remaining > 0) await page.waitForTimeout(remaining);
+    else
+      console.warn(
+        `Warning: ${target.key} ran ${(-remaining / 1000).toFixed(1)}s over its length.`,
+      );
   }
 
   await context.close();
@@ -424,9 +510,25 @@ async function captureScriptedRecording(browser: Browser, target: CaptureTarget,
   if (!video) throw new Error(`No recording captured for ${target.key}`);
   const recordedPath = await video.path();
   const destination = path.join(dirs.videoDir, `${target.key}.webm`);
-  // `rename` fails cross-device when the OS temp dir and project dir live on
-  // different drives, so copy the finalized recording and clean up after.
-  await copyFile(recordedPath, destination);
+  if (target.length) {
+    // Closing the context flushes a fraction of a second more than was asked
+    // for, so the held tail is cut back to the exact length. A stream copy:
+    // only the end moves, so nothing is re-encoded.
+    await runFfmpeg([
+      "-i",
+      recordedPath,
+      "-t",
+      String(target.length),
+      "-c",
+      "copy",
+      "-y",
+      destination,
+    ]);
+  } else {
+    // `rename` fails cross-device when the OS temp dir and project dir live on
+    // different drives, so copy the finalized recording and clean up after.
+    await copyFile(recordedPath, destination);
+  }
   await rm(tempDir, { force: true, recursive: true });
   console.log(`Captured ${destination}`);
 }
@@ -596,7 +698,7 @@ async function captureBrowsedRecording(browser: Browser, target: CaptureTarget, 
       }
     }
 
-    await scrollThrough(page, step.seconds, step.endBefore);
+    await walkPass(page, step);
   }
 
   // A closing hold, so the loop does not cut away mid-motion.
