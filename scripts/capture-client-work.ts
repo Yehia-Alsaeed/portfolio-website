@@ -1,8 +1,9 @@
-import { copyFile, mkdir, mkdtemp, rm } from "node:fs/promises";
+import { spawn } from "node:child_process";
+import { copyFile, mkdir, mkdtemp, rm, stat } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import { chromium, type Browser } from "@playwright/test";
+import { chromium, type Browser, type Locator, type Page } from "@playwright/test";
 
 /**
  * One walkthrough leg. `seconds` is the scrolling budget for that leg, not a
@@ -15,14 +16,41 @@ import { chromium, type Browser } from "@playwright/test";
  * clip as dead air - three `visit` legs put ~13s of loading into a 46s take.
  * `follow` clicks a real link instead, so the transition is soft, fast, and
  * shows the site's own page transition rather than a blank frame.
+ *
+ * `link` is a CSS selector; the first visible match is the one followed.
+ * `press` clicks a control that stays on the same page - an accordion header,
+ * say - so it waits for the page to react rather than for a new URL. Only
+ * `browsed` captures support it.
+ * `endBefore` stops the pass where that element would scroll into view
+ * (usually `footer`) instead of at the very bottom of the page.
  */
 type WalkStep =
-  | { kind: "visit"; path: string; seconds: number }
-  | { kind: "follow"; hrefContains: string; seconds: number };
+  | { kind: "visit"; path: string; seconds: number; endBefore?: string }
+  | { kind: "follow"; link: string; seconds: number; endBefore?: string }
+  | { kind: "press"; control: string; seconds: number; endBefore?: string };
+
+/**
+ * How the walkthrough is filmed.
+ *
+ * - `scripted`: Playwright's own recorder (fixed at 25fps), no cursor. The
+ *   Loverboy Studio clip.
+ * - `browsed`: Chrome's screencast encoded at 30fps, with a drawn cursor that
+ *   glides to each link and clicks it, so the clip reads as someone browsing
+ *   the store - homepage, menu, catalogue, product. The La Glosse and Madar
+ *   Wears clips, and the style any new storefront should match.
+ */
+type CaptureStyle = "scripted" | "browsed";
 
 type CaptureTarget = {
   key: string;
   url: string;
+  style: CaptureStyle;
+  /**
+   * The cookie banner's least-permissive choice, clicked before anything is
+   * captured so the banner never sits over a still or a recording. The site
+   * remembers the choice, so one click covers the whole walkthrough.
+   */
+  consent?: string;
   walkthrough: readonly WalkStep[];
 };
 
@@ -36,23 +64,64 @@ const CAPTURE_TARGETS: readonly CaptureTarget[] = [
   {
     key: "madar-wears",
     url: "https://www.madarwears.com/",
-    walkthrough: [{ kind: "visit", path: "/", seconds: 26 }],
+    style: "browsed",
+    walkthrough: [
+      { kind: "visit", path: "/", seconds: 8, endBefore: "footer" },
+      { kind: "follow", link: 'a[href="/collections/all"]', seconds: 7, endBefore: "footer" },
+      {
+        kind: "follow",
+        link: 'a[href="/products/grey-denim"], a[href^="/products/grey-denim?"]',
+        seconds: 7,
+        endBefore: "footer",
+      },
+    ],
   },
   {
     key: "la-glosse",
     url: "https://la-glosse.com/",
-    walkthrough: [{ kind: "visit", path: "/", seconds: 26 }],
+    style: "browsed",
+    walkthrough: [
+      { kind: "visit", path: "/", seconds: 9, endBefore: "footer" },
+      { kind: "follow", link: 'a[href="/collections/all"]', seconds: 4, endBefore: "footer" },
+      { kind: "follow", link: 'main a[href*="/products/"]', seconds: 5, endBefore: "footer" },
+    ],
   },
   {
     key: "loverboy-studio",
     url: "https://www.loverboy-studio.com/",
+    style: "scripted",
     // Budgets are wall-clock time for the pass, and pace is derived from each
     // page's height, so these are set for how the motion should read rather
     // than for a distance. The homepage is ~3,100px of scroll, which over 14s
     // lands near the calm pace of the two storefront clips.
     walkthrough: [
       { kind: "visit", path: "/", seconds: 14 },
-      { kind: "follow", hrefContains: "/work/dallah-karak-speciality-tea", seconds: 9 },
+      { kind: "follow", link: 'a[href*="/work/dallah-karak-speciality-tea"]', seconds: 9 },
+    ],
+  },
+  {
+    key: "almuharrami-legal",
+    url: "https://www.almuharramilegal.com/",
+    style: "browsed",
+    consent: 'button:has-text("Reject Non-essential")',
+    // A law firm has no catalogue, so the storefront path becomes practice
+    // card -> the matching practice area opened -> the firm and its people.
+    // The homepage pass stops with all eight practice cards on screen, and Our
+    // Story ends on the "Authentic. Trustworthy." split above its CTA band.
+    walkthrough: [
+      { kind: "visit", path: "/", seconds: 9, endBefore: ".home-testimonial" },
+      {
+        kind: "follow",
+        link: 'main a[href="/experience"]:has-text("Banking & Finance")',
+        seconds: 0,
+      },
+      {
+        kind: "press",
+        control: 'button:has-text("Financial Institutions")',
+        seconds: 2.5,
+        endBefore: "footer",
+      },
+      { kind: "follow", link: 'header a[href="/our-story"]', seconds: 7, endBefore: ".cta-band" },
     ],
   },
 ];
@@ -73,32 +142,125 @@ const MOBILE_VIEWPORT = { width: 390, height: 844 };
  */
 const RECORDING_VIEWPORT = { width: 1220, height: 790 };
 
+/** Frame rate of `browsed` clips. Playwright's recorder is fixed at 25. */
+const BROWSED_FPS = 30;
+
+/** `ffmpeg` encodes `browsed` clips; set FFMPEG_PATH if it is not on PATH. */
+const FFMPEG = process.env.FFMPEG_PATH ?? "ffmpeg";
+
 /** Well under the per-clip budget the shipped captures sit at (1.7-2.3 MB). */
 const MAX_RECORDING_BYTES = 5 * 1024 * 1024;
 
 const IMAGE_DIR = path.resolve(process.cwd(), "src/assets/client-work");
 const VIDEO_DIR = path.resolve(process.cwd(), "public/media/client-work");
 
+type OutputDirs = { imageDir: string; videoDir: string };
+
+type Point = { x: number; y: number };
+
+/**
+ * Skips cross-document View Transitions, which recent Shopify themes (La
+ * Glosse and Madar Wears both) run on every link click. In headless Chrome the
+ * transition never finishes: the new page stops painting and
+ * requestAnimationFrame never fires again, so the scroll pass after a click
+ * hangs forever. The shipped clips hard-cut between pages anyway, so skipping
+ * it matches them.
+ */
+const SKIP_VIEW_TRANSITIONS_SCRIPT = `
+  addEventListener("pageswap", (event) => event.viewTransition?.skipTransition());
+  addEventListener("pagereveal", (event) => event.viewTransition?.skipTransition());
+`;
+
+/**
+ * The cursor drawn into `browsed` clips: a small white arrow with a dark
+ * outline, matching the one in the shipped La Glosse and Madar Wears clips.
+ * Headless Chrome paints no pointer of its own, so this follows real
+ * `mousemove` events, and remembers its last spot in sessionStorage so it
+ * does not jump to the corner when a link click loads a new document.
+ *
+ * A string for the same `__name` reason as the shim in `newCapturePage`.
+ */
+const CURSOR_SCRIPT = `(() => {
+  const id = "__capture-cursor";
+  const place = (element, x, y) => {
+    element.style.transform = "translate(" + x + "px, " + y + "px)";
+  };
+  const mount = () => {
+    if (document.getElementById(id)) return;
+    const element = document.createElement("div");
+    element.id = id;
+    element.innerHTML =
+      '<svg width="13" height="19" viewBox="0 0 13 19" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M1 1v14.5l3.6-3.4 2.6 6 2.3-1-2.6-5.9H12z" fill="#fff" stroke="#111" stroke-width="1.1" stroke-linejoin="round"/></svg>';
+    Object.assign(element.style, {
+      filter: "drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.35))",
+      left: "0",
+      pointerEvents: "none",
+      position: "fixed",
+      top: "0",
+      zIndex: "2147483647",
+    });
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(id) || "null");
+      if (saved) place(element, saved.x, saved.y);
+      else element.style.visibility = "hidden";
+    } catch {}
+    document.documentElement.appendChild(element);
+    addEventListener(
+      "mousemove",
+      (event) => {
+        element.style.visibility = "visible";
+        place(element, event.clientX, event.clientY);
+        try {
+          sessionStorage.setItem(id, JSON.stringify({ x: event.clientX, y: event.clientY }));
+        } catch {}
+      },
+      { capture: true, passive: true },
+    );
+  };
+  if (document.readyState === "loading") addEventListener("DOMContentLoaded", mount);
+  else mount();
+})();`;
+
+function outputDirs(argv: readonly string[]): OutputDirs {
+  const out = argv.find((value) => value.startsWith("--out="))?.slice("--out=".length);
+  if (!out) return { imageDir: IMAGE_DIR, videoDir: VIDEO_DIR };
+  const dir = path.resolve(out);
+  return { imageDir: dir, videoDir: dir };
+}
+
 async function captureScreenshot(
   browser: Browser,
   target: CaptureTarget,
   variant: "desktop" | "mobile",
+  dirs: OutputDirs,
 ) {
   const viewport = variant === "desktop" ? DESKTOP_VIEWPORT : MOBILE_VIEWPORT;
   const context = await browser.newContext({ viewport });
   const page = await context.newPage();
   await page.goto(target.url, { timeout: 30_000, waitUntil: "load" });
   await page.waitForTimeout(2200);
+  await dismissConsent(page, target);
 
-  const destination = path.join(IMAGE_DIR, `${target.key}-${variant}.jpg`);
+  const destination = path.join(dirs.imageDir, `${target.key}-${variant}.jpg`);
   await page.screenshot({ path: destination, quality: 82, type: "jpeg" });
   await context.close();
   console.log(`Captured ${destination}`);
 }
 
+async function dismissConsent(page: Page, target: CaptureTarget) {
+  if (!target.consent) return;
+  const choice = page.locator(target.consent).filter({ visible: true }).first();
+  await choice.waitFor({ state: "visible", timeout: 15_000 });
+  await choice.click();
+  await choice.waitFor({ state: "hidden", timeout: 15_000 });
+  // Lets the banner's exit animation finish before anything is captured.
+  await page.waitForTimeout(600);
+}
+
 /**
- * Scrolls one page from top to bottom over `seconds`, moving on every
- * animation frame.
+ * Scrolls one page from where it is down to the bottom - or to just before
+ * `endBefore` - over `seconds`, moving on every animation frame.
  *
  * Two earlier approaches both produced visibly juddery clips, so neither is
  * worth returning to:
@@ -117,22 +279,64 @@ async function captureScreenshot(
  * these sites set `scroll-behavior: smooth`, which would otherwise animate
  * every frame's scroll against the next one.
  */
-async function scrollThrough(page: Awaited<ReturnType<Browser["newPage"]>>, seconds: number) {
-  await page.evaluate(async (durationMs: number) => {
-    const startedAt = performance.now();
+async function scrollThrough(page: Page, seconds: number, endBefore?: string) {
+  // A zero budget means "stay put": the pass would otherwise reach its
+  // destination on the very first frame and jump straight there.
+  if (seconds <= 0) return;
 
-    // Eased rather than linear so the pass settles into motion and comes to
-    // rest, instead of starting and stopping at full speed.
+  await page.evaluate(
+    async ({ durationMs, stopSelector }: { durationMs: number; stopSelector: string | null }) => {
+      const startedAt = performance.now();
+      const from = window.scrollY;
+
+      // Eased rather than linear so the pass settles into motion and comes to
+      // rest, instead of starting and stopping at full speed.
+      const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
+
+      // Re-read each frame: lazy sections can extend the page mid-pass.
+      const destination = () => {
+        const bottom = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        const stop = stopSelector ? document.querySelector(stopSelector) : null;
+        if (!stop) return bottom;
+        const stopAt = stop.getBoundingClientRect().top + window.scrollY - window.innerHeight;
+        return Math.max(0, Math.min(bottom, stopAt));
+      };
+
+      await new Promise<void>((resolve) => {
+        const frame = (now: number) => {
+          const progress = Math.min(1, (now - startedAt) / durationMs);
+
+          window.scrollTo({
+            behavior: "instant",
+            top: from + (destination() - from) * ease(progress),
+          });
+
+          if (progress < 1) requestAnimationFrame(frame);
+          else resolve();
+        };
+
+        requestAnimationFrame(frame);
+      });
+    },
+    { durationMs: seconds * 1000, stopSelector: endBefore ?? null },
+  );
+}
+
+/**
+ * Brings an element into view over `seconds` without the hard backwards snap
+ * that `scrollIntoViewIfNeeded` produces mid-clip.
+ */
+async function scrollToElement(element: Locator, seconds: number) {
+  await element.evaluate(async (target: Element, durationMs: number) => {
+    const from = window.scrollY;
+    const to = from + target.getBoundingClientRect().top - window.innerHeight / 2;
+    const startedAt = performance.now();
     const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 
     await new Promise<void>((resolve) => {
       const frame = (now: number) => {
         const progress = Math.min(1, (now - startedAt) / durationMs);
-        // Re-read each frame: lazy sections can extend the page mid-pass.
-        const distance = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-
-        window.scrollTo({ behavior: "instant", top: distance * ease(progress) });
-
+        window.scrollTo({ behavior: "instant", top: from + (to - from) * ease(progress) });
         if (progress < 1) requestAnimationFrame(frame);
         else resolve();
       };
@@ -142,48 +346,29 @@ async function scrollThrough(page: Awaited<ReturnType<Browser["newPage"]>>, seco
   }, seconds * 1000);
 }
 
-/**
- * Brings an element into view over `seconds` without the hard backwards snap
- * that `scrollIntoViewIfNeeded` produces mid-clip.
- */
-async function scrollToElement(
-  page: Awaited<ReturnType<Browser["newPage"]>>,
-  selector: string,
-  seconds: number,
-) {
+/** Resolves once the page has stopped scrolling for 250ms, or after 3s. */
+async function settleScroll(page: Page) {
   await page.evaluate(
-    async ({ durationMs, target }: { durationMs: number; target: string }) => {
-      const element = document.querySelector(target);
-      if (!element) return;
-
-      const from = window.scrollY;
-      const to = from + element.getBoundingClientRect().top - window.innerHeight / 2;
-      const startedAt = performance.now();
-      const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
-
-      await new Promise<void>((resolve) => {
+    () =>
+      new Promise<void>((resolve) => {
+        const startedAt = performance.now();
+        let last = window.scrollY;
+        let stillSince = startedAt;
         const frame = (now: number) => {
-          const progress = Math.min(1, (now - startedAt) / durationMs);
-          window.scrollTo({ behavior: "instant", top: from + (to - from) * ease(progress) });
-          if (progress < 1) requestAnimationFrame(frame);
-          else resolve();
+          if (window.scrollY !== last) {
+            last = window.scrollY;
+            stillSince = now;
+          }
+          if (now - stillSince > 250 || now - startedAt > 3000) resolve();
+          else requestAnimationFrame(frame);
         };
-
         requestAnimationFrame(frame);
-      });
-    },
-    { durationMs: seconds * 1000, target: selector },
+      }),
   );
 }
 
-// Playwright only finalizes a recording once its context closes, so the whole
-// walkthrough runs inside one context and the file is collected afterwards.
-async function captureRecording(browser: Browser, target: CaptureTarget) {
-  const tempDir = await mkdtemp(path.join(os.tmpdir(), "client-work-video-"));
-  const context = await browser.newContext({
-    recordVideo: { dir: tempDir, size: RECORDING_VIEWPORT },
-    viewport: RECORDING_VIEWPORT,
-  });
+async function newCapturePage(browser: Browser, options: Parameters<Browser["newContext"]>[0]) {
+  const context = await browser.newContext(options);
   const page = await context.newPage();
 
   // tsx compiles this file with esbuild's `keepNames`, which rewrites every
@@ -195,6 +380,18 @@ async function captureRecording(browser: Browser, target: CaptureTarget) {
     content: "globalThis.__name = globalThis.__name || ((fn) => fn);",
   });
 
+  return { context, page };
+}
+
+// Playwright only finalizes a recording once its context closes, so the whole
+// walkthrough runs inside one context and the file is collected afterwards.
+async function captureScriptedRecording(browser: Browser, target: CaptureTarget, dirs: OutputDirs) {
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), "client-work-video-"));
+  const { context, page } = await newCapturePage(browser, {
+    recordVideo: { dir: tempDir, size: RECORDING_VIEWPORT },
+    viewport: RECORDING_VIEWPORT,
+  });
+
   for (const [index, step] of target.walkthrough.entries()) {
     if (step.kind === "visit") {
       await page.goto(new URL(step.path, target.url).href, {
@@ -204,11 +401,13 @@ async function captureRecording(browser: Browser, target: CaptureTarget) {
       // Longer hold on the first leg so the hero, its fonts, and any entry
       // animation have settled before the clip starts moving.
       await page.waitForTimeout(index === 0 ? 2000 : 1200);
+      if (index === 0) await dismissConsent(page, target);
+    } else if (step.kind === "press") {
+      throw new Error(`${target.key}: "press" steps need the browsed style`);
     } else {
-      const selector = `a[href*="${step.hrefContains}"]`;
-      const link = page.locator(selector).first();
+      const link = page.locator(step.link).first();
       await link.waitFor({ state: "attached", timeout: 15_000 });
-      await scrollToElement(page, selector, 1.4);
+      await scrollToElement(link, 1.4);
       await page.waitForTimeout(600);
       await link.click({ timeout: 15_000 });
       // A soft route change has no load event to wait on, so this is the
@@ -216,7 +415,7 @@ async function captureRecording(browser: Browser, target: CaptureTarget) {
       await page.waitForTimeout(1600);
     }
 
-    await scrollThrough(page, step.seconds);
+    await scrollThrough(page, step.seconds, step.endBefore);
   }
 
   await context.close();
@@ -224,7 +423,7 @@ async function captureRecording(browser: Browser, target: CaptureTarget) {
   const video = page.video();
   if (!video) throw new Error(`No recording captured for ${target.key}`);
   const recordedPath = await video.path();
-  const destination = path.join(VIDEO_DIR, `${target.key}.webm`);
+  const destination = path.join(dirs.videoDir, `${target.key}.webm`);
   // `rename` fails cross-device when the OS temp dir and project dir live on
   // different drives, so copy the finalized recording and clean up after.
   await copyFile(recordedPath, destination);
@@ -233,10 +432,186 @@ async function captureRecording(browser: Browser, target: CaptureTarget) {
 }
 
 /**
+ * Films `page` through Chrome's screencast into a constant-30fps WebM.
+ *
+ * Chrome only sends a frame when something on screen changes, so each frame
+ * is written as many times as it stayed on screen; a held hero still lasts
+ * its full hold. Returns `freeze`, which holds the frame on screen while it is
+ * on, and `stop`, which stops filming and finalizes the file.
+ */
+async function startScreencast(page: Page, destination: string) {
+  const ffmpeg = spawn(
+    FFMPEG,
+    [
+      ...["-loglevel", "error", "-f", "image2pipe", "-c:v", "mjpeg"],
+      ...["-framerate", String(BROWSED_FPS), "-i", "pipe:0", "-an"],
+      ...["-c:v", "libvpx", "-b:v", "1M", "-crf", "10", "-qmin", "0", "-qmax", "50"],
+      ...["-deadline", "good", "-cpu-used", "2", "-pix_fmt", "yuv420p", "-y", destination],
+    ],
+    { stdio: ["pipe", "inherit", "inherit"] },
+  );
+  const finished = new Promise<void>((resolve, reject) => {
+    ffmpeg.on("error", reject);
+    ffmpeg.on("close", (code) =>
+      code === 0 ? resolve() : reject(new Error(`ffmpeg exited with code ${code}`)),
+    );
+  });
+
+  const session = await page.context().newCDPSession(page);
+  let firstTimestamp: number | undefined;
+  let lastFrame: Buffer | undefined;
+  let framesWritten = 0;
+  let frozen = false;
+
+  // Repeats the frame on screen until `timestamp`, in seconds since the epoch.
+  const holdUntil = (timestamp: number) => {
+    if (!lastFrame || firstTimestamp === undefined) return;
+    const frameNumber = Math.floor((timestamp - firstTimestamp) * BROWSED_FPS);
+    for (; framesWritten < frameNumber; framesWritten += 1) ffmpeg.stdin.write(lastFrame);
+  };
+
+  session.on("Page.screencastFrame", (frame) => {
+    void session
+      .send("Page.screencastFrameAck", { sessionId: frame.sessionId })
+      .catch(() => undefined);
+    const timestamp = frame.metadata.timestamp ?? Date.now() / 1000;
+    firstTimestamp ??= timestamp;
+    holdUntil(timestamp);
+    if (!frozen) lastFrame = Buffer.from(frame.data, "base64");
+  });
+
+  await session.send("Page.startScreencast", {
+    everyNthFrame: 1,
+    format: "jpeg",
+    maxHeight: RECORDING_VIEWPORT.height,
+    maxWidth: RECORDING_VIEWPORT.width,
+    quality: 92,
+  });
+
+  return {
+    freeze: (on: boolean) => {
+      frozen = on;
+    },
+    stop: async () => {
+      await session.send("Page.stopScreencast");
+      holdUntil(Date.now() / 1000);
+      if (lastFrame) ffmpeg.stdin.write(lastFrame);
+      ffmpeg.stdin.end();
+      await finished;
+      await session.detach();
+    },
+  };
+}
+
+/**
+ * Glides the cursor from `from` to `to` on a slight arc, eased at both ends,
+ * so the path reads as a hand on a trackpad rather than a ruler.
+ */
+async function glideCursor(page: Page, from: Point, to: Point, seconds: number) {
+  const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const length = Math.hypot(dx, dy) || 1;
+  const bow = Math.min(60, length * 0.12);
+  const startedAt = Date.now();
+
+  for (;;) {
+    const progress = Math.min(1, (Date.now() - startedAt) / (seconds * 1000));
+    const eased = ease(progress);
+    const lift = Math.sin(Math.PI * eased) * bow;
+    await page.mouse.move(
+      from.x + dx * eased - (dy / length) * lift,
+      from.y + dy * eased + (dx / length) * lift,
+    );
+    if (progress === 1) return to;
+    await page.waitForTimeout(16);
+  }
+}
+
+async function captureBrowsedRecording(browser: Browser, target: CaptureTarget, dirs: OutputDirs) {
+  const destination = path.join(dirs.videoDir, `${target.key}.webm`);
+  const { context, page } = await newCapturePage(browser, { viewport: RECORDING_VIEWPORT });
+  await page.addInitScript({ content: SKIP_VIEW_TRANSITIONS_SCRIPT });
+  await page.addInitScript({ content: CURSOR_SCRIPT });
+
+  let cursor: Point = { x: RECORDING_VIEWPORT.width * 0.62, y: RECORDING_VIEWPORT.height * 0.58 };
+  let film: Awaited<ReturnType<typeof startScreencast>> | undefined;
+
+  for (const step of target.walkthrough) {
+    const subject =
+      step.kind === "visit" ? step.path : step.kind === "follow" ? step.link : step.control;
+    console.log(`  ${target.key}: ${step.kind} ${subject}`);
+    if (step.kind === "visit") {
+      await page.goto(new URL(step.path, target.url).href, {
+        timeout: 30_000,
+        waitUntil: "load",
+      });
+      await page.waitForTimeout(2000);
+
+      // Filming starts on a settled page, so the clip opens on the hero rather
+      // than on a blank load, then holds there a beat before anything moves.
+      if (!film) {
+        await dismissConsent(page, target);
+        await page.mouse.move(cursor.x, cursor.y);
+        film = await startScreencast(page, destination);
+        await page.waitForTimeout(1500);
+      }
+    } else {
+      const element = page.locator(subject).filter({ visible: true }).first();
+      await element.waitFor({ state: "visible", timeout: 15_000 });
+
+      let box = await element.boundingBox();
+      const onScreen = (b: typeof box) =>
+        b !== null && b.y + b.height / 2 > 8 && b.y + b.height / 2 < RECORDING_VIEWPORT.height - 8;
+      if (!onScreen(box)) {
+        await scrollToElement(element, 1.4);
+        box = await element.boundingBox();
+      }
+      if (!box) throw new Error(`${target.key}: "${subject}" has no box to click`);
+
+      const point = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+      cursor = await glideCursor(page, cursor, point, 1.1);
+      await page.waitForTimeout(450);
+
+      const before = page.url();
+      if (step.kind === "follow") {
+        // Held on the click until the new page is at its top. A client-side
+        // router (Next.js) paints the new page at the old scroll position, then
+        // smooth-scrolls it up over about a second - and not always to 0 - which
+        // flashes the wrong sections. A held frame then a cut to the top reads
+        // like the storefront clips' hard cuts.
+        film?.freeze(true);
+        await page.mouse.click(point.x, point.y);
+        await page.waitForURL((url) => url.href !== before, { timeout: 15_000 });
+        await page.waitForLoadState("load");
+        await settleScroll(page);
+        await page.evaluate(() => window.scrollTo({ behavior: "instant", top: 0 }));
+        await page.waitForTimeout(150);
+        film?.freeze(false);
+        await page.waitForTimeout(1200);
+      } else {
+        await page.mouse.click(point.x, point.y);
+        // Long enough for an accordion's open animation to finish and be read.
+        await page.waitForTimeout(1400);
+      }
+    }
+
+    await scrollThrough(page, step.seconds, step.endBefore);
+  }
+
+  // A closing hold, so the loop does not cut away mid-motion.
+  await page.waitForTimeout(1500);
+  await film?.stop();
+  await context.close();
+  console.log(`Captured ${destination}`);
+}
+
+/**
  * Captures every target by default, or only the keys named on the command
  * line: `tsx scripts/capture-client-work.ts loverboy-studio`. Filtering exists
  * so adding one client cannot silently overwrite captures that were already
- * reviewed and approved.
+ * reviewed and approved. `--out=<dir>` writes everything there instead, for
+ * reviewing a take before it replaces anything.
  */
 function selectTargets(argv: readonly string[]): readonly CaptureTarget[] {
   const requested = argv.filter((value) => !value.startsWith("-"));
@@ -254,21 +629,22 @@ function selectTargets(argv: readonly string[]): readonly CaptureTarget[] {
 }
 
 async function main() {
-  const targets = selectTargets(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  const targets = selectTargets(argv);
+  const dirs = outputDirs(argv);
 
-  await mkdir(IMAGE_DIR, { recursive: true });
-  await mkdir(VIDEO_DIR, { recursive: true });
+  await mkdir(dirs.imageDir, { recursive: true });
+  await mkdir(dirs.videoDir, { recursive: true });
 
   const browser = await chromium.launch();
   try {
     for (const target of targets) {
-      await captureScreenshot(browser, target, "desktop");
-      await captureScreenshot(browser, target, "mobile");
-      await captureRecording(browser, target);
+      await captureScreenshot(browser, target, "desktop", dirs);
+      await captureScreenshot(browser, target, "mobile", dirs);
+      if (target.style === "browsed") await captureBrowsedRecording(browser, target, dirs);
+      else await captureScriptedRecording(browser, target, dirs);
 
-      const { size } = await import("node:fs/promises").then((fs) =>
-        fs.stat(path.join(VIDEO_DIR, `${target.key}.webm`)),
-      );
+      const { size } = await stat(path.join(dirs.videoDir, `${target.key}.webm`));
       if (size > MAX_RECORDING_BYTES) {
         console.warn(
           `Warning: ${target.key}.webm is ${(size / 1048576).toFixed(2)} MB, over the ${MAX_RECORDING_BYTES / 1048576} MB budget.`,
